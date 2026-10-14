@@ -1,0 +1,581 @@
+.infinitepanels-wrapper,
+.infinitepanels-viewport {
+    width: 100%;
+    max-width: 100%;
+}
+
+.infinitepanels-viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.infinitepanels-viewport::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.infinitepanels-panes {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    width: max-content;
+    max-width: none;
+    padding: 0 1rem 1rem 0;
+}
+
+.infinitepanels-pane {
+    flex: 1 1 auto;
+    min-width: 0;
+    box-sizing: border-box;
+    border-radius: var(--fokus-radius, 4px);
+    transition: opacity 140ms ease;
+}
+
+body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hover) > .infinitepanels-pane:not(:hover) {
+    opacity: 0.7;
+}
+
+.infinitepanels-spine {
+    display: none;
+}
+
+.infinitepanels-minimized-shelf {
+    position: static !important;
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    gap: 6px;
+    box-sizing: border-box;
+    width: auto;
+    min-width: 0;
+    min-height: 32px;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: transparent !important;
+    scrollbar-width: thin;
+}
+
+.infinitepanels-active #dokuwiki__header {
+    display: block !important;
+}
+
+.infinitepanels-minimized-shelf:empty {
+    display: none;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.55rem;
+    box-sizing: border-box;
+    max-width: min(22rem, 75vw);
+    min-height: 30px;
+    padding: 0.35rem 0.65rem;
+    overflow: hidden;
+    border: 1px solid var(--fokus-border, #dedede);
+    border-radius: 4px;
+    background: var(--fokus-surface-soft, #f1f1f1);
+    color: var(--fokus-text, #2f2f2f);
+    cursor: pointer;
+    font-family: 'FiraGO', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 400;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-state="open"] {
+    background: var(--fokus-surface, #fff);
+    border-color: #d5d5d5;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-state="minimized"] {
+    background: var(--fokus-surface-soft, #f1f1f1);
+    color: var(--fokus-muted, #767676);
+    opacity: 0.82;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"] {
+    background: var(--fokus-accent, #606060);
+    border-color: var(--fokus-accent, #606060);
+    color: var(--fokus-on-accent, #fff);
+    opacity: 1;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"] .infinitepanels-spine-pageid {
+    color: var(--fokus-on-accent, #fff);
+}
+
+.infinitepanels-minimized-shelf .infinitepanels-spine-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.infinitepanels-minimized-shelf .infinitepanels-spine-pageid {
+    max-width: 10rem;
+    overflow: hidden;
+    color: var(--fokus-muted, #767676);
+    font-family: 'JetBrains Mono Variable', monospace;
+    opacity: 0.8;
+    font-size: 0.7rem;
+    font-style: italic;
+    text-overflow: ellipsis;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine:not([data-current="true"]):hover,
+.infinitepanels-minimized-shelf > .infinitepanels-spine:not([data-current="true"]):focus-visible {
+    background: var(--fokus-accent-soft, #ededed);
+    border-color: var(--fokus-accent, #606060);
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"]:hover,
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"]:focus-visible {
+    background: var(--fokus-accent, #606060);
+}
+
+.infinitepanels-focus-toggle {
+    display: none !important;
+}
+
+body.infinitepanels-active .infinitepanels-focus-toggle {
+    display: inline-flex !important;
+}
+
+body.infinitepanels-active .infinitepanels-pane-minimize-header {
+    cursor: pointer;
+}
+
+body.infinitepanels-focused .infinitepanels-panes {
+    align-items: stretch;
+}
+
+body.infinitepanels-focused .infinitepanels-pane {
+    flex: 0 0 var(--infinitepanels-panel-width, 50rem);
+    width: var(--infinitepanels-panel-width, 50rem);
+}
+
+.infinitepanels-active .infinitepanels-pane .page.group {
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 24px;
+    border: 1px solid var(--fokus-border, #dedede);
+    border-radius: var(--fokus-radius, 4px);
+    background: var(--fokus-surface, #fff);
+}
+
+.infinitepanels-active .infinitepanels-pane-current .page.group {
+    border-color: #cccccc;
+}
+
+body.infinitepanels-focused .infinitepanels-panes > .infinitepanels-pane:not(.infinitepanels-focused-active),
+body.infinitepanels-active .infinitepanels-pane.infinitepanels-pane-minimized {
+    display: none !important;
+}
+
+body.infinitepanels-active #dokuwiki__site {
+    box-sizing: border-box;
+    width: 100vw;
+    max-width: none;
+}
+
+.infinitepanels-active #dokuwiki__content,
+.infinitepanels-active #dokuwiki__content > .pad.group,
+.infinitepanels-active .infinitepanels-wrapper,
+.infinitepanels-active .infinitepanels-viewport {
+    width: 100%;
+    max-width: none !important;
+}
+
+.infinitepanels-active .infinitepanels-panes {
+    align-items: stretch;
+}
+
+.infinitepanels-active .infinitepanels-pane {
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: var(--infinitepanels-panel-width, 50rem);
+}
+
+.infinitepanels-active .infinitepanels-pane > .pad.group {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+}
+
+.infinitepanels-active .infinitepanels-pane .page.group {
+    max-width: none !important;
+}
+
+.infinitepanels-active .infinitepanels-pane .topBanner {
+    top: 0;
+}
+
+body.infinitepanels-ready #dokuwiki__pagetools {
+    display: none;
+}
+
+.dokuwiki a.wikilink1.infinitepanels-open-page-link,
+.dokuwiki a.wikilink2.infinitepanels-open-page-link {
+    background-color: var(--fokus-accent-soft, #ededed);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+html[data-theme="dark"] .dokuwiki a.wikilink1.infinitepanels-open-page-link,
+html[data-theme="dark"] .dokuwiki a.wikilink2.infinitepanels-open-page-link {
+    background-color: #606060;
+}
+
+
+.infinitepanels-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+}
+
+body.infinitepanels-active .infinitepanels-pane:not(.infinitepanels-popup-pane) .infinitepanels-actions {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease;
+}
+
+body.infinitepanels-active .infinitepanels-pane:not(.infinitepanels-popup-pane)
+    .infinitepanels-pane-minimize-header:hover .infinitepanels-actions,
+body.infinitepanels-active .infinitepanels-pane:not(.infinitepanels-popup-pane)
+    .infinitepanels-pane-minimize-header:focus-within .infinitepanels-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (hover: none), (pointer: coarse) {
+    body.infinitepanels-active .infinitepanels-pane:not(.infinitepanels-popup-pane) .infinitepanels-actions {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.infinitepanels-active .infinitepanels-actions {
+        transition: none;
+    }
+}
+
+.infinitepanels-header-right {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.infinitepanels-header-title {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    text-align: left;
+}
+
+.infinitepanels-pane-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 110;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--fokus-border, #dedede);
+    border-radius: var(--fokus-radius, 4px) var(--fokus-radius, 4px) 0 0;
+    background: var(--fokus-surface-soft, #f1f1f1);
+    color: var(--fokus-text, #2f2f2f);
+}
+
+.infinitepanels-pane-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.infinitepanels-actions button,
+.infinitepanels-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent !important;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+    line-height: 1.2;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.infinitepanels-actions a {
+    text-decoration: none;
+}
+
+.infinitepanels-actions svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+}
+
+.infinitepanels-actions svg.phosphor-duotone {
+    fill: currentColor;
+    stroke: none;
+}
+
+.infinitepanels-actions button:hover,
+.infinitepanels-actions a:hover {
+    background: var(--fokus-accent-soft, #ededed) !important;
+    background-color: var(--fokus-accent-soft, #ededed) !important;
+    color: var(--fokus-accent, #606060) !important;
+}
+
+body.infinitepanels-active .infinitepanels-actions button:hover,
+body.infinitepanels-active .infinitepanels-actions a:hover {
+    background: var(--fokus-accent-soft, #ededed) !important;
+    background-color: var(--fokus-accent-soft, #ededed) !important;
+    color: var(--fokus-accent, #606060) !important;
+}
+
+.infinitepanels-error {
+    padding: 1rem;
+}
+
+:root {
+    --simpl-imagepop-z-index: 13000;
+}
+
+.infinitepanels-pane-placeholder {
+    flex: 0 0 auto;
+    width: var(--infinitepanels-panel-width, 50rem);
+    min-width: 0;
+    visibility: hidden;
+}
+
+.infinitepanels-zoom-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 2rem;
+    background: rgb(0 0 0 / 55%);
+}
+
+body.infinitepanels-zoom-active > div.plugin-preview {
+    z-index: 10001;
+}
+
+body.infinitepanels-zoom-active > div.pp_overlay {
+    z-index: 10001 !important;
+}
+
+body.infinitepanels-zoom-active > div.pp_pic_holder {
+    z-index: 10002 !important;
+}
+
+.infinitepanels-zoom-backdrop .infinitepanels-pane {
+    flex: 0 1 var(--infinitepanels-zoom-width, 100rem);
+    width: var(--infinitepanels-zoom-width, 100rem);
+    max-width: 100%;
+    height: auto;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.infinitepanels-zoom-backdrop .infinitepanels-popup-pane {
+    flex-basis: var(--infinitepanels-panel-width, 50rem);
+    width: var(--infinitepanels-panel-width, 50rem);
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.infinitepanels-popup-pane > .pad.group,
+.infinitepanels-popup-pane .page.group {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.infinitepanels-popup-pane .page-breadcrumbs {
+    display: none;
+}
+
+.infinitepanels-popup-pane .topBanner {
+    display: none;
+}
+
+.infinitepanels-revisions-popup-pane .infinitepanels-pane-toolbar {
+    position: static;
+    justify-content: flex-end;
+}
+
+.infinitepanels-revisions-popup-pane .infinitepanels-pane-title {
+    display: none;
+}
+
+.infinitepanels-revisions-popup-pane form.changes,
+.infinitepanels-revisions-popup-pane form.changes ul,
+.infinitepanels-revisions-popup-pane form.changes li {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.infinitepanels-action-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 2rem;
+    background: rgb(0 0 0 / 55%);
+}
+
+.infinitepanels-action-popup-window {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 96vw;
+    max-width: 1600px;
+    height: 92vh;
+    max-height: 92vh;
+    overflow: hidden;
+    border: 1px solid #000;
+    background: #fff;
+}
+
+.infinitepanels-action-popup-toolbar {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    border-bottom: 1px solid #000;
+    color: #111;
+    background: #fff;
+    font-weight: 600;
+}
+
+.infinitepanels-action-popup-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.infinitepanels-action-popup-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.infinitepanels-action-popup-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #111;
+    cursor: pointer;
+}
+
+.infinitepanels-action-popup-action:hover,
+.infinitepanels-action-popup-action:focus-visible {
+    color: #fff;
+    background: #000;
+    outline: none;
+}
+
+.infinitepanels-action-popup-action svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: currentColor;
+}
+
+.infinitepanels-action-popup-action[target="_blank"] {
+    text-decoration: none;
+}
+
+.infinitepanels-action-popup-frame {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    border: 0;
+    background: #fff;
+}
+
+body.infinitepanels-active .infinitepanels-zoom-backdrop .infinitepanels-pane {
+    flex: 0 1 var(--infinitepanels-zoom-width, 100rem);
+    width: var(--infinitepanels-zoom-width, 100rem);
+    max-width: 100%;
+    height: auto;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+body.infinitepanels-active .infinitepanels-zoom-backdrop .infinitepanels-popup-pane {
+    flex: 0 1 var(--infinitepanels-panel-width, 50rem);
+    width: var(--infinitepanels-panel-width, 50rem);
+}
+
+@media (min-width: 1200px) {
+    html:has(body.infinitepanels-active) {
+        overflow: clip;
+    }
+
+    body.infinitepanels-active {
+        height: 100vh;
+        overflow: clip;
+    }
+
+    body.infinitepanels-active .infinitepanels-viewport {
+        height: var(--infinitepanels-viewport-height);
+    }
+
+    body.infinitepanels-active .infinitepanels-panes {
+        height: 100%;
+    }
+
+    body.infinitepanels-active .infinitepanels-pane {
+        height: 100%;
+        max-height: 100%;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    body.infinitepanels-active .infinitepanels-pane::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+}

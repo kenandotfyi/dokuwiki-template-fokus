@@ -1,0 +1,50 @@
+/**
+ * This file provides styles for the general layout structure.
+ *
+ * @author Anika Henke <anika@selfthinker.org>
+ */
+body {
+    margin: 0 auto;
+}
+
+#dokuwiki__site {
+    margin: 0 auto;
+    max-width: @ini_site_width;
+}
+
+#dokuwiki__site > .site {
+    padding: 0 .5em;
+}
+
+#dokuwiki__header {
+    width: 100%;
+
+    .headings {
+        float: left;
+    }
+
+    .tools {
+        float: right;
+        text-align: right;
+    }
+}
+
+[dir=rtl] #dokuwiki__header {
+    .headings {
+        float: right;
+        text-align: right;
+    }
+
+    .tools {
+        float: left;
+        text-align: left;
+    }
+}
+
+#dokuwiki__site .wrapper {
+    position: relative;
+}
+
+#dokuwiki__footer {
+    clear: both;
+}

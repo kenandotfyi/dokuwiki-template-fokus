@@ -1,0 +1,7 @@
+base     fokus
+author   Kenan Akinci
+email    hey@kenan.fyi
+date     2026-09-30
+name     Fokus
+desc     Exploration-focused DokuWiki template with multi-pane navigation.
+url      https://github.com/kenandotfyi/dokuwiki-template-simpl

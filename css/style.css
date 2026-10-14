@@ -1,0 +1,767 @@
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/cyrillic-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/cyrillic-wght-italic.woff2) format('woff2-variations');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/cyrillic-ext-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/cyrillic-ext-wght-italic.woff2) format('woff2-variations');
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/greek-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/greek-wght-italic.woff2) format('woff2-variations');
+  unicode-range: U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/latin-wght-italic.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/latin-ext-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/latin-ext-wght-italic.woff2) format('woff2-variations');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/vietnamese-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@5.3.0/vietnamese-wght-italic.woff2) format('woff2-variations');
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+
+@font-face {
+  font-family: 'FiraGO';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/firago@5.3.0/latin-400-normal.woff2) format(woff2);
+}
+
+@font-face {
+  font-family: 'FiraGO';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/firago@5.3.0/latin-400-italic.woff2) format(woff2);
+}
+
+@font-face {
+  font-family: 'FiraGO';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/firago@5.3.0/latin-700-normal.woff2) format(woff2);
+}
+
+@font-face {
+  font-family: 'FiraGO';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 700;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/firago@5.3.0/latin-700-italic.woff2) format(woff2);
+}
+
+
+
+:root {
+    --fokus-base: #4a4a4a;
+    --fokus-vault-accent: #272727;
+    --fokus-canvas: #f4f4f4;
+    --fokus-surface: #fff;
+    --fokus-surface-soft: #ebebeb;
+    --fokus-border: #d2d2d2;
+    --fokus-text: #222;
+    --fokus-muted: #6b6b6b;
+    --fokus-external: #B45309;
+    --fokus-zotero-hover: #FCE4E6;
+    --fokus-zotero-hover-text: #A51E2B;
+    --fokus-accent: var(--fokus-base);
+    --fokus-accent-soft: #d8d8d8;
+    --fokus-on-accent: #fff;
+    --fokus-banner: color-mix(in srgb, var(--fokus-base) 16%, white);
+    --fokus-banner-border: color-mix(in srgb, var(--fokus-base) 18%, var(--fokus-border));
+    --fokus-radius: 4px;
+}
+
+*, *::before, *::after {
+    box-shadow: none !important;
+}
+
+html, body {
+    background: var(--fokus-canvas);
+    color: var(--fokus-text) !important;
+    font-family: 'FiraGO', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    hyphens: auto;
+    text-rendering: optimizeLegibility;
+}
+
+
+.topBanner {
+    display: flex;
+    font-family: 'FiraGO', sans-serif;
+    align-items: center;
+    justify-content: space-between;
+    line-height: 1.4;
+    background: var(--fokus-banner);
+    border: 1px solid var(--fokus-banner-border);
+    border-radius: var(--fokus-radius);
+    color: var(--fokus-text);
+    padding: 2px 10px;
+    position: sticky;
+    top: 44px;
+    z-index: 110;
+    font-size: 0.9rem;
+}
+
+.fokus-page-heading {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+}
+
+.fokus-page-title {
+    flex: 0 0 auto;
+    color: var(--fokus-text);
+    font-size: 1.08rem;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.fokus-page-id {
+    display: none;
+    color: var(--fokus-muted);
+    font-family: 'JetBrains Mono Variable', monospace;
+    font-size: 0.68rem;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.fokus-page-heading:hover .fokus-page-id {
+    display: inline;
+}
+
+.pagedates {
+    font-family: 'JetBrains Mono Variable', monospace;
+    font-size: 12px;
+    padding: 8px 0 0 6px;
+    border-top: 1px solid var(--fokus-border);
+    text-align: right;
+    color: var(--fokus-muted);
+}
+
+#dokuwiki__site {
+    margin: 0;
+    width: var(--content-column-width);
+}
+
+:root {
+    --content-column-width: 50rem;
+    --fokus-page-gutter: 20px;
+}
+
+/* Admin and full media-manager views need more room than regular wiki pages. */
+#dokuwiki__site:has(> #dokuwiki__top.mode_admin),
+#dokuwiki__site:has(> #dokuwiki__top.mode_media) {
+    width: 96vw;
+    max-width: 150ch;
+}
+
+#dokuwiki__site {
+    padding-left: var(--fokus-page-gutter, 20px);
+    padding-right: var(--fokus-page-gutter, 20px);
+}
+
+#dokuwiki__site .site{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.dokuwiki img.media, img.medialeft, img.mediacenter, img.mediaright {
+    border: 1px solid var(--fokus-border);
+    border-radius: 4px;
+}
+
+
+
+.plugin_include_content {
+ background: var(--fokus-surface-soft);
+ border: 1px solid var(--fokus-border);
+ border-radius: 4px;
+ padding: 12px 14px;
+}
+
+.plugin_include_content::before {
+ content: "EMBEDDED CONTENT";
+ font-style: italic;
+ color: var(--fokus-muted);
+ display: flex;
+ justify-content: right;
+ font-size: 11px;
+ letter-spacing: .04em;
+}
+
+
+.dokuwiki div.page {
+  background: var(--fokus-surface);
+  border: 1px solid var(--fokus-border);
+  border-radius: var(--fokus-radius);
+  margin-bottom: 10px;
+  margin-top: -10px;
+  padding: 24px;
+}
+
+
+
+#dokuwiki__usertools {
+    position: relative;
+    top: 0em;
+    right: 0px;
+    text-align: right;
+    width: 100%;
+}
+
+
+.dtree {
+    font-family: 'FiraGO', sans-serif;
+    font-size: 12px;
+    color: #333;
+    white-space: nowrap !important;
+    word-wrap: normal !important;
+    line-height: 1.3;
+    opacity: 0.7;
+}
+
+.dtree:hover {
+    opacity: 1;
+}
+
+.dokuwiki a.wikilink1 {
+    color: var(--fokus-accent);
+    background-color: inherit;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+
+a.interwiki {
+    color: var(--fokus-accent);
+}
+
+a.interwiki.iw_zotero,
+a.interwiki.iw_zotero:hover {
+    color: #DB2C3A !important;
+}
+
+.dokuwiki a.interwiki.iw_zotero:hover {
+    background-color: var(--fokus-zotero-hover) !important;
+    color: var(--fokus-zotero-hover-text) !important;
+}
+
+a:hover{
+    background-color: var(--fokus-accent-soft) !important;
+    border-radius: 4px;
+    color: var(--fokus-accent) !important;
+}
+
+a.urlextern {
+    color: var(--fokus-external);
+}
+
+a.urlextern:hover {
+    color: var(--fokus-external) !important;
+}
+
+a.urlextern::after {
+    content: " ↗";
+}
+
+.dokuwiki div.footnotes {
+    border-top: 1px solid var(--fokus-border);
+    padding: .5em 0 0 0;
+    margin: 1em 0 0 0;
+    clear: both;
+}
+
+.dokuwiki div.footnotes::before {
+    content: "Footnotes";
+    font-size: 14px;
+    font-weight: bold;
+}
+
+dokuwiki pre,
+.dokuwiki code,
+.dokuwiki kbd,
+.dokuwiki samp,
+.dokuwiki .pageId,
+.pagedates {
+    font-family: 'JetBrains Mono Variable', monospace;
+}
+
+hr {
+    border-top: 1px solid var(--fokus-border);
+}
+
+.admonition {
+    border: 1px solid var(--fokus-border) !important;
+    border-radius: var(--fokus-radius);
+    background: var(--fokus-surface);
+
+}
+
+.admonition > .admonition-title {
+    padding: 0px;
+    padding-left: 32px;
+}
+/* section before header, wrapper group */
+.dokuwiki .wrapper {
+    margin-bottom: 0;
+}
+
+
+
+/* Header styling */
+
+#dokuwiki__header {
+    font-family: 'FiraGO', sans-serif;
+    padding: 0 !important;
+    position: sticky;
+    top: 0px;
+    z-index: 1111;
+    background: var(--fokus-canvas, #f4f4f4) !important;
+    backdrop-filter: none !important;
+}
+
+#dokuwiki__header > .pad.group {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 !important;
+}
+
+.fokus-workspace-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.fokus-workspace-bar > .fokus-toolbar {
+    flex: 0 0 auto;
+}
+
+#dokuwiki__header .headings{
+    width: unset;
+}
+
+#dokuwiki__header .logo {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    & a {
+        color: var(--fokus-accent) !important;
+        background: var(--fokus-accent-soft) !important;
+        border-radius: 4px;
+        padding: 5px 8px;
+    }
+
+    & span {
+        padding: 0;
+    }
+}
+
+#dokuwiki__header .logo img {
+    display: none;
+}
+
+.fokus-toolbar {
+    display: flex;
+    align-items: center;
+}
+
+.fokus-vault-menu {
+    position: relative;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0;
+    font-size: 0.84rem;
+    line-height: 1;
+}
+
+.fokus-vault-menu > summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 62px;
+    height: 30px;
+    box-sizing: border-box;
+    padding: 0 10px !important;
+    margin: 0 !important;
+    border: 1px solid var(--fokus-vault-accent, #4b4b4b);
+    border-radius: 4px;
+    background: var(--fokus-vault-accent, #4b4b4b);
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    list-style: none;
+}
+
+.fokus-vault-menu > summary::-webkit-details-marker { display: none; }
+.fokus-vault-menu > summary:hover,
+.fokus-vault-menu[open] > summary {
+    background: var(--fokus-vault-accent, #4b4b4b);
+    border-color: var(--fokus-vault-accent, #4b4b4b);
+    filter: brightness(1.12);
+}
+
+.fokus-vault-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 2000;
+    display: block;
+    min-width: 12rem;
+    padding: 5px;
+    border: 1px solid var(--fokus-border);
+    border-radius: 4px;
+    background: var(--fokus-surface) !important;
+    color: var(--fokus-text);
+}
+
+.fokus-vault-dropdown ul {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fokus-vault-dropdown li {
+    display: flex;
+    align-items: stretch;
+    margin: 0;
+}
+.fokus-vault-dropdown .fokus-vault-home + li { border-top: 1px solid var(--fokus-border); }
+.fokus-vault-dropdown a {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0.5rem 0.6rem;
+    border-radius: 4px;
+    color: var(--fokus-text) !important;
+    font-size: 0.84rem;
+    text-decoration: none;
+}
+.fokus-vault-dropdown a:hover { background: var(--fokus-accent-soft) !important; }
+.fokus-vault-dropdown .fokus-vault-home a { font-weight: 600; }
+
+.fokus-toolbar > ul {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fokus-toolbar > ul > li {
+    display: flex; /* ensures the <a> inside also centers if it has its own height */
+    align-items: center;
+    margin: 0;
+    font-size: 13px;
+}
+
+.fokus-toolbar > ul > li > a {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    background: var(--fokus-surface-soft) !important;
+    color: var(--fokus-text);
+    border-radius: 4px;
+    padding: 5px 8px;
+    transition: background-color 140ms ease, color 140ms ease;
+}
+
+.fokus-toolbar > ul > li > a:hover {
+    background: var(--fokus-accent-soft) !important;
+    color: var(--fokus-accent) !important;
+}
+
+.fokus-toolbar a svg {
+    display: none;
+}
+
+.dokuwiki div.page {
+    border: 1px solid var(--fokus-border, #dedede);
+    border-radius: var(--fokus-radius, 4px);
+    background: var(--fokus-surface, #fff);
+}
+
+html[data-theme="dark"] #dokuwiki__header {
+    background: var(--fokus-canvas, #1a1a1a) !important;
+}
+
+html[data-theme="dark"] .fokus-vault-dropdown,
+html[data-theme="dark"] .fokus-vault-dropdown a {
+    border-color: var(--fokus-border, #4f4f4f);
+    background: var(--fokus-surface, #262626) !important;
+    color: var(--fokus-text, #dfdfdf) !important;
+}
+
+html[data-theme="dark"] .fokus-vault-menu > summary {
+    border-color: var(--fokus-vault-accent, #4b4b4b);
+    background: var(--fokus-vault-accent, #4b4b4b) !important;
+    color: #fff !important;
+}
+
+html[data-theme="dark"] .fokus-vault-dropdown a:hover {
+    background: var(--fokus-accent-soft, #383838) !important;
+    color: var(--fokus-accent, #c3c3c3) !important;
+}
+
+html[data-theme="dark"] .fokus-vault-menu > summary:hover,
+html[data-theme="dark"] .fokus-vault-menu[open] > summary {
+    filter: brightness(1.12);
+}
+
+.docInfo {
+    margin-bottom: 10px;
+
+    & bdi {
+        display: none;
+    }
+
+}
+
+/* backlinks section */
+
+.page-backlinks,
+.page-nspages {
+    background-color: var(--fokus-surface);
+    border: 1px solid var(--fokus-border);
+    border-radius: var(--fokus-radius);
+    padding: 12px;
+    margin-bottom: 10px;
+    margin-top: -16px;
+
+    ul {
+        margin: 0;
+    }
+}
+
+/* DokuWiki's renderer adds empty paragraph wrappers around the nspages block. */
+.page-nspages > p {
+    display: none;
+}
+
+.page-nspages .plugin_nspages > ul {
+    padding-left: 0;
+}
+
+.page-backlinks ul.idx li,
+.page-backlinks ul.idx li.open,
+.page-backlinks ul.idx li.closed {
+    list-style-image: none;
+}
+
+.page-backlinks-header,
+.page-nspages-header {
+    border: 1px solid var(--fokus-banner-border);
+    border-radius: var(--fokus-radius);
+    background: var(--fokus-banner);
+    color: var(--fokus-text);
+    padding: 2px 10px 8px 10px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+/* page breadcrumbs */
+
+.dokuwiki div.breadcrumbs {
+    font-family: 'FiraGO', sans-serif;
+    border: 1px solid var(--fokus-border) !important;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    background: var(--fokus-surface-soft);
+    color: var(--fokus-muted);
+    font-style: normal;
+    font-size: 13px;
+
+}
+
+.dokuwiki div.breadcrumbs .trace,
+.dokuwiki div.breadcrumbs .youarehere {
+    border: none !important;
+}
+
+/* previews */
+
+
+body > div.plugin-preview {
+    border: 1px solid var(--fokus-border);
+    border-radius: var(--fokus-radius);
+    background: var(--fokus-surface);
+    font-size: 85%;
+    padding: 0px;
+
+    & h2 {
+        margin: 0;
+        background: var(--fokus-surface-soft);
+        color: var(--fokus-text);
+        padding: 8px 10px;
+        font-size: 1rem;
+    }
+
+    & p {
+        padding: 8px;
+    }
+}
+
+/* page tool section */
+#dokuwiki__pagetools div.tools ul li a svg {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    display: inline-block;
+    vertical-align: middle;
+    fill: var(--fokus-muted);
+}
+
+
+#dokuwiki__pagetools {
+    position: absolute;
+    top: 4em;
+    right: -38px;
+    width: 44px;
+}
+
+#dokuwiki__pagetools:hover div.tools ul, #dokuwiki__pagetools:focus-within div.tools ul {
+    background-color: var(--fokus-surface);
+    border-color: var(--fokus-border);
+    border-radius: var(--fokus-radius);
+}
+
+/* toc */
+#dw__toc {
+    margin-top: -16px;
+    padding: 4px;
+    background: var(--fokus-surface) !important;
+
+}
+
+/* math styling with katex */
+
+.katex {
+    text-rendering: auto;
+    font-size: 1.3rem !important;
+    line-height: 1.2;
+    text-indent: 0;
+}
+
+/* tables for pagelist etc to have 100% widht */
+.dokuwiki div.table table {
+	width: 100%;
+    border: 1px solid var(--fokus-border);
+    border-radius: 4px;
+    border-spacing: 0;
+    background: var(--fokus-surface);
+    overflow: hidden;
+}
+
+.dokuwiki div.table th {
+    background: var(--fokus-surface-soft);
+    color: var(--fokus-text);
+}
+
+.dokuwiki div.table th,
+.dokuwiki div.table td {
+    border-color: var(--fokus-border);
+}
