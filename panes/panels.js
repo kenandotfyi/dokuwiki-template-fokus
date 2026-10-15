@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let editPane = null;
     let editTrigger = null;
     let editDirty = false;
+    let editComplete = null;
     const paneElements = [];
     let navigationVersion = 0;
     let focusedPaneIndex = 0;
@@ -290,6 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         updateMinimizedShelf();
         updateFocusControls();
+        const activePageId = paneElements[focusedPaneIndex]?.dataset.pageId;
+        if (activePageId) document.dispatchEvent(new CustomEvent('fokus:pagechange', { detail: { pageId: activePageId } }));
     }
 
     function updateMinimizedShelf() {
@@ -459,11 +462,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const pane = editPane;
         const trigger = editTrigger;
+        const onComplete = editComplete;
         editBackdrop.remove();
         editBackdrop = null;
         editPane = null;
         editTrigger = null;
         editDirty = false;
+        editComplete = null;
+        if (refreshPane && onComplete) {
+            Promise.resolve().then(onComplete).catch(error => console.error('Fokus: could not open created page', error));
+        }
         if (refreshPane && pane?.isConnected) {
             if (pane.classList.contains('infinitepanels-pane')) {
                 const pageId = pane.dataset.pageId;
@@ -520,8 +528,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return { backdrop, frame, closeButton };
     }
 
-    function openNativeEdit(pane, pageId, trigger) {
-        if (!closeNativeEdit(false)) return;
+    function openNativeEdit(pane, pageId, trigger, onComplete = null) {
+        if (!closeNativeEdit(false)) return false;
         editDirty = false;
 
         const nativeEditUrl = new URL(DOKU_BASE + 'doku.php', window.location.origin);
@@ -542,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editUrl.searchParams.set('fokus_moai_popup', '1');
         let popup;
         popup = createDokuWikiActionPopup({
-            title: `Edit ${pageId}`,
+            title: `${onComplete ? 'Create' : 'Edit'} ${pageId}`,
             frameTitle: `DokuWiki editor for ${pageId}`,
             extraActions: [nativeEditLink],
             onClose: () => closeNativeEdit(false),
@@ -591,8 +599,10 @@ document.addEventListener('DOMContentLoaded', () => {
         editBackdrop = popup.backdrop;
         editPane = pane;
         editTrigger = trigger;
+        editComplete = onComplete;
         popup.frame.src = editUrl.href;
         popup.closeButton.focus({ preventScroll: true });
+        return true;
     }
 
     function addPaneControls(pane, pageId, parsedDocument, includePaneActions = true, includeZoomAction = includePaneActions) {
@@ -982,10 +992,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function openTagCloudPopup(anchor) {
-        openPagePopup(anchor.href, pageIdForLink(anchor), anchor);
-    }
-
     function closeAfter(index, persistUrl = true) {
         if (zoomPane && paneElements.indexOf(zoomPane) > index) closeZoomPane(false);
         while (paneElements.length > index + 1) {
@@ -1196,9 +1202,13 @@ document.addEventListener('DOMContentLoaded', () => {
             && !anchor.target) {
             try {
                 if (new URL(anchor.href, window.location.href).origin === window.location.origin) {
-                    event.preventDefault();
-                    openTagCloudPopup(anchor);
-                    return;
+                    const target = new URL(anchor.href, window.location.href);
+                    const tag = target.searchParams.get('tag') || anchor.title || '';
+                    if (tag && typeof window.fokusSidebarOpenTag === 'function') {
+                        event.preventDefault();
+                        window.fokusSidebarOpenTag(tag);
+                        return;
+                    }
                 }
             } catch (_error) {
                 // Let malformed or non-web tag links follow their normal behavior.
@@ -1275,6 +1285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.infinitepanelsOpenInRightPanel = openInInfinitePanels;
     window.infinitepanelsOpenPage = openInInfinitePanels;
+    window.fokusCreatePage = (pageId, trigger, onComplete) => openNativeEdit(null, pageId, trigger, onComplete);
     window.addEventListener('resize', updatePaneHeight, { passive: true });
     window.addEventListener('popstate', restorePanesFromUrl);
     createPanelLayout();

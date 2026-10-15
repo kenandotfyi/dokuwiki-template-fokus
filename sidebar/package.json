@@ -1,0 +1,14 @@
+{
+  "name": "fokus-sidebar",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild sidebar.js --bundle --minify --format=esm --target=es2022 --outfile=sidebar.bundle.js --legal-comments=linked"
+  },
+  "dependencies": {
+    "@pierre/trees": "1.0.0-beta.6"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

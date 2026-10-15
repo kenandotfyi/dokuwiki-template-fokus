@@ -9,6 +9,14 @@
  */
 
 if (!defined('DOKU_INC')) die(); /* must be run from within DokuWiki */
+require_once __DIR__ . '/dependencies.php';
+
+$sidebarEnabled = (bool) tpl_getConf('sidebar_enabled', 1)
+    && $INPUT->get->str('fokus_moai_popup') !== '1';
+if ($sidebarEnabled && $INPUT->get->str('fokus_nav') !== '') {
+    require __DIR__ . '/sidebar/data.php';
+}
+if ($INPUT->get->str('fokus_moai_popup') !== '1') fokus_dependency_notice();
 
 $panesEnabled = ($ACT === 'show') && (bool) tpl_getConf('panes_enabled', 1);
 $darkModeEnabled = (bool) tpl_getConf('dark_mode', 1);
@@ -36,6 +44,9 @@ $paneAdapters = ['preview', 'annotations', 'katex'];
         #dokuwiki__site{padding-left:var(--fokus-page-gutter);padding-right:var(--fokus-page-gutter);}
     </style>
     <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>panes/panels.css" />
+    <?php if ($sidebarEnabled) : ?>
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>sidebar/sidebar.css" />
+    <?php endif; ?>
     <?php if ($panesEnabled) : ?>
     <script>window.InfinitePanelsConfig = <?php echo json_encode([
         'pageId' => $ID,
@@ -46,14 +57,15 @@ $paneAdapters = ['preview', 'annotations', 'katex'];
     <script src="<?php echo tpl_basedir(); ?>panes/adapters/<?php echo hsc($adapter); ?>.js"></script>
         <?php endif; ?>
     <?php endforeach; ?>
-    <script src="<?php echo tpl_basedir(); ?>panes/panels.js"></script>
+    <script src="<?php echo tpl_basedir(); ?>panes/panels.js?v=<?php echo filemtime(__DIR__ . '/panes/panels.js'); ?>"></script>
     <?php endif; ?>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <?php echo tpl_favicon(['favicon', 'mobile']) ?>
     <?php tpl_includeFile('meta.html') ?>
 </head>
 
-<body>
+<body<?php if ($sidebarEnabled) echo ' class="fokus-has-sidebar"'; ?>>
+    <?php if ($sidebarEnabled) include __DIR__ . '/sidebar/sidebar.php'; ?>
     <div id="dokuwiki__site"><div id="dokuwiki__top" class="site <?php echo tpl_classes(); ?>">
 
         <?php include(__DIR__ . '/tpl_header.php') ?>

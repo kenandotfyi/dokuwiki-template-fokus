@@ -1,0 +1,92 @@
+<?php
+if (!defined('DOKU_INC')) die();
+
+function fokus_sidebar_icon($name) {
+    // Official Phosphor duotone assets (MIT; see ../PHOSPHOR-LICENSE.txt).
+    $duotone = ['home' => 'asterisk', 'files' => 'folder', 'tags' => 'tag', 'new' => 'file-plus', 'pin' => 'push-pin', 'unpin' => 'push-pin-slash', 'file' => 'file-text', 'refresh' => 'arrows-clockwise', 'actions' => 'dots-three', 'filter' => 'binoculars', 'sidebar' => 'sidebar', 'rename' => 'text-strikethrough', 'delete' => 'trash', 'folder' => 'folder', 'folder-open' => 'folder-open'];
+    return str_replace('<svg ', '<svg aria-hidden="true" focusable="false" ', file_get_contents(__DIR__ . '/icons/' . $duotone[$name] . '-duotone.svg'));
+}
+$sidebarConfig = [
+    'endpoint' => wl($ID, ['do' => 'show'], true, '&'),
+    'pageId' => $ID,
+    'startPage' => $conf['start'],
+    'homeUrl' => wl($conf['start'], '', true, '&'),
+    'securityToken' => getSecurityToken(),
+    'moveAvailable' => fokus_dependency_available('move'),
+    'storageKey' => 'fokus-sidebar:' . DOKU_BASE . ':' . ($_SERVER['REMOTE_USER'] ?? 'anonymous'),
+];
+?>
+<aside id="fokus-sidebar" aria-label="Wiki navigation">
+    <div class="fokus-sidebar-top">
+        <div class="fokus-sidebar-identity">
+            <span class="fokus-sidebar-name" title="<?php echo hsc(strip_tags($conf['title'])); ?>"><?php echo hsc(strip_tags($conf['title'])); ?></span>
+            <?php if ($conf['useacl'] && !empty($_SERVER['REMOTE_USER'])) : ?>
+            <details class="fokus-vault-menu fokus-sidebar-actions">
+                <summary aria-label="Wiki actions" title="Wiki actions"><?php echo fokus_sidebar_icon('actions'); ?></summary>
+                <div class="fokus-vault-dropdown"><?php include __DIR__ . '/vault-actions.php'; ?></div>
+            </details>
+            <?php endif; ?>
+        </div>
+        <div class="fokus-sidebar-navigation">
+            <div class="fokus-sidebar-navigation-left">
+            <a class="fokus-sidebar-home" href="<?php echo hsc(wl('start', '', true, '&')); ?>" aria-label="Home" title="Home"><?php echo fokus_sidebar_icon('home'); ?></a>
+            <div class="fokus-sidebar-tabs" role="tablist" aria-label="Navigation views">
+            <button type="button" id="fokus-files-tab" role="tab" aria-label="Files" title="Files" aria-selected="true" aria-controls="fokus-files-panel" data-view="files"><?php echo fokus_sidebar_icon('files'); ?></button>
+            <button type="button" id="fokus-tags-tab" role="tab" aria-label="Tags" title="Tags" aria-selected="false" aria-controls="fokus-tags-panel" data-view="tags" tabindex="-1"><?php echo fokus_sidebar_icon('tags'); ?></button>
+            </div>
+            </div>
+            <label class="fokus-sidebar-filter" id="fokus-sidebar-filter-area" aria-hidden="true" inert>
+                <input type="search" id="fokus-sidebar-filter" placeholder="Filter…" aria-label="Filter files" autocomplete="off" spellcheck="false" disabled />
+            </label>
+            <button type="button" class="fokus-sidebar-filter-toggle" aria-label="Toggle file filter" title="Filter files" aria-controls="fokus-sidebar-filter-area" aria-expanded="false"><?php echo fokus_sidebar_icon('filter'); ?></button>
+        </div>
+    </div>
+    <section id="fokus-files-panel" class="fokus-sidebar-panel" role="tabpanel" aria-labelledby="fokus-files-tab">
+        <section class="fokus-pinned-section" aria-labelledby="fokus-pinned-heading">
+            <div class="fokus-sidebar-heading"><span id="fokus-pinned-heading">Pinned</span><button type="button" class="fokus-sidebar-icon-button" id="fokus-pin-current" aria-label="Pin current page" title="Pin current page" aria-pressed="false" disabled><?php echo fokus_sidebar_icon('pin'); ?></button></div>
+            <div id="fokus-pinned-list"></div>
+            <p id="fokus-pinned-status" role="status">Loading pinned files…</p>
+            <p id="fokus-pinned-empty">Open a file, then pin it here.</p>
+        </section>
+        <div class="fokus-sidebar-heading"><span>Files</span><div class="fokus-sidebar-heading-actions"><button type="button" class="fokus-sidebar-icon-button" data-refresh="files" aria-label="Refresh files" title="Refresh files"><?php echo fokus_sidebar_icon('refresh'); ?></button><button type="button" id="fokus-create-file" class="fokus-sidebar-icon-button" aria-label="Create file" title="Create file"><?php echo fokus_sidebar_icon('new'); ?></button></div></div>
+        <p class="fokus-sidebar-status" role="status">Loading pages…</p>
+        <div id="fokus-file-tree"></div>
+    </section>
+    <section id="fokus-tags-panel" class="fokus-sidebar-panel" role="tabpanel" aria-labelledby="fokus-tags-tab" hidden>
+        <div class="fokus-sidebar-heading"><span>All tags</span><button type="button" class="fokus-sidebar-icon-button" data-refresh="tags" aria-label="Refresh tags" title="Refresh tags"><?php echo fokus_sidebar_icon('refresh'); ?></button></div>
+        <p class="fokus-sidebar-status" role="status"></p>
+        <div id="fokus-tag-list"></div>
+    </section>
+    <div class="fokus-sidebar-footer"><span id="fokus-sidebar-count"></span></div>
+    <div class="fokus-sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Sidebar width" aria-valuemin="200" aria-valuemax="440" aria-valuenow="260" tabindex="0"></div>
+    <template id="fokus-icon-pin"><?php echo fokus_sidebar_icon('pin'); ?></template>
+    <template id="fokus-icon-unpin"><?php echo fokus_sidebar_icon('unpin'); ?></template>
+    <template id="fokus-icon-file"><?php echo fokus_sidebar_icon('file'); ?></template>
+    <template id="fokus-icon-rename"><?php echo fokus_sidebar_icon('rename'); ?></template>
+    <template id="fokus-icon-delete"><?php echo fokus_sidebar_icon('delete'); ?></template>
+    <template id="fokus-icon-new"><?php echo fokus_sidebar_icon('new'); ?></template>
+    <template id="fokus-icon-folder"><?php echo fokus_sidebar_icon('folder'); ?></template>
+    <template id="fokus-icon-folder-open"><?php echo fokus_sidebar_icon('folder-open'); ?></template>
+</aside>
+<div id="fokus-file-menu" role="menu" aria-label="File actions" data-file-tree-context-menu-root="true" hidden></div>
+<dialog id="fokus-file-action-dialog" class="fokus-sidebar-dialog" aria-labelledby="fokus-file-action-title">
+    <form id="fokus-file-action-form">
+        <h2 id="fokus-file-action-title"></h2>
+        <p id="fokus-file-action-description"></p>
+        <div id="fokus-file-action-name-field"><label for="fokus-file-action-name">New name</label><input id="fokus-file-action-name" type="text" autocomplete="off" spellcheck="false" aria-describedby="fokus-file-action-description fokus-file-action-error" /></div>
+        <p id="fokus-file-action-error" class="fokus-dialog-error" role="status" hidden></p>
+        <div class="fokus-new-page-actions"><button type="button" id="fokus-file-action-cancel">Cancel</button><button type="submit" id="fokus-file-action-submit"></button></div>
+    </form>
+</dialog>
+<dialog id="fokus-new-page-dialog" class="fokus-sidebar-dialog" aria-labelledby="fokus-new-page-title">
+    <form id="fokus-new-page-form">
+        <h2 id="fokus-new-page-title">Create page</h2>
+        <label for="fokus-new-page-name">Page name</label>
+        <input id="fokus-new-page-name" type="text" required autocomplete="off" spellcheck="false" aria-describedby="fokus-new-page-help fokus-new-page-error" />
+        <p id="fokus-new-page-help">Use namespace:page to create a page inside a folder.</p>
+        <p id="fokus-new-page-error" role="status" hidden></p>
+        <div class="fokus-new-page-actions"><button type="button" id="fokus-new-page-cancel">Cancel</button><button type="submit">Create page</button></div>
+    </form>
+</dialog>
+<script>window.FokusSidebarConfig = <?php echo json_encode($sidebarConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;</script>
+<script type="module" src="<?php echo tpl_basedir(); ?>sidebar/sidebar.bundle.js?v=<?php echo filemtime(__DIR__ . '/sidebar.bundle.js'); ?>"></script>

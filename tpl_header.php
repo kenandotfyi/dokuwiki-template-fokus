@@ -10,20 +10,13 @@ if (!defined('DOKU_INC')) die();
 <header id="dokuwiki__header"><div class="pad group">
     <div class="fokus-workspace-bar">
       <div class="fokus-toolbar">
-        <?php if ($conf['useacl'] && !empty($_SERVER['REMOTE_USER'])) : ?>
+        <?php if (!empty($sidebarEnabled)) : ?>
+        <button type="button" class="fokus-sidebar-toggle" aria-label="Toggle sidebar" aria-controls="fokus-sidebar" aria-expanded="true" title="Toggle sidebar"><?php echo fokus_sidebar_icon('sidebar'); ?></button>
+        <?php endif; ?>
+        <?php if (empty($sidebarEnabled) && $conf['useacl'] && !empty($_SERVER['REMOTE_USER'])) : ?>
             <details class="fokus-vault-menu">
                 <summary aria-label="Vault menu" title="Vault">VAULT</summary>
-                <div class="fokus-vault-dropdown"><ul>
-                    <li class="fokus-vault-home"><?php
-                    tpl_link(
-                        wl(),
-                        '<span>' . $conf['title'] . '</span>',
-                        'accesskey="h" title="' . tpl_getLang('home') . ' [h]"'
-                    );
-                    ?></li>
-                    <?php echo (new \dokuwiki\Menu\UserMenu())->getListItems('action '); ?>
-                    <?php echo (new \dokuwiki\Menu\SiteMenu())->getListItems('action ', false); ?>
-                </ul></div>
+                <div class="fokus-vault-dropdown"><?php include __DIR__ . '/sidebar/vault-actions.php'; ?></div>
             </details>
         <?php endif ?>
       </div>
