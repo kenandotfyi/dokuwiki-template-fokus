@@ -39,6 +39,7 @@ function fokus_appearance_styles() {
         'internal-decoration'=>$values['internal_decoration'], 'external-decoration'=>$values['external_decoration'],
         'missing-decoration-style'=>$values['missing_decoration_style'],
         'link-decoration-style'=>$values['link_decoration_style'], 'internal-weight'=>$values['internal_weight'], 'external-weight'=>$values['external_weight'],
+        'tag-decoration'=>$values['tag_decoration'], 'tag-decoration-style'=>$values['tag_decoration_style'], 'tag-weight'=>$values['tag_weight'],
     ];
     $variables += fokus_appearance_constants();
     $css .= ':root{';

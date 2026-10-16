@@ -35,6 +35,14 @@ function fokus_settings_schema() {
     foreach (['light', 'dark'] as $theme) foreach ($colors as $name => $color) {
         $fields['color_' . $theme . '_' . $name] = ['group'=>'Appearance', 'section'=>ucfirst($theme) . ' colors', 'label'=>$color[0], 'type'=>'color', 'default'=>$color[$theme === 'light' ? 1 : 2], 'placeholder'=>$color[$theme === 'light' ? 1 : 2], 'variable'=>$color[3], 'theme'=>$theme];
     }
+    foreach ([
+        'tag_light_color' => ['Light text', '#4a4a4a', '--fokus-tag-link', 'light'],
+        'tag_light_hover' => ['Light hover text', '#4a4a4a', '--fokus-tag-hover', 'light'],
+        'tag_dark_color' => ['Dark text', '#c3c3c3', '--fokus-tag-link', 'dark'],
+        'tag_dark_hover' => ['Dark hover text', '#d0d0d0', '--fokus-tag-hover', 'dark'],
+    ] as $name => [$label, $default, $variable, $theme]) {
+        $fields[$name] = ['group'=>'Appearance', 'section'=>'Tag links', 'label'=>$label, 'type'=>'color', 'default'=>$default, 'placeholder'=>$default, 'variable'=>$variable, 'theme'=>$theme];
+    }
     $fonts = ['fira'=>'FiraGO (bundled)', 'system'=>'System sans-serif', 'serif'=>'System serif', 'mono'=>'JetBrains Mono (bundled)'];
     $fields += [
         'font_family'=>['group'=>'Appearance', 'section'=>'Typography', 'label'=>'Text font', 'type'=>'choice', 'default'=>'fira', 'choices'=>$fonts],
@@ -50,6 +58,9 @@ function fokus_settings_schema() {
         'border_radius'=>['group'=>'Appearance', 'section'=>'Spacing and corners', 'label'=>'Page and dialog corners (px)', 'type'=>'number', 'default'=>4, 'min'=>0, 'max'=>24],
         'control_radius'=>['group'=>'Appearance', 'section'=>'Spacing and corners', 'label'=>'Button and file row corners (px)', 'type'=>'number', 'default'=>4, 'min'=>0, 'max'=>16],
         'internal_decoration'=>['group'=>'Appearance', 'section'=>'Link styling', 'label'=>'Internal link decoration', 'type'=>'choice', 'default'=>'underline', 'choices'=>['none'=>'None', 'underline'=>'Underline', 'overline'=>'Overline', 'line-through'=>'Strikethrough']],
+        'tag_decoration'=>['group'=>'Appearance', 'section'=>'Tag links', 'label'=>'Decoration', 'type'=>'choice', 'default'=>'underline', 'choices'=>['none'=>'None', 'underline'=>'Underline', 'overline'=>'Overline', 'line-through'=>'Strikethrough']],
+        'tag_decoration_style'=>['group'=>'Appearance', 'section'=>'Tag links', 'label'=>'Decoration style', 'type'=>'choice', 'default'=>'solid', 'choices'=>['solid'=>'Solid', 'dotted'=>'Dotted', 'dashed'=>'Dashed', 'wavy'=>'Wavy']],
+        'tag_weight'=>['group'=>'Appearance', 'section'=>'Tag links', 'label'=>'Font weight', 'type'=>'choice', 'default'=>'500', 'choices'=>['400'=>'Regular', '500'=>'Medium', '600'=>'Semibold', '700'=>'Bold']],
         'missing_decoration_style'=>['group'=>'Appearance', 'section'=>'Missing page links', 'label'=>'Underline style', 'type'=>'choice', 'default'=>'dotted', 'choices'=>['solid'=>'Solid', 'dotted'=>'Dotted', 'dashed'=>'Dashed', 'wavy'=>'Wavy']],
         'external_decoration'=>['group'=>'Appearance', 'section'=>'Link styling', 'label'=>'External link decoration', 'type'=>'choice', 'default'=>'underline', 'choices'=>['none'=>'None', 'underline'=>'Underline', 'overline'=>'Overline', 'line-through'=>'Strikethrough']],
         'link_decoration_style'=>['group'=>'Appearance', 'section'=>'Link styling', 'label'=>'Link decoration style', 'type'=>'choice', 'default'=>'solid', 'choices'=>['solid'=>'Solid', 'dotted'=>'Dotted', 'dashed'=>'Dashed', 'wavy'=>'Wavy']],
