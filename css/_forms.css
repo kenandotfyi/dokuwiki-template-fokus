@@ -47,7 +47,7 @@
 .dokuwiki fieldset {
   width: 400px;
   text-align: center;
-  border: 1px solid @ini_border;
+  border: 1px solid var(--fokus-border);
   padding: 0.5em;
   margin: auto;
 }

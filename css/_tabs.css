@@ -17,7 +17,7 @@
     width: 100%;
     bottom: 0;
     left: 0;
-    border-bottom: 1px solid @ini_border;
+    border-bottom: 1px solid var(--fokus-border);
 }
 
 .dokuwiki .tabs > ul li,
@@ -38,10 +38,10 @@
     display: inline-block;
     padding: .3em .8em;
     margin: 0 0 0 .3em;
-    background-color: @ini_background_neu;
-    color: @ini_text;
-    border: 1px solid @ini_border;
-    border-radius: 4px 4px 0 0;
+    background-color: var(--fokus-accent-soft);
+    color: var(--fokus-text);
+    border: 1px solid var(--fokus-border);
+    border-radius:var(--fokus-control-radius) var(--fokus-control-radius) 0 0;
     position: relative;
     z-index: 0;
 }
@@ -68,8 +68,8 @@
 .dokuwiki ul.tabs li a:focus,
 .dokuwiki ul.tabs li.active a,
 .dokuwiki ul.tabs li strong {
-    background-color: @ini_background_alt;
-    color: @ini_text;
+    background-color: var(--fokus-surface-soft);
+    color: var(--fokus-text);
     text-decoration: none;
     font-weight: normal;
 }
@@ -80,5 +80,5 @@
 .dokuwiki ul.tabs li.active a,
 .dokuwiki ul.tabs li strong {
     z-index: 2;
-    border-bottom-color: @ini_background_alt;
+    border-bottom-color: var(--fokus-surface-soft);
 }

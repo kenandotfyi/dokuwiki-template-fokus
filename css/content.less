@@ -36,13 +36,13 @@
 
 /* existing wikipage */
 .dokuwiki a.wikilink1 {
-    color: @ini_existing;
+    color: var(--fokus-internal-link);
     background-color: inherit;
 }
 
 /* not existing wikipage */
 .dokuwiki a.wikilink2 {
-    color: @ini_missing;
+    color: var(--fokus-muted);
     background-color: inherit;
 }
 
@@ -70,15 +70,15 @@
 .dokuwiki .page,
 .dokuwiki .aside {
     ul li {
-        color: @ini_text_alt;
+        color: var(--fokus-muted);
     }
 
     ol li {
-        color: @ini_text_neu;
+        color: var(--fokus-muted-copy);
     }
 
     li .li {
-        color: @ini_text;
+        color: var(--fokus-text);
     }
 }
 
@@ -100,11 +100,11 @@
 }
 
 .dokuwiki table.inline tr:hover td {
-    background-color: @ini_background_alt;
+    background-color: var(--fokus-surface-soft);
 }
 
 .dokuwiki table.inline tr:hover th {
-    background-color: @ini_border;
+    background-color: var(--fokus-border);
 }
 
 /*____________ code ____________*/
@@ -118,11 +118,11 @@
 .dokuwiki dl.code,
 .dokuwiki dl.file {
     dt {
-        background-color: @ini_background_site;
-        background: linear-gradient(to bottom, @ini_background_alt 0%, @ini_background_site 100%);
+        background-color: var(--fokus-canvas);
+        background: linear-gradient(to bottom, var(--fokus-surface-soft) 0%, var(--fokus-canvas) 100%);
         color: inherit;
-        border: 1px solid @ini_border;
-        border-bottom-color: @ini_background_site;
+        border: 1px solid var(--fokus-border);
+        border-bottom-color: var(--fokus-canvas);
         border-top-left-radius: .3em;
         border-top-right-radius: .3em;
         padding: .3em .6em .1em;
@@ -144,7 +144,7 @@
     }
 
     pre {
-        box-shadow: inset -4px -4px .5em -.3em @ini_border;
+        box-shadow: inset -4px -4px .5em -.3em var(--fokus-border);
     }
 }
 
@@ -173,11 +173,11 @@
 /*____________ JS popup ____________*/
 
 .JSpopup {
-    background-color: @ini_background;
-    color: @ini_text;
-    border: 1px solid @ini_border;
-    box-shadow: .1em .1em .1em @ini_border;
-    border-radius: 4px;
+    background-color: var(--fokus-surface);
+    color: var(--fokus-text);
+    border: 1px solid var(--fokus-border);
+    box-shadow: .1em .1em .1em var(--fokus-border);
+    border-radius:var(--fokus-control-radius);
     padding: .3em .5em;
     font-size: .9em;
 }
@@ -260,7 +260,7 @@
 }
 
 .dokuwiki textarea.edit {
-    font-family: Consolas, "Andale Mono WT", "Andale Mono", "Bitstream Vera Sans Mono", "Nimbus Mono L", Monaco, "Courier New", monospace;
+    font-family:var(--fokus-code-font);
 }
 
 .dokuwiki div.preview {
@@ -277,15 +277,15 @@
 #dw__toc {
     margin: -1.556em -2em .5em 1.4em;
     width: @ini_sidebar_width;
-    border-left: 1px solid @ini_border;
-    background: @ini_background;
+    border-left: 1px solid var(--fokus-border);
+    background: var(--fokus-surface);
     color: inherit;
 }
 
 [dir=rtl] #dw__toc {
     margin: -1.556em 1.4em .5em -2em;
     border-left-width: 0;
-    border-right: 1px solid @ini_border;
+    border-right: 1px solid var(--fokus-border);
 }
 
 .dokuwiki.export #dw__toc {

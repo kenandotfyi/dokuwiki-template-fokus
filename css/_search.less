@@ -8,8 +8,8 @@
 
 /* search hit in normal text */
 .dokuwiki .search_hit {
-    color: @ini_text;
-    background-color: __highlight__;
+    color: var(--fokus-text);
+    background-color: var(--fokus-accent-soft);
 }
 
 /* "nothing found" at search + media */
@@ -54,7 +54,7 @@
                 &::after {
                     content: '▼';
                     font-size: smaller;
-                    color: @ini_text_alt;
+                    color: var(--fokus-muted);
                 }
             }
             div.changed {
@@ -63,8 +63,8 @@
             ul {
                 display: none;
                 position: absolute;
-                border: 1px solid @ini_border;
-                background-color: @ini_background;
+                border: 1px solid var(--fokus-border);
+                background-color: var(--fokus-surface);
                 padding: 0.25em 0.5em;
                 text-align: left;
                 min-width: 10em;
@@ -141,7 +141,7 @@
 
     /* search snippet */
     dd.snippet {
-        color: @ini_text_alt;
+        color: var(--fokus-muted);
         background-color: inherit;
         margin: 0 0 1.2em 0;
 
@@ -153,7 +153,7 @@
 
         /* ellipsis separating snippets */
         .search_sep {
-            color: @ini_text;
+            color: var(--fokus-text);
             background-color: inherit;
         }
     }

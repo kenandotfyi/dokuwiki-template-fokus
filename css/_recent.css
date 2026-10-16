@@ -49,17 +49,17 @@
 
 .dokuwiki form.changes li .sizechange {
     font-size: 80%;
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
     padding: .1em .2em;
     /* cannot use non-guaranteed style.ini colour placeholders, dark templates need to overwrite */
-    background-color: #ddd;
+    background-color: var(--fokus-pressed-background);
 }
 
 .dokuwiki form.changes li .sizechange.positive {
-    background-color: #f0f0f0;;
+    background-color: var(--fokus-diff-added-background);;
 }
 .dokuwiki form.changes li .sizechange.negative {
-    background-color: #e4e4e4;
+    background-color: var(--fokus-diff-removed-background);
 }
 
 /*____________ page navigator ____________*/

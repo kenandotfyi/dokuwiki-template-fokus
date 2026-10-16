@@ -140,25 +140,7 @@
 
 
 
-:root {
-    --fokus-base: #4a4a4a;
-    --fokus-vault-accent: #272727;
-    --fokus-canvas: #f4f4f4;
-    --fokus-surface: #fff;
-    --fokus-surface-soft: #ebebeb;
-    --fokus-border: #d2d2d2;
-    --fokus-text: #222;
-    --fokus-muted: #6b6b6b;
-    --fokus-external: #B45309;
-    --fokus-zotero-hover: #FCE4E6;
-    --fokus-zotero-hover-text: #A51E2B;
-    --fokus-accent: var(--fokus-base);
-    --fokus-accent-soft: #d8d8d8;
-    --fokus-on-accent: #fff;
-    --fokus-banner: color-mix(in srgb, var(--fokus-base) 16%, white);
-    --fokus-banner-border: color-mix(in srgb, var(--fokus-base) 18%, var(--fokus-border));
-    --fokus-radius: 4px;
-}
+
 
 *, *::before, *::after {
     box-shadow: none !important;
@@ -167,10 +149,10 @@
 html, body {
     background: var(--fokus-canvas);
     color: var(--fokus-text) !important;
-    font-family: 'FiraGO', sans-serif;
+    font-family: var(--fokus-body-font);
     font-weight: 400;
     font-style: normal;
-    font-size: 14px;
+    font-size: var(--fokus-font-size);
     hyphens: auto;
     text-rendering: optimizeLegibility;
 }
@@ -178,7 +160,7 @@ html, body {
 
 .topBanner {
     display: flex;
-    font-family: 'FiraGO', sans-serif;
+    font-family: var(--fokus-body-font);
     align-items: center;
     justify-content: space-between;
     line-height: 1.4;
@@ -212,7 +194,7 @@ html, body {
 .fokus-page-id {
     display: none;
     color: var(--fokus-muted);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--fokus-code-font);
     font-size: 0.68rem;
     font-style: italic;
     line-height: 1.3;
@@ -223,7 +205,7 @@ html, body {
 }
 
 .pagedates {
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--fokus-code-font);
     font-size: 12px;
     padding: 8px 0 0 6px;
     border-top: 1px solid var(--fokus-border);
@@ -238,7 +220,6 @@ html, body {
 
 :root {
     --content-column-width: 50rem;
-    --fokus-page-gutter: 20px;
 }
 
 /* Admin and full media-manager views need more room than regular wiki pages. */
@@ -249,8 +230,8 @@ html, body {
 }
 
 #dokuwiki__site {
-    padding-left: var(--fokus-page-gutter, 20px);
-    padding-right: var(--fokus-page-gutter, 20px);
+    padding-left: var(--fokus-page-gutter);
+    padding-right: var(--fokus-page-gutter);
 }
 
 #dokuwiki__site .site{
@@ -260,7 +241,7 @@ html, body {
 
 .dokuwiki img.media, img.medialeft, img.mediacenter, img.mediaright {
     border: 1px solid var(--fokus-border);
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
 }
 
 
@@ -268,7 +249,7 @@ html, body {
 .plugin_include_content {
  background: var(--fokus-surface-soft);
  border: 1px solid var(--fokus-border);
- border-radius: 4px;
+ border-radius:var(--fokus-control-radius);
  padding: 12px 14px;
 }
 
@@ -289,7 +270,7 @@ html, body {
   border-radius: var(--fokus-radius);
   margin-bottom: 10px;
   margin-top: -10px;
-  padding: 24px;
+  padding: var(--fokus-pane-padding);
 }
 
 
@@ -304,9 +285,9 @@ html, body {
 
 
 .dtree {
-    font-family: 'FiraGO', sans-serif;
+    font-family: var(--fokus-body-font);
     font-size: 12px;
-    color: #333;
+    color: var(--fokus-secondary-text);
     white-space: nowrap !important;
     word-wrap: normal !important;
     line-height: 1.3;
@@ -331,19 +312,9 @@ a.interwiki {
     color: var(--fokus-accent);
 }
 
-a.interwiki.iw_zotero,
-a.interwiki.iw_zotero:hover {
-    color: #DB2C3A !important;
-}
-
-.dokuwiki a.interwiki.iw_zotero:hover {
-    background-color: var(--fokus-zotero-hover) !important;
-    color: var(--fokus-zotero-hover-text) !important;
-}
-
 a:hover{
     background-color: var(--fokus-accent-soft) !important;
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
     color: var(--fokus-accent) !important;
 }
 
@@ -378,7 +349,7 @@ dokuwiki pre,
 .dokuwiki samp,
 .dokuwiki .pageId,
 .pagedates {
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--fokus-code-font);
 }
 
 hr {
@@ -406,12 +377,12 @@ hr {
 /* Header styling */
 
 #dokuwiki__header {
-    font-family: 'FiraGO', sans-serif;
+    font-family: var(--fokus-body-font);
     padding: 0 !important;
     position: sticky;
     top: 0px;
     z-index: 1111;
-    background: var(--fokus-canvas, #f4f4f4) !important;
+    background: var(--fokus-canvas) !important;
     backdrop-filter: none !important;
 }
 
@@ -445,7 +416,7 @@ hr {
     & a {
         color: var(--fokus-accent) !important;
         background: var(--fokus-accent-soft) !important;
-        border-radius: 4px;
+        border-radius:var(--fokus-control-radius);
         padding: 5px 8px;
     }
 
@@ -481,10 +452,10 @@ hr {
     box-sizing: border-box;
     padding: 0 10px !important;
     margin: 0 !important;
-    border: 1px solid var(--fokus-vault-accent, #4b4b4b);
-    border-radius: 4px;
-    background: var(--fokus-vault-accent, #4b4b4b);
-    color: #fff;
+    border: 1px solid var(--fokus-vault-accent);
+    border-radius:var(--fokus-control-radius);
+    background: var(--fokus-vault-accent);
+    color: var(--fokus-on-accent);
     cursor: pointer;
     font-size: 0.76rem;
     font-weight: 700;
@@ -495,8 +466,8 @@ hr {
 .fokus-vault-menu > summary::-webkit-details-marker { display: none; }
 .fokus-vault-menu > summary:hover,
 .fokus-vault-menu[open] > summary {
-    background: var(--fokus-vault-accent, #4b4b4b);
-    border-color: var(--fokus-vault-accent, #4b4b4b);
+    background: var(--fokus-vault-accent);
+    border-color: var(--fokus-vault-accent);
     filter: brightness(1.12);
 }
 
@@ -509,7 +480,7 @@ hr {
     min-width: 12rem;
     padding: 5px;
     border: 1px solid var(--fokus-border);
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
     background: var(--fokus-surface) !important;
     color: var(--fokus-text);
 }
@@ -535,7 +506,7 @@ hr {
     flex: 1 1 auto;
     min-width: 0;
     padding: 0.5rem 0.6rem;
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
     color: var(--fokus-text) !important;
     font-size: 0.84rem;
     text-decoration: none;
@@ -564,7 +535,7 @@ hr {
     text-decoration: none;
     background: var(--fokus-surface-soft) !important;
     color: var(--fokus-text);
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
     padding: 5px 8px;
     transition: background-color 140ms ease, color 140ms ease;
 }
@@ -579,31 +550,31 @@ hr {
 }
 
 .dokuwiki div.page {
-    border: 1px solid var(--fokus-border, #dedede);
-    border-radius: var(--fokus-radius, 4px);
-    background: var(--fokus-surface, #fff);
+    border: 1px solid var(--fokus-border);
+    border-radius: var(--fokus-radius);
+    background: var(--fokus-surface);
 }
 
 html[data-theme="dark"] #dokuwiki__header {
-    background: var(--fokus-canvas, #1a1a1a) !important;
+    background: var(--fokus-canvas) !important;
 }
 
 html[data-theme="dark"] .fokus-vault-dropdown,
 html[data-theme="dark"] .fokus-vault-dropdown a {
-    border-color: var(--fokus-border, #4f4f4f);
-    background: var(--fokus-surface, #262626) !important;
-    color: var(--fokus-text, #dfdfdf) !important;
+    border-color: var(--fokus-border);
+    background: var(--fokus-surface) !important;
+    color: var(--fokus-text) !important;
 }
 
 html[data-theme="dark"] .fokus-vault-menu > summary {
-    border-color: var(--fokus-vault-accent, #4b4b4b);
-    background: var(--fokus-vault-accent, #4b4b4b) !important;
-    color: #fff !important;
+    border-color: var(--fokus-vault-accent);
+    background: var(--fokus-vault-accent) !important;
+    color: var(--fokus-on-accent) !important;
 }
 
 html[data-theme="dark"] .fokus-vault-dropdown a:hover {
-    background: var(--fokus-accent-soft, #383838) !important;
-    color: var(--fokus-accent, #c3c3c3) !important;
+    background: var(--fokus-accent-soft) !important;
+    color: var(--fokus-accent) !important;
 }
 
 html[data-theme="dark"] .fokus-vault-menu > summary:hover,
@@ -665,9 +636,9 @@ html[data-theme="dark"] .fokus-vault-menu[open] > summary {
 /* page breadcrumbs */
 
 .dokuwiki div.breadcrumbs {
-    font-family: 'FiraGO', sans-serif;
+    font-family: var(--fokus-body-font);
     border: 1px solid var(--fokus-border) !important;
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
     margin-bottom: 8px;
     padding: 6px 10px;
     background: var(--fokus-surface-soft);
@@ -750,7 +721,7 @@ body > div.plugin-preview {
 .dokuwiki div.table table {
 	width: 100%;
     border: 1px solid var(--fokus-border);
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
     border-spacing: 0;
     background: var(--fokus-surface);
     overflow: hidden;

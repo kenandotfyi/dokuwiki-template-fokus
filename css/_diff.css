@@ -13,13 +13,13 @@
     padding: 0;
     border-width: 0;
     /* no style.ini colours because deleted and added lines have a fixed background colour */
-    background-color: #fff;
-    color: #333;
+    background-color: var(--fokus-surface);
+    color: var(--fokus-secondary-text);
 }
 
 /* table header */
 .dokuwiki table.diff th {
-    border-bottom: 1px solid @ini_border;
+    border-bottom: 1px solid var(--fokus-border);
     font-size: 110%;
     font-weight: normal;
 }
@@ -34,7 +34,7 @@
     font-weight: bold;
 }
 .dokuwiki table.diff th.minor {
-    color: #999;
+    color: var(--fokus-disabled-text);
 }
 .dokuwiki table.diff_sidebyside th {
     width: 50%;
@@ -50,29 +50,29 @@
 }
 .dokuwiki table.diff .diff-lineheader,
 .dokuwiki table.diff td {
-    font-family: Consolas, "Andale Mono WT", "Andale Mono", "Bitstream Vera Sans Mono", "Nimbus Mono L", Monaco, "Courier New", monospace;
+    font-family:var(--fokus-code-font);
 }
 .dokuwiki table.diff td.diff-blockheader {
     font-weight: bold;
 }
 .dokuwiki table.diff .diff-addedline {
-    background-color: #f0f0f0;
+    background-color: var(--fokus-diff-added-background);
     color: black;
     width: ~"calc(50% - .7em)";
 }
 .dokuwiki table.diff .diff-deletedline {
-    background-color: #e4e4e4;
+    background-color: var(--fokus-diff-removed-background);
     color: black;
     width: ~"calc(50% - .7em)";
 }
 .dokuwiki table.diff td.diff-context {
-    background-color: #eee;
+    background-color: var(--fokus-control-soft-background);
     color: black;
     width: ~"calc(50% - .7em)";
 }
 .dokuwiki table.diff td.diff-addedline strong,
 .dokuwiki table.diff td.diff-deletedline strong {
-    color: #363636;
+    color: var(--fokus-support-text);
     background-color: inherit;
     font-weight: bold;
 }
@@ -102,7 +102,7 @@
 .dokuwiki .diffnav a:hover,
 .dokuwiki .diffnav a:active,
 .dokuwiki .diffnav a:focus {
-    background-color: @ini_background_alt;
+    background-color: var(--fokus-surface-soft);
     text-decoration: none;
 }
 
@@ -110,9 +110,9 @@
     display: inline-block;
     line-height: 1;
     padding: .2em .4em;
-    border: 1px solid @ini_border;
-    border-radius: 4px;
-    color: @ini_text;
+    border: 1px solid var(--fokus-border);
+    border-radius:var(--fokus-control-radius);
+    color: var(--fokus-text);
 }
 
 .dokuwiki .diffnav a.diffprevrev:before {

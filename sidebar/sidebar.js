@@ -45,6 +45,9 @@ function initializeSidebar() {
     let actionResult = null;
     let actionOrigin = null;
     const count = document.getElementById('fokus-sidebar-count');
+    const healthCount = document.getElementById('fokus-sidebar-health');
+    let pageHealth = new Map();
+    let matchingPages = [];
     const toggle = document.querySelector('.fokus-sidebar-toggle');
     const resizer = sidebar.querySelector('.fokus-sidebar-resizer');
     const narrow = window.matchMedia('(max-width: 800px)');
@@ -112,7 +115,39 @@ function initializeSidebar() {
         }
         return response.json();
     }
-    function showCount() { count.textContent = view === 'files' ? filter.value.trim() ? `${matchingCount} of ${fileCount} pages` : `${fileCount} pages` : `${tagCount} tags`; }
+    function showCount() {
+        count.textContent = view === 'files' ? filter.value.trim() ? `${matchingCount} of ${fileCount} pages` : `${fileCount} pages` : `${tagCount} tags`;
+        healthCount.hidden = view !== 'files' || !config.pageHealthAvailable || !filesLoaded;
+        if (healthCount.hidden) return;
+        let healthy = 0;
+        let empty = 0;
+        for (const page of matchingPages) {
+            if (pageHealth.get(page.id) === true) empty++;
+            else if (pageHealth.get(page.id) === false) healthy++;
+        }
+        const unknown = matchingPages.length - healthy - empty;
+        healthCount.textContent = `${healthy} healthy · ${empty} no content${unknown ? ` · ${unknown} unchecked` : ''}`;
+        healthCount.title = 'Page Health for the explorer’s visible page set and current filter, including pages represented by namespace rows.';
+    }
+    async function loadPageHealth(pages) {
+        const states = new Map();
+        if (!config.pageHealthAvailable) return states;
+        // Reuse Page Health's ACL-checked API and its bounded batch size.
+        for (let start = 0; start < pages.length; start += 500) {
+            const ids = pages.slice(start, start + 500).map(page => page.id);
+            try {
+                const response = await fetch(config.ajaxEndpoint, {
+                    method: 'POST', credentials: 'same-origin',
+                    body: new URLSearchParams({ call: 'pagehealth', ids: JSON.stringify(ids) }),
+                    headers: { Accept: 'application/json' },
+                });
+                if (!response.ok) throw new Error(`Page Health request failed (${response.status}).`);
+                const result = await response.json();
+                for (const id of ids) if (typeof result[id] === 'boolean') states.set(id, result[id]);
+            } catch (error) { console.warn('Fokus sidebar:', error); }
+        }
+        return states;
+    }
     function icon(name) { return document.getElementById(`fokus-icon-${name}`).content.firstElementChild.cloneNode(true); }
     function showCreate(namespace = '') {
         createName.value = namespace ? `${namespace}:` : '';
@@ -315,6 +350,7 @@ function initializeSidebar() {
             link.title = page.id;
             link.dataset.pageId = page.id;
             name.textContent = page.title;
+            name.classList.toggle('fokus-pagehealth-empty', pageHealth.get(page.id) === true);
             link.append(icon('file'), name);
             link.addEventListener('click', event => {
                 if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
@@ -355,6 +391,7 @@ function initializeSidebar() {
             [page.path, page.title, ...ancestors(page.path).map(parent => labelsByPath.get(parent))]
                 .join(' ').toLocaleLowerCase().includes(query));
         const paths = [...new Set(matches.map(page => mergedPaths.get(page.path) || page.path))];
+        matchingPages = matches;
         const expanded = query ? [...new Set(paths.flatMap(ancestors))] : filterExpansion ?? [...directories].filter(path => tree.getItem(path)?.isExpanded());
         // Use the public data API so this external filter leaves the library's
         // separate search-field keyboard and click behavior inactive.
@@ -402,6 +439,9 @@ function initializeSidebar() {
         try {
             const data = await request('files');
             if (version !== fileRequest) return;
+            const health = await loadPageHealth(data.pages);
+            if (version !== fileRequest) return;
+            pageHealth = health;
             pagesByPath = new Map(data.pages.map(page => [page.path, page]));
             pagesById = new Map(data.pages.map(page => [page.id, page]));
             treePages = data.pages.filter(page => !page.hiddenFromTree);
@@ -463,6 +503,14 @@ function initializeSidebar() {
                         [data-item-section="content"] { display: none; }
                         [data-item-section="decoration"] { flex: 1; min-width: 0; width: auto; max-width: none; color: inherit; font: inherit; text-align: left; justify-content: flex-start; overflow: hidden; }
                         [data-item-section="decoration"] > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                        [data-pagehealth-empty] [data-item-section="decoration"] > span {
+                            color: var(--pagehealth-empty-color, #89919b);
+                            opacity: var(--pagehealth-empty-opacity, 1);
+                            font-style: var(--pagehealth-empty-font-style, normal);
+                            text-decoration-line: var(--pagehealth-empty-decoration, none);
+                            text-decoration-style: var(--pagehealth-empty-decoration-style, solid);
+                        }
+                        [data-pagehealth-empty]:hover [data-item-section="decoration"] > span { color: var(--pagehealth-empty-hover-color, #626b76); }
                     `,
                 });
                 tree.render({ containerWrapper: host });
@@ -477,6 +525,8 @@ function initializeSidebar() {
                     treeHost.shadowRoot?.querySelectorAll('[role="treeitem"][data-item-path]').forEach(row => {
                         const label = labelsByPath.get(row.dataset.itemPath);
                         if (label && row.getAttribute('aria-label') !== label) row.setAttribute('aria-label', label);
+                        const page = namespacePages.get(row.dataset.itemPath) || pagesByPath.get(row.dataset.itemPath);
+                        row.toggleAttribute('data-pagehealth-empty', pageHealth.get(page?.id) === true);
                         if (directories.has(row.dataset.itemPath)) {
                             const control = row.querySelector('[data-item-section="icon"]');
                             if (control) control.title = 'Expand or collapse namespace; right-click for namespace actions';

@@ -20,7 +20,7 @@
 .infinitepanels-panes {
     display: flex;
     align-items: flex-start;
-    gap: 4px;
+    gap: var(--fokus-pane-gap);
     width: max-content;
     max-width: none;
     padding: 0 1rem 1rem 0;
@@ -30,7 +30,7 @@
     flex: 1 1 auto;
     min-width: 0;
     box-sizing: border-box;
-    border-radius: var(--fokus-radius, 4px);
+    border-radius: var(--fokus-radius);
     transition: opacity 140ms ease;
 }
 
@@ -74,16 +74,16 @@ body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hove
     align-items: center;
     gap: 0.55rem;
     box-sizing: border-box;
-    max-width: min(22rem, 75vw);
+    max-width: MIN(22rem, 75vw);
     min-height: 30px;
     padding: 0.35rem 0.65rem;
     overflow: hidden;
-    border: 1px solid var(--fokus-border, #dedede);
-    border-radius: 4px;
-    background: var(--fokus-surface-soft, #f1f1f1);
-    color: var(--fokus-text, #2f2f2f);
+    border: 1px solid var(--fokus-border);
+    border-radius:var(--fokus-control-radius);
+    background: var(--fokus-surface-soft);
+    color: var(--fokus-text);
     cursor: pointer;
-    font-family: 'FiraGO', sans-serif;
+    font-family: var(--fokus-body-font);
     font-size: 0.85rem;
     font-weight: 400;
     text-align: left;
@@ -91,25 +91,25 @@ body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hove
 }
 
 .infinitepanels-minimized-shelf > .infinitepanels-spine[data-state="open"] {
-    background: var(--fokus-surface, #fff);
-    border-color: #d5d5d5;
+    background: var(--fokus-surface);
+    border-color: var(--fokus-border-tone-d5);
 }
 
 .infinitepanels-minimized-shelf > .infinitepanels-spine[data-state="minimized"] {
-    background: var(--fokus-surface-soft, #f1f1f1);
-    color: var(--fokus-muted, #767676);
+    background: var(--fokus-surface-soft);
+    color: var(--fokus-muted);
     opacity: 0.82;
 }
 
 .infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"] {
-    background: var(--fokus-accent, #606060);
-    border-color: var(--fokus-accent, #606060);
-    color: var(--fokus-on-accent, #fff);
+    background: var(--fokus-accent);
+    border-color: var(--fokus-accent);
+    color: var(--fokus-on-accent);
     opacity: 1;
 }
 
 .infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"] .infinitepanels-spine-pageid {
-    color: var(--fokus-on-accent, #fff);
+    color: var(--fokus-on-accent);
 }
 
 .infinitepanels-minimized-shelf .infinitepanels-spine-label {
@@ -121,8 +121,8 @@ body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hove
 .infinitepanels-minimized-shelf .infinitepanels-spine-pageid {
     max-width: 10rem;
     overflow: hidden;
-    color: var(--fokus-muted, #767676);
-    font-family: 'JetBrains Mono Variable', monospace;
+    color: var(--fokus-muted);
+    font-family: var(--fokus-code-font);
     opacity: 0.8;
     font-size: 0.7rem;
     font-style: italic;
@@ -131,13 +131,13 @@ body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hove
 
 .infinitepanels-minimized-shelf > .infinitepanels-spine:not([data-current="true"]):hover,
 .infinitepanels-minimized-shelf > .infinitepanels-spine:not([data-current="true"]):focus-visible {
-    background: var(--fokus-accent-soft, #ededed);
-    border-color: var(--fokus-accent, #606060);
+    background: var(--fokus-accent-soft);
+    border-color: var(--fokus-accent);
 }
 
 .infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"]:hover,
 .infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"]:focus-visible {
-    background: var(--fokus-accent, #606060);
+    background: var(--fokus-accent);
 }
 
 .infinitepanels-focus-toggle {
@@ -164,14 +164,14 @@ body.infinitepanels-focused .infinitepanels-pane {
 .infinitepanels-active .infinitepanels-pane .page.group {
     box-sizing: border-box;
     min-height: 100%;
-    padding: 24px;
-    border: 1px solid var(--fokus-border, #dedede);
-    border-radius: var(--fokus-radius, 4px);
-    background: var(--fokus-surface, #fff);
+    padding: var(--fokus-pane-padding);
+    border: 1px solid var(--fokus-border);
+    border-radius: var(--fokus-radius);
+    background: var(--fokus-surface);
 }
 
 .infinitepanels-active .infinitepanels-pane-current .page.group {
-    border-color: #cccccc;
+    border-color: var(--fokus-control-border);
 }
 
 body.infinitepanels-focused .infinitepanels-panes > .infinitepanels-pane:not(.infinitepanels-focused-active),
@@ -223,14 +223,14 @@ body.infinitepanels-ready #dokuwiki__pagetools {
 
 .dokuwiki a.wikilink1.infinitepanels-open-page-link,
 .dokuwiki a.wikilink2.infinitepanels-open-page-link {
-    background-color: var(--fokus-accent-soft, #ededed);
+    background-color: var(--fokus-accent-soft);
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
 }
 
 html[data-theme="dark"] .dokuwiki a.wikilink1.infinitepanels-open-page-link,
 html[data-theme="dark"] .dokuwiki a.wikilink2.infinitepanels-open-page-link {
-    background-color: #606060;
+    background-color: var(--fokus-open-link-background);
 }
 
 
@@ -294,10 +294,10 @@ body.infinitepanels-active .infinitepanels-pane:not(.infinitepanels-popup-pane)
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--fokus-border, #dedede);
-    border-radius: var(--fokus-radius, 4px) var(--fokus-radius, 4px) 0 0;
-    background: var(--fokus-surface-soft, #f1f1f1);
-    color: var(--fokus-text, #2f2f2f);
+    border-bottom: 1px solid var(--fokus-border);
+    border-radius: var(--fokus-radius) var(--fokus-radius) 0 0;
+    background: var(--fokus-surface-soft);
+    color: var(--fokus-text);
 }
 
 .infinitepanels-pane-title {
@@ -318,7 +318,7 @@ body.infinitepanels-active .infinitepanels-pane:not(.infinitepanels-popup-pane)
     font: inherit;
     line-height: 1.2;
     padding: 4px;
-    border-radius: 4px;
+    border-radius:var(--fokus-control-radius);
 }
 
 .infinitepanels-actions a {
@@ -339,16 +339,16 @@ body.infinitepanels-active .infinitepanels-pane:not(.infinitepanels-popup-pane)
 
 .infinitepanels-actions button:hover,
 .infinitepanels-actions a:hover {
-    background: var(--fokus-accent-soft, #ededed) !important;
-    background-color: var(--fokus-accent-soft, #ededed) !important;
-    color: var(--fokus-accent, #606060) !important;
+    background: var(--fokus-accent-soft) !important;
+    background-color: var(--fokus-accent-soft) !important;
+    color: var(--fokus-accent) !important;
 }
 
 body.infinitepanels-active .infinitepanels-actions button:hover,
 body.infinitepanels-active .infinitepanels-actions a:hover {
-    background: var(--fokus-accent-soft, #ededed) !important;
-    background-color: var(--fokus-accent-soft, #ededed) !important;
-    color: var(--fokus-accent, #606060) !important;
+    background: var(--fokus-accent-soft) !important;
+    background-color: var(--fokus-accent-soft) !important;
+    color: var(--fokus-accent) !important;
 }
 
 .infinitepanels-error {
@@ -375,7 +375,7 @@ body.infinitepanels-active .infinitepanels-actions a:hover {
     justify-content: center;
     box-sizing: border-box;
     padding: 2rem;
-    background: rgb(0 0 0 / 55%);
+    background: var(--fokus-pane-backdrop);
 }
 
 body.infinitepanels-zoom-active > div.plugin-preview {
@@ -449,7 +449,7 @@ body.infinitepanels-zoom-active > div.pp_pic_holder {
     justify-content: center;
     box-sizing: border-box;
     padding: 2rem;
-    background: rgb(0 0 0 / 55%);
+    background: var(--fokus-pane-backdrop);
 }
 
 .infinitepanels-action-popup-window {
@@ -461,8 +461,8 @@ body.infinitepanels-zoom-active > div.pp_pic_holder {
     height: 92vh;
     max-height: 92vh;
     overflow: hidden;
-    border: 1px solid #000;
-    background: #fff;
+    border: 1px solid var(--fokus-border);
+    background: var(--fokus-surface);
 }
 
 .infinitepanels-action-popup-toolbar {
@@ -472,9 +472,9 @@ body.infinitepanels-zoom-active > div.pp_pic_holder {
     justify-content: space-between;
     min-height: 2.5rem;
     padding: 0 0.75rem;
-    border-bottom: 1px solid #000;
-    color: #111;
-    background: #fff;
+    border-bottom: 1px solid var(--fokus-border);
+    color: var(--fokus-text);
+    background: var(--fokus-surface);
     font-weight: 600;
 }
 
@@ -501,14 +501,14 @@ body.infinitepanels-zoom-active > div.pp_pic_holder {
     padding: 0;
     border: 0;
     background: transparent;
-    color: #111;
+    color: var(--fokus-text);
     cursor: pointer;
 }
 
 .infinitepanels-action-popup-action:hover,
 .infinitepanels-action-popup-action:focus-visible {
-    color: #fff;
-    background: #000;
+    color: var(--fokus-on-accent);
+    background: var(--fokus-accent);
     outline: none;
 }
 
@@ -527,7 +527,7 @@ body.infinitepanels-zoom-active > div.pp_pic_holder {
     width: 100%;
     min-height: 0;
     border: 0;
-    background: #fff;
+    background: var(--fokus-surface);
 }
 
 body.infinitepanels-active .infinitepanels-zoom-backdrop .infinitepanels-pane {

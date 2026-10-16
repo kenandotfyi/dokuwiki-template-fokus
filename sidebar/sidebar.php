@@ -13,6 +13,8 @@ $sidebarConfig = [
     'homeUrl' => wl($conf['start'], '', true, '&'),
     'securityToken' => getSecurityToken(),
     'moveAvailable' => fokus_dependency_available('move'),
+    'pageHealthAvailable' => (bool) plugin_load('action', 'pagehealth'),
+    'ajaxEndpoint' => DOKU_BASE . 'lib/exe/ajax.php',
     'storageKey' => 'fokus-sidebar:' . DOKU_BASE . ':' . ($_SERVER['REMOTE_USER'] ?? 'anonymous'),
 ];
 ?>
@@ -57,7 +59,7 @@ $sidebarConfig = [
         <p class="fokus-sidebar-status" role="status"></p>
         <div id="fokus-tag-list"></div>
     </section>
-    <div class="fokus-sidebar-footer"><span id="fokus-sidebar-count"></span></div>
+    <div class="fokus-sidebar-footer"><span id="fokus-sidebar-count"></span><span id="fokus-sidebar-health" hidden></span></div>
     <div class="fokus-sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Sidebar width" aria-valuemin="200" aria-valuemax="440" aria-valuenow="260" tabindex="0"></div>
     <template id="fokus-icon-pin"><?php echo fokus_sidebar_icon('pin'); ?></template>
     <template id="fokus-icon-unpin"><?php echo fokus_sidebar_icon('unpin'); ?></template>

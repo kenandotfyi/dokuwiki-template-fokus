@@ -18,11 +18,11 @@
 }
 
 #link__wiz_result {
-    background-color: @ini_background;
+    background-color: var(--fokus-surface);
     width:  293px;
     height: 193px;
     overflow: auto;
-    border: 1px solid @ini_border;
+    border: 1px solid var(--fokus-border);
     margin: 3px auto;
     text-align: left;
     line-height: 1;
@@ -57,16 +57,16 @@
 }
 
 #link__wiz_result div.even {
-    background-color: @ini_background_neu;
+    background-color: var(--fokus-accent-soft);
 }
 
 #link__wiz_result div.selected {
-    background-color: @ini_background_alt;
+    background-color: var(--fokus-surface-soft);
 }
 
 #link__wiz_result span {
     display: block;
-    color: @ini_text_neu;
+    color: var(--fokus-muted-copy);
     margin-left: 22px;
 }
 

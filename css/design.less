@@ -8,7 +8,7 @@
  */
 
 .dokuwiki.export {
-    background-color: @ini_background;
+    background-color: var(--fokus-surface);
 }
 
 /* header
@@ -46,7 +46,7 @@
 
         a {
             text-decoration: none;
-            color: @ini_text;
+            color: var(--fokus-text);
             background-color: inherit;
         }
     }
@@ -58,7 +58,7 @@
 
     /* make all links in header (including breadcrumb and interwiki) same colour as the rest */
     a {
-        color: @ini_link;
+        color: var(--fokus-internal-link);
         background-color: inherit;
     }
 }
@@ -170,8 +170,8 @@ form.search {
 /*____________ breadcrumbs ____________*/
 
 .dokuwiki div.breadcrumbs {
-    border-top: 1px solid @ini_border;
-    border-bottom: 1px solid @ini_background;
+    border-top: 1px solid var(--fokus-border);
+    border-bottom: 1px solid var(--fokus-surface);
     margin-bottom: .5em;
     font-size: 0.875em;
     clear: both;
@@ -181,16 +181,16 @@ form.search {
     }
 
     div:only-child {
-        border-top: 1px solid @ini_background;
-        border-bottom: 1px solid @ini_border;
+        border-top: 1px solid var(--fokus-surface);
+        border-bottom: 1px solid var(--fokus-border);
     }
 
     div:first-child {
-        border-top: 1px solid @ini_background;
+        border-top: 1px solid var(--fokus-surface);
     }
 
     div:last-child {
-        border-bottom: 1px solid @ini_border;
+        border-bottom: 1px solid var(--fokus-border);
     }
 
     .bcsep {
@@ -211,25 +211,25 @@ form.search {
 
     span {
         font-size: 0.875em;
-        border: solid @ini_background_alt;
+        border: solid var(--fokus-surface-soft);
         border-width: 1px 1px 0;
-        background-color: @ini_background;
-        color: @ini_text_alt;
+        background-color: var(--fokus-surface);
+        color: var(--fokus-muted);
         padding: .1em .35em;
         border-top-left-radius: 2px;
         border-top-right-radius: 2px;
-        box-shadow: 0 0 .5em @ini_text_alt;
+        box-shadow: 0 0 .5em var(--fokus-muted);
         display: block;
     }
 }
 
 .dokuwiki div.page {
     clear: both;
-    background: @ini_background;
+    background: var(--fokus-surface);
     color: inherit;
-    border: 1px solid @ini_background_alt;
-    box-shadow: 0 0 .5em @ini_text_alt;
-    border-radius: 4px;
+    border: 1px solid var(--fokus-surface-soft);
+    box-shadow: 0 0 .5em var(--fokus-muted);
+    border-radius:var(--fokus-control-radius);
     padding: 1.556em 2em 2em;
     margin-bottom: .5em;
     overflow-x: clip;

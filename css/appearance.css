@@ -1,0 +1,23 @@
+/* Setting consumers. Values and theme defaults live in settings-schema.php. */
+html, body { font-family: var(--fokus-body-font); font-size: var(--fokus-font-size); line-height: var(--fokus-line-height); }
+.dokuwiki h1, .dokuwiki h2, .dokuwiki h3, .dokuwiki h4, .dokuwiki h5, .dokuwiki h6 { font-family: var(--fokus-heading-font); }
+.dokuwiki .page p { margin-bottom: var(--fokus-paragraph-gap); }
+.dokuwiki a.wikilink1:not(.pagehealth-empty-link):not(.interwiki),
+html[data-theme="dark"] .dokuwiki a.wikilink1:not(.pagehealth-empty-link):not(.interwiki) {
+    color: var(--fokus-internal-link); font-weight: var(--fokus-internal-weight);
+    text-decoration-line: var(--fokus-internal-decoration); text-decoration-style: var(--fokus-link-decoration-style);
+}
+.dokuwiki a.wikilink1:not(.pagehealth-empty-link):not(.interwiki):hover,
+html[data-theme="dark"] .dokuwiki a.wikilink1:not(.pagehealth-empty-link):not(.interwiki):hover { color: var(--fokus-internal-hover) !important; }
+.dokuwiki a.wikilink2:not(.pagehealth-empty-link):not(.interwiki),
+html[data-theme="dark"] .dokuwiki a.wikilink2:not(.pagehealth-empty-link):not(.interwiki) {
+    color: var(--fokus-missing-link); text-decoration-line: underline;
+    text-decoration-style: var(--fokus-missing-decoration-style); border-bottom: 0;
+}
+.dokuwiki a.wikilink2:not(.pagehealth-empty-link):not(.interwiki):hover,
+html[data-theme="dark"] .dokuwiki a.wikilink2:not(.pagehealth-empty-link):not(.interwiki):hover { color: var(--fokus-missing-link) !important; }
+.dokuwiki a.urlextern, html[data-theme="dark"] .dokuwiki a.urlextern {
+    font-weight: var(--fokus-external-weight); text-decoration-line: var(--fokus-external-decoration); text-decoration-style: var(--fokus-link-decoration-style);
+}
+.dokuwiki a.urlextern:hover, html[data-theme="dark"] .dokuwiki a.urlextern:hover { color: var(--fokus-external-hover) !important; }
+html .dokuwiki a.wikilink1.pagehealth-empty-link:hover { color: var(--pagehealth-empty-hover-color) !important; }

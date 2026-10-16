@@ -40,13 +40,10 @@ $paneAdapters = ['preview', 'annotations', 'katex'];
     <?php endif; ?>
     <?php tpl_metaheaders() ?>
     <style>
-        :root{--fokus-page-gutter:20px;--infinitepanels-panel-width:<?php echo hsc($paneWidth); ?>rem;--infinitepanels-zoom-width:<?php echo hsc($zoomPaneWidth); ?>rem;}
+        :root{--infinitepanels-panel-width:<?php echo hsc($paneWidth); ?>rem;--infinitepanels-zoom-width:<?php echo hsc($zoomPaneWidth); ?>rem;}
         #dokuwiki__site{padding-left:var(--fokus-page-gutter);padding-right:var(--fokus-page-gutter);}
     </style>
-    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>panes/panels.css" />
-    <?php if ($sidebarEnabled) : ?>
-    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>sidebar/sidebar.css" />
-    <?php endif; ?>
+    <?php require_once __DIR__ . '/appearance.php'; fokus_appearance_styles(); ?>
     <?php if ($panesEnabled) : ?>
     <script>window.InfinitePanelsConfig = <?php echo json_encode([
         'pageId' => $ID,

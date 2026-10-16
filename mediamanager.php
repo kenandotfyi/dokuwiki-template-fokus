@@ -24,6 +24,7 @@ $darkModeEnabled = (bool) tpl_getConf('dark_mode', 1);
     <script src="<?php echo tpl_basedir(); ?>darkmode.js"></script>
     <?php endif; ?>
     <?php tpl_metaheaders()?>
+    <?php require_once __DIR__ . '/appearance.php'; fokus_appearance_styles(); ?>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <?php echo tpl_favicon(['favicon', 'mobile']) ?>
     <?php tpl_includeFile('meta.html') ?>

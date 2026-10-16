@@ -73,7 +73,7 @@
                         margin: 0 @ico-margin;
                         display: inline-block;
                         vertical-align: middle;
-                        fill: @ini_border;
+                        fill: var(--fokus-border);
                     }
                 }
 
@@ -81,14 +81,14 @@
                 a:active,
                 a:focus,
                 a:hover {
-                    background-color: @ini_background_alt;
+                    background-color: var(--fokus-surface-soft);
 
                     span {
                         display: inline-block;
                     }
 
                     svg {
-                        fill: @ini_link;
+                        fill: var(--fokus-internal-link);
                     }
                 }
             }
@@ -112,10 +112,10 @@
 // on hover or focus show all items
 #dokuwiki__pagetools:hover, #dokuwiki__pagetools:focus-within {
     div.tools ul {
-        background-color: @ini_background;
-        border-color: @ini_border;
-        border-radius: 4px;
-        box-shadow: 2px 2px 2px @ini_text_alt;
+        background-color: var(--fokus-surface);
+        border-color: var(--fokus-border);
+        border-radius:var(--fokus-control-radius);
+        box-shadow: 2px 2px 2px var(--fokus-muted);
 
         li a span {
             display: inline-block;
