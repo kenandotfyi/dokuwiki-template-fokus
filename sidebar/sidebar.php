@@ -3,7 +3,7 @@ if (!defined('DOKU_INC')) die();
 
 function fokus_sidebar_icon($name) {
     // Official Phosphor duotone assets (MIT; see ../PHOSPHOR-LICENSE.txt).
-    $duotone = ['home' => 'asterisk', 'files' => 'folder', 'tags' => 'tag', 'new' => 'file-plus', 'pin' => 'push-pin', 'unpin' => 'push-pin-slash', 'file' => 'file-text', 'refresh' => 'arrows-clockwise', 'actions' => 'dots-three', 'filter' => 'binoculars', 'sidebar' => 'sidebar', 'rename' => 'text-strikethrough', 'delete' => 'trash', 'folder' => 'folder', 'folder-open' => 'folder-open', 'expand-all' => 'arrows-out-line-vertical', 'collapse-all' => 'arrows-in-line-vertical'];
+    $duotone = ['home' => 'asterisk', 'files' => 'folder', 'tags' => 'tag', 'new' => 'file-plus', 'pin' => 'push-pin', 'unpin' => 'push-pin-slash', 'file' => 'file-text', 'refresh' => 'arrows-clockwise', 'actions' => 'dots-three', 'filter' => 'binoculars', 'sidebar' => 'sidebar', 'rename' => 'text-strikethrough', 'delete' => 'trash', 'folder' => 'folder', 'folder-open' => 'folder-open', 'expand-all' => 'arrows-out-line-vertical', 'collapse-all' => 'arrows-in-line-vertical', 'theme-light' => 'sun', 'theme-dark' => 'moon'];
     return str_replace('<svg ', '<svg aria-hidden="true" focusable="false" ', file_get_contents(__DIR__ . '/icons/' . $duotone[$name] . '-duotone.svg'));
 }
 $sidebarConfig = [
@@ -12,6 +12,7 @@ $sidebarConfig = [
     'startPage' => $conf['start'],
     'homeUrl' => wl($conf['start'], '', true, '&'),
     'securityToken' => getSecurityToken(),
+    'trackInitialPage' => $ACT === 'show' && page_exists($ID),
     'moveAvailable' => fokus_dependency_available('move'),
     'pageHealthAvailable' => (bool) plugin_load('action', 'pagehealth'),
     'ajaxEndpoint' => DOKU_BASE . 'lib/exe/ajax.php',
@@ -22,12 +23,17 @@ $sidebarConfig = [
     <div class="fokus-sidebar-top">
         <div class="fokus-sidebar-identity">
             <span class="fokus-sidebar-name" title="<?php echo hsc(strip_tags($conf['title'])); ?>"><?php echo hsc(strip_tags($conf['title'])); ?></span>
+            <div class="fokus-sidebar-identity-actions">
+            <?php if ($darkModeEnabled) : ?>
+                <button type="button" class="fokus-theme-toggle" aria-label="Switch to dark theme" title="Switch to dark theme" aria-pressed="false"><?php echo str_replace('<svg ', '<svg class="fokus-theme-icon-light" ', fokus_sidebar_icon('theme-light')); ?><?php echo str_replace('<svg ', '<svg class="fokus-theme-icon-dark" ', fokus_sidebar_icon('theme-dark')); ?></button>
+            <?php endif; ?>
             <?php if ($conf['useacl'] && !empty($_SERVER['REMOTE_USER'])) : ?>
             <details class="fokus-vault-menu fokus-sidebar-actions">
                 <summary aria-label="Wiki actions" title="Wiki actions"><?php echo fokus_sidebar_icon('actions'); ?></summary>
                 <div class="fokus-vault-dropdown"><?php include __DIR__ . '/vault-actions.php'; ?></div>
             </details>
             <?php endif; ?>
+            </div>
         </div>
         <div class="fokus-sidebar-navigation">
             <div class="fokus-sidebar-navigation-left">
@@ -49,6 +55,10 @@ $sidebarConfig = [
             <div id="fokus-pinned-list"></div>
             <p id="fokus-pinned-status" role="status">Loading pinned files…</p>
             <p id="fokus-pinned-empty">Open a file, then pin it here.</p>
+        </section>
+        <section id="fokus-recents-section" class="fokus-recents-section" aria-labelledby="fokus-recents-heading" hidden>
+            <div class="fokus-sidebar-heading"><span id="fokus-recents-heading">Recents</span></div>
+            <div id="fokus-recents-list"></div>
         </section>
         <div class="fokus-sidebar-heading"><span>Files</span><div class="fokus-sidebar-heading-actions"><button type="button" class="fokus-sidebar-icon-button" data-refresh="files" aria-label="Refresh files" title="Refresh files"><?php echo fokus_sidebar_icon('refresh'); ?></button><button type="button" id="fokus-toggle-namespaces" class="fokus-sidebar-icon-button" aria-label="Expand all namespaces" title="Expand all namespaces" disabled><?php echo fokus_sidebar_icon('expand-all'); ?></button><button type="button" id="fokus-create-file" class="fokus-sidebar-icon-button" aria-label="Create file" title="Create file"><?php echo fokus_sidebar_icon('new'); ?></button></div></div>
         <p class="fokus-sidebar-status" role="status">Loading pages…</p>
@@ -72,6 +82,45 @@ $sidebarConfig = [
     <template id="fokus-icon-expand-all"><?php echo fokus_sidebar_icon('expand-all'); ?></template>
     <template id="fokus-icon-collapse-all"><?php echo fokus_sidebar_icon('collapse-all'); ?></template>
 </aside>
+<style>
+/* Keep the sidebar's new controls usable even while DokuWiki serves a cached css.php bundle. */
+#fokus-sidebar .fokus-sidebar-identity-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; }
+#fokus-sidebar .fokus-theme-toggle { display: inline-flex; flex: 0 0 24px; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--fokus-control-radius); color: var(--fokus-muted); }
+#fokus-sidebar .fokus-theme-toggle svg { width: 17px; height: 17px; }
+#fokus-sidebar .fokus-theme-icon-dark { display: none; }
+html[data-theme="dark"] #fokus-sidebar .fokus-theme-icon-light { display: none; }
+html[data-theme="dark"] #fokus-sidebar .fokus-theme-icon-dark { display: block; }
+#fokus-recents-list { display: flex; flex-direction: column; max-height: 150px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 0 8px; }
+#fokus-recents-list::-webkit-scrollbar { display: none; }
+#fokus-sidebar .fokus-recent-row { display: flex; flex: 0 0 30px; align-items: center; min-height: 30px; padding: 5px 8px; gap: 8px; color: var(--fokus-text); text-decoration: none; }
+#fokus-sidebar .fokus-recent-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+<script>
+(function () {
+    var button = document.querySelector('#fokus-sidebar .fokus-theme-toggle');
+    if (!button) return;
+    function sync(theme) {
+        var dark = theme === 'dark';
+        var label = dark ? 'Switch to light theme' : 'Switch to dark theme';
+        button.setAttribute('aria-label', label);
+        button.setAttribute('title', label);
+        button.setAttribute('aria-pressed', String(dark));
+        button.querySelector('.fokus-theme-icon-light').hidden = dark;
+        button.querySelector('.fokus-theme-icon-dark').hidden = !dark;
+    }
+    sync(document.documentElement.dataset.theme);
+    button.addEventListener('click', function (event) {
+        event.stopPropagation();
+        var theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+        sync(theme);
+        try { localStorage.setItem('fokus-theme', theme); } catch (error) { /* Theme still applies for this page. */ }
+    });
+    new MutationObserver(function () {
+        sync(document.documentElement.dataset.theme);
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
 <div id="fokus-file-menu" role="menu" aria-label="File actions" data-file-tree-context-menu-root="true" hidden></div>
 <dialog id="fokus-file-action-dialog" class="fokus-sidebar-dialog" aria-labelledby="fokus-file-action-title">
     <form id="fokus-file-action-form">

@@ -20,6 +20,15 @@ if ($kind === 'pins') {
         http_response_code(in_array($code, [400, 403, 405], true) ? $code : 500);
         $result = ['error' => $error instanceof RuntimeException ? $error->getMessage() : 'Could not load or save pinned files.'];
     }
+} elseif ($kind === 'recents') {
+    require_once __DIR__ . '/recents.php';
+    try {
+        $result = fokus_recents_endpoint();
+    } catch (Throwable $error) {
+        $code = (int) $error->getCode();
+        http_response_code(in_array($code, [400, 403, 405], true) ? $code : 500);
+        $result = ['error' => $error instanceof RuntimeException ? $error->getMessage() : 'Could not load or save recent pages.'];
+    }
 } elseif ($kind === 'files') {
     require_once DOKU_INC . 'inc/search.php';
     $pages = [];

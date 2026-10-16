@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function focusOpenPage(index, url, companionIndex = -1, persistUrl = true) {
         const pane = paneElements[index];
         if (!pane) return;
+        window.fokusRegisterRecentPage?.(pane.dataset.pageId);
         pane.classList.remove('infinitepanels-pane-minimized');
         focusedPaneIndex = index;
         if (document.body.classList.contains('infinitepanels-focused')) {
@@ -985,6 +986,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const loaded = await loadPane(pane, url, resolvedPageId, expectedVersion);
+            if (loaded) window.fokusRegisterRecentPage?.(resolvedPageId);
             if (loaded && persistUrl && expectedVersion === navigationVersion) saveUrlState();
         } catch (error) {
             if (expectedVersion !== navigationVersion || !pane.isConnected) return;

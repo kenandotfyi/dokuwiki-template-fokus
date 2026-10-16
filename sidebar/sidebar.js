@@ -20,6 +20,8 @@ function initializeSidebar() {
     const pinnedEmpty = document.getElementById('fokus-pinned-empty');
     const pinnedStatus = document.getElementById('fokus-pinned-status');
     const pinCurrent = document.getElementById('fokus-pin-current');
+    const recentsSection = document.getElementById('fokus-recents-section');
+    const recentsList = document.getElementById('fokus-recents-list');
     const createFile = document.getElementById('fokus-create-file');
     const toggleNamespaces = document.getElementById('fokus-toggle-namespaces');
     const createDialog = document.getElementById('fokus-new-page-dialog');
@@ -48,6 +50,9 @@ function initializeSidebar() {
     const count = document.getElementById('fokus-sidebar-count');
     const healthCount = document.getElementById('fokus-sidebar-health');
     let pageHealth = new Map();
+    let recentPages = [];
+    let recentWriteVersion = 0;
+    let recentWriteQueue = Promise.resolve();
     let matchingPages = [];
     const toggle = document.querySelector('.fokus-sidebar-toggle');
     const resizer = sidebar.querySelector('.fokus-sidebar-resizer');
@@ -385,6 +390,55 @@ function initializeSidebar() {
         pinCurrent.setAttribute('aria-label', pinCurrent.title);
         pinCurrent.setAttribute('aria-pressed', String(pinned));
     }
+    function renderRecents() {
+        recentsList.replaceChildren();
+        for (const recent of recentPages) {
+            const link = document.createElement('a');
+            const name = document.createElement('span');
+            link.className = 'fokus-recent-row';
+            link.href = recent.url;
+            link.title = recent.id;
+            link.dataset.pageId = recent.id;
+            name.textContent = recent.title;
+            name.classList.toggle('fokus-pagehealth-empty', pageHealth.get(recent.id) === true);
+            link.append(icon('file'), name);
+            link.addEventListener('click', event => {
+                if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                const page = pagesById.get(recent.id);
+                if (page) openPage(page);
+                else location.href = recent.url;
+            });
+            recentsList.append(link);
+        }
+        recentsSection.hidden = recentsList.childElementCount === 0;
+    }
+    async function loadRecents() {
+        const version = recentWriteVersion;
+        try {
+            const data = await request('recents');
+            if (version !== recentWriteVersion) return;
+            recentPages = Array.isArray(data.pages) ? data.pages : [];
+            renderRecents();
+        } catch (error) {
+            if (version !== recentWriteVersion) return;
+            recentPages = [];
+            renderRecents();
+            console.warn('Fokus sidebar: could not load recent pages.', error);
+        }
+    }
+    async function registerRecentPage(id) {
+        if (typeof id !== 'string' || !id) return;
+        const version = ++recentWriteVersion;
+        recentWriteQueue = recentWriteQueue.catch(() => {}).then(async () => {
+            const data = await request('recents', { target: id }, undefined, 'POST');
+            if (version !== recentWriteVersion) return;
+            recentPages = Array.isArray(data.pages) ? data.pages : [];
+            renderRecents();
+        }).catch(error => console.warn('Fokus sidebar: could not save recent page.', error));
+        return recentWriteQueue;
+    }
+    window.fokusRegisterRecentPage = registerRecentPage;
     function applyFilter() {
         if (!tree) return;
         const query = filter.value.trim().toLocaleLowerCase();
@@ -547,6 +601,8 @@ function initializeSidebar() {
                 // The library uses its own shadow host; inherit the surrounding theme.
                 treeHost.style.height = '100%';
                 treeHost.style.width = '100%';
+                // Keep the tree's outer inset aligned with the 8px-padded pinned and recent rows.
+                treeHost.style.setProperty('--trees-padding-inline-override', '8px');
                 // Trees derives accessible names from paths. Keep virtualized and
                 // recycled rows in sync with their visible heading labels as well.
                 const syncRowLabels = () => {
@@ -608,6 +664,7 @@ function initializeSidebar() {
             }
             status(panels.files, fileCount ? '' : 'No pages to display.');
             renderPinned();
+            renderRecents();
             applyFilter();
             syncNamespaceToggle();
             showCount();
@@ -927,4 +984,6 @@ function initializeSidebar() {
     selectView(view);
     loadFiles();
     loadPins();
+    loadRecents();
+    if (config.trackInitialPage) registerRecentPage(config.pageId);
 }
