@@ -34,6 +34,7 @@ function fokus_appearance_styles() {
         'body-font'=>$fonts[$values['font_family']], 'heading-font'=>$fonts[$values['heading_font']], 'code-font'=>$fonts[$values['code_font']],
         'font-size'=>$values['font_size'] . 'px', 'sidebar-font-size'=>$values['sidebar_font_size'] . 'px', 'line-height'=>$values['line_height'],
         'radius'=>$values['border_radius'] . 'px', 'control-radius'=>$values['control_radius'] . 'px',
+        'search-popup-width'=>$values['search_popup_width'] . 'px', 'search-popup-results-height'=>$values['search_popup_results_height'] . 'px',
         'page-gutter'=>$values['page_gutter'] . 'px', 'pane-gap'=>$values['pane_gap'] . 'px',
         'pane-padding'=>$values['page_padding'] . 'px', 'paragraph-gap'=>$values['paragraph_gap'] . 'em',
         'internal-decoration'=>$values['internal_decoration'], 'external-decoration'=>$values['external_decoration'],

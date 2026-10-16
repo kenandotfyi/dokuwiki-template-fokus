@@ -1153,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function isEligibleLink(anchor) {
-        if (!anchor || anchor.closest('#cmdp-search-modal')) return false;
+        if (!anchor || anchor.closest('#fokus-search-dialog')) return false;
         if (!anchor.classList.contains('wikilink1') && !anchor.classList.contains('wikilink2')) return false;
         if (anchor.classList.contains('media') || anchor.classList.contains('interwiki')) return false;
         if (anchor.target === '_blank') return false;

@@ -16,6 +16,7 @@ $darkModeEnabled = (bool) tpl_getConf('dark_mode', 1);
 <html lang="<?php echo $conf['lang']?>" dir="<?php echo $lang['direction'] ?>" class="no-js">
 <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/search.css" />
     <title>
         <?php echo hsc(tpl_img_getTag('IPTC.Headline', $IMG))?>
         [<?php echo strip_tags($conf['title'])?>]
@@ -24,6 +25,7 @@ $darkModeEnabled = (bool) tpl_getConf('dark_mode', 1);
     <?php if ($darkModeEnabled) : ?>
     <script src="<?php echo tpl_basedir(); ?>darkmode.js"></script>
     <?php endif; ?>
+    <script src="<?php echo tpl_basedir(); ?>search.js"></script>
     <?php tpl_metaheaders()?>
     <?php require_once __DIR__ . '/appearance.php'; fokus_appearance_styles(); ?>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -32,6 +34,14 @@ $darkModeEnabled = (bool) tpl_getConf('dark_mode', 1);
 </head>
 
 <body>
+    <dialog id="fokus-search-dialog" aria-labelledby="fokus-search-title">
+        <div class="fokus-search-dialog-header"><h2 id="fokus-search-title">Search</h2><button type="button" class="fokus-search-close" aria-label="Close search">×</button></div>
+        <form class="fokus-search-form" action="<?php echo hsc(DOKU_BASE . 'doku.php'); ?>" method="get" role="search">
+            <input type="hidden" name="do" value="search"><label class="a11y" for="fokus-search-input">Search the wiki</label>
+            <input id="fokus-search-input" name="q" type="search" autocomplete="off" placeholder="Search the wiki…" aria-controls="fokus-search-results" aria-expanded="false"><kbd>Esc</kbd>
+        </form>
+        <div id="fokus-search-results" role="region" aria-label="Search results" aria-live="polite"></div>
+    </dialog>
     <div id="dokuwiki__site"><div id="dokuwiki__top" class="site <?php echo tpl_classes(); ?>">
 
         <?php include(__DIR__ . '/tpl_header.php') ?>

@@ -14,7 +14,7 @@
 
     function applyTheme(theme) {
         document.documentElement.dataset.theme = theme;
-        document.querySelectorAll('.fokus-theme-toggle, .cmdp-theme-toggle').forEach(function (button) {
+        document.querySelectorAll('.fokus-theme-toggle').forEach(function (button) {
             const label = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
             button.setAttribute('aria-label', label);
             button.title = label;
@@ -32,7 +32,7 @@
     });
 
     document.addEventListener('click', function (event) {
-        const button = event.target.closest('.cmdp-theme-toggle, .fokus-theme-toggle');
+        const button = event.target.closest('.fokus-theme-toggle');
         if (!button) return;
 
         const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
