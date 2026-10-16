@@ -35,6 +35,9 @@ function fokus_settings_schema() {
     foreach (['light', 'dark'] as $theme) foreach ($colors as $name => $color) {
         $fields['color_' . $theme . '_' . $name] = ['group'=>'Appearance', 'section'=>ucfirst($theme) . ' colors', 'label'=>$color[0], 'type'=>'color', 'default'=>$color[$theme === 'light' ? 1 : 2], 'placeholder'=>$color[$theme === 'light' ? 1 : 2], 'variable'=>$color[3], 'theme'=>$theme];
     }
+    foreach (['light'=>['Light search match highlight', '#fff1a6'], 'dark'=>['Dark search match highlight', '#6b5b20']] as $theme => [$label, $default]) {
+        $fields['search_highlight_' . $theme] = ['group'=>'Appearance', 'section'=>'Search popup', 'label'=>$label, 'type'=>'color', 'default'=>$default, 'placeholder'=>$default, 'variable'=>'--fokus-search-highlight', 'theme'=>$theme];
+    }
     foreach ([
         'tag_light_color' => ['Light text', '#4a4a4a', '--fokus-tag-link', 'light'],
         'tag_light_hover' => ['Light hover text', '#4a4a4a', '--fokus-tag-hover', 'light'],

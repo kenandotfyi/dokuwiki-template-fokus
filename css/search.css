@@ -30,7 +30,7 @@
 #fokus-search-results .search_fullpage_result { padding: 10px 8px; border-radius: var(--fokus-control-radius); }
 #fokus-search-results .search_fullpage_result + .search_fullpage_result { border-top: 1px solid var(--fokus-border); }
 #fokus-search-results .search_fullpage_result .snippet, #fokus-search-results .search_fullpage_result .meta { color: var(--fokus-muted); }
-#fokus-search-results .search_hit { background: var(--fokus-accent-soft); }
+#fokus-search-results .search_hit { color: var(--fokus-text) !important; background: var(--fokus-search-highlight) !important; }
 .fokus-search-open { display: inline-flex; flex: 0 0 24px; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; color: var(--fokus-muted); background: transparent; border: 0; border-radius: var(--fokus-control-radius); cursor: pointer; }
 .fokus-search-open svg { width: 17px; height: 17px; }
 .fokus-search-open:hover, .fokus-search-open:focus-visible { color: var(--fokus-text); background: var(--fokus-surface-soft); outline: none; }

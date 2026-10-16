@@ -47,6 +47,7 @@ function fokus_appearance_styles() {
     foreach ($variables as $name => $value) $css .= '--fokus-' . $name . ':' . $value . ';';
     $css .= '}';
     $css .= fokus_interwiki_css($values['interwiki_styles']);
+    $css .= 'html .dokuwiki .search_hit{color:var(--fokus-text)!important;background-color:var(--fokus-search-highlight)!important;}';
     echo '<style id="fokus-appearance">' . $css . '</style>';
 }
 
