@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
         button.setAttribute('aria-label', label);
         button.setAttribute('aria-pressed', String(isZoomed));
         const icon = button.querySelector('svg');
-        if (icon) icon.replaceWith(createPhosphorIcon('magnifying-glass'));
+        if (icon) icon.replaceWith(createPhosphorIcon('magnifying-glass-plus'));
     }
 
     function closeZoomPane(restoreFocus = true) {
@@ -805,7 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
             zoomButton.title = 'Zoom pane';
             zoomButton.setAttribute('aria-label', 'Zoom pane');
             zoomButton.setAttribute('aria-pressed', 'false');
-            zoomButton.appendChild(createPhosphorIcon('magnifying-glass'));
+            zoomButton.appendChild(createPhosphorIcon('magnifying-glass-plus'));
             actions.appendChild(zoomButton);
         }
 
@@ -862,6 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'notebook': `<path d="M48,32H176A24,24 0 0 1 200,56V216A8,8 0 0 1 192,224H64A32,32 0 0 1 32,192V48A16,16 0 0 1 48,32Z" opacity="0.2"/><path d="M176,24H48A24,24 0 0 0 24,48V192A40,40 0 0 0 64,232H192A16,16 0 0 0 208,216V56A32,32 0 0 0 176,24ZM40,48A8,8 0 0 1 48,40H176A16,16 0 0 1 192,56V208H64A24,24 0 0 1 40,184ZM192,216H64A24,24 0 0 1 40,192.2 39.7,39.7 0 0 0 64,200H192ZM72,72H160A8,8 0 0 1 160,88H72A8,8 0 0 1 72,72ZM72,112H160A8,8 0 0 1 160,128H72A8,8 0 0 1 72,112ZM72,152H136A8,8 0 0 1 136,168H72A8,8 0 0 1 72,152Z"/>`,
             'text-t': `<path d="M32,40H224V80H144V216H112V80H32Z"/><path d="M40,48H216V72H40Z" opacity="0.2"/>`,
             'magnifying-glass': `<g opacity="0.2"><circle cx="115.99512" cy="116" r="84"/></g><path d="M229.64648,218.34424l-43.2229-43.2229a92.111,92.111,0,1,0-11.31445,11.31347l43.2229,43.2229a8.00018,8.00018,0,1,0,11.31445-11.31347ZM39.99512,116a76,76,0,1,1,76,76A76.08614,76.08614,0,0,1,39.99512,116Z"/>`,
+            'magnifying-glass-plus': `<g opacity="0.2"><circle cx="112" cy="112" r="80"/></g><path d="M229.66,218.34,179.6,168.28a88.21,88.21,0,1,0-11.32,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/><path d="M112 80a8 8 0 0 1 8 8v16h16a8 8 0 0 1 0 16h-16v16a8 8 0 0 1-16 0v-16H88a8 8 0 0 1 0-16h16V88a8 8 0 0 1 8-8Z"/>`,
             'pen-nib': `<path d="M128,48,68.32,70.38a8,8,0,0,0-5.08,6.17L40,216l139.45-23.24a8,8,0,0,0,6.17-5.08L208,128Zm-4,104a20,20,0,1,1,20-20A20,20,0,0,1,124,152Z" opacity="0.2"/><path d="M248,92.68a15.86,15.86,0,0,0-4.69-11.31L174.63,12.68a16,16,0,0,0-22.63,0L123.57,41.11l-58,21.77A16.06,16.06,0,0,0,55.35,75.23L32.11,214.68A8,8,0,0,0,40,224a8.4,8.4,0,0,0,1.32-.11l139.44-23.24a16,16,0,0,0,12.35-10.17l21.77-58L243.31,104A15.87,15.87,0,0,0,248,92.68Zm-69.87,92.19L63.32,204l47.37-47.37a28,28,0,1,0-11.32-11.32L52,192.7,71.13,77.86,126,57.29,198.7,130ZM112,132a12,12,0,1,1,12,12A12,12,0,0,1,112,132Zm96-15.32L139.31,48l24-24L232,92.68Z"/>`,
             'clock-counter-clockwise': `<path d="M216,128a88,88,0,1,1-88-88A88,88,0,0,1,216,128Z" opacity="0.2"/><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/>`,
             'cursor-text': `<path d="M176,48V208H160a32,32,0,0,1-32-32,32,32,0,0,1-32,32H80V48H96a32,32,0,0,1,32,32,32,32,0,0,1,32-32Z" opacity="0.2"/><path d="M184,208a8,8,0,0,1-8,8H160a40,40,0,0,1-32-16,40,40,0,0,1-32,16H80a8,8,0,0,1,0-16H96a24,24,0,0,0,24-24V136H104a8,8,0,0,1,0-16h16V80A24,24,0,0,0,96,56H80a8,8,0,0,1,0-16H96a40,40,0,0,1,32,16,40,40,0,0,1,32-16h16a8,8,0,0,1,0,16H160a24,24,0,0,0-24,24v40h16a8,8,0,0,1,0,16H136v40a24,24,0,0,0,24,24h16A8,8,0,0,1,184,208Z"/>`,

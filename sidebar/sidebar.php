@@ -24,7 +24,6 @@ $sidebarConfig = [
         <div class="fokus-sidebar-identity">
             <span class="fokus-sidebar-name" title="<?php echo hsc(strip_tags($conf['title'])); ?>"><?php echo hsc(strip_tags($conf['title'])); ?></span>
             <div class="fokus-sidebar-identity-actions">
-                <button type="button" class="fokus-search-open" aria-label="Search the wiki" title="Search the wiki (Ctrl+Shift+F)"><?php echo fokus_sidebar_icon('search'); ?></button>
             <?php if ($darkModeEnabled) : ?>
                 <button type="button" class="fokus-theme-toggle" aria-label="Switch to dark theme" title="Switch to dark theme" aria-pressed="false"><?php echo str_replace('<svg ', '<svg class="fokus-theme-icon-light" ', fokus_sidebar_icon('theme-light')); ?><?php echo str_replace('<svg ', '<svg class="fokus-theme-icon-dark" ', fokus_sidebar_icon('theme-dark')); ?></button>
             <?php endif; ?>
@@ -47,7 +46,10 @@ $sidebarConfig = [
             <label class="fokus-sidebar-filter" id="fokus-sidebar-filter-area" aria-hidden="true" inert>
                 <input type="search" id="fokus-sidebar-filter" placeholder="Filter…" aria-label="Filter files" autocomplete="off" spellcheck="false" disabled />
             </label>
-            <button type="button" class="fokus-sidebar-filter-toggle" aria-label="Toggle file filter" title="Filter files" aria-controls="fokus-sidebar-filter-area" aria-expanded="false"><?php echo fokus_sidebar_icon('filter'); ?></button>
+            <div class="fokus-sidebar-navigation-actions">
+                <button type="button" class="fokus-search-open" aria-label="Search the wiki" title="Search the wiki (Ctrl+Shift+F)"><?php echo fokus_sidebar_icon('search'); ?></button>
+                <button type="button" class="fokus-sidebar-filter-toggle" aria-label="Toggle file filter" title="Filter files" aria-controls="fokus-sidebar-filter-area" aria-expanded="false"><?php echo fokus_sidebar_icon('filter'); ?></button>
+            </div>
         </div>
     </div>
     <section id="fokus-files-panel" class="fokus-sidebar-panel" role="tabpanel" aria-labelledby="fokus-files-tab">

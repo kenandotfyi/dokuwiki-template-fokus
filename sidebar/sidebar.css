@@ -143,7 +143,7 @@ html[data-theme="dark"] #fokus-sidebar .fokus-theme-toggle .fokus-theme-icon-dar
 #fokus-sidebar .fokus-sidebar-filter {
     position: absolute;
     left: 0;
-    right: 28px;
+    right: 52px;
     top: -3px;
     bottom: -3px;
     z-index: 1;
@@ -182,11 +182,13 @@ html[data-theme="dark"] #fokus-sidebar .fokus-theme-toggle .fokus-theme-icon-dar
 #fokus-sidebar .fokus-sidebar-filter:focus-within { outline: 1px solid var(--fokus-accent); outline-offset: -1px; }
 .fokus-sidebar-navigation { position: relative; display: flex; align-items: center; gap: 4px; margin-top: 12px; }
 .fokus-sidebar-navigation-left { display: flex; align-items: center; gap: 4px; }
+.fokus-sidebar-navigation-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; margin-left: auto; }
 .fokus-sidebar-filter-open .fokus-sidebar-navigation-left { visibility: hidden; }
 #fokus-sidebar .fokus-sidebar-filter-open .fokus-sidebar-filter { visibility: visible; opacity: 1; transform: scaleX(1); }
 .fokus-sidebar-tabs { display: flex; gap: 4px; }
 #fokus-sidebar .fokus-sidebar-tabs button,
 #fokus-sidebar .fokus-sidebar-home,
+#fokus-sidebar .fokus-search-open,
 #fokus-sidebar .fokus-sidebar-filter-toggle {
     display: flex;
     flex: 0 0 24px;
@@ -199,7 +201,8 @@ html[data-theme="dark"] #fokus-sidebar .fokus-theme-toggle .fokus-theme-icon-dar
     color: var(--fokus-muted);
     text-decoration: none;
 }
-#fokus-sidebar .fokus-sidebar-filter-toggle { position: relative; z-index: 2; margin-left: auto; }
+#fokus-sidebar .fokus-search-open,
+#fokus-sidebar .fokus-sidebar-filter-toggle { position: relative; z-index: 2; }
 #fokus-sidebar .fokus-sidebar-filter-toggle[aria-expanded="true"] { background: var(--fokus-accent-soft); color: var(--fokus-text); }
 #fokus-sidebar .fokus-sidebar-tabs [aria-selected="true"] {
     background: var(--fokus-accent-soft);
