@@ -1153,9 +1153,16 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (viewport) viewport.scrollTo({ left: 0, behavior: 'smooth' });
     }
 
+    function isIncludeSectionLink(anchor) {
+        return Boolean(anchor?.closest('.plugin_include_content')
+            && anchor.parentElement?.matches('h1, h2, h3, h4, h5, h6'));
+    }
+
     function isEligibleLink(anchor) {
         if (!anchor || anchor.closest('#fokus-search-dialog')) return false;
-        if (!anchor.classList.contains('wikilink1') && !anchor.classList.contains('wikilink2')) return false;
+        if (!anchor.classList.contains('wikilink1')
+            && !anchor.classList.contains('wikilink2')
+            && !isIncludeSectionLink(anchor)) return false;
         if (anchor.classList.contains('media') || anchor.classList.contains('interwiki')) return false;
         if (anchor.target === '_blank') return false;
         try {

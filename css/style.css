@@ -305,6 +305,8 @@ html, body {
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 2px;
+    padding-inline: 3px;
+    margin-inline: -3px;
 }
 
 
@@ -314,8 +316,9 @@ a.interwiki {
 
 a:hover{
     background-color: var(--fokus-accent-soft) !important;
-    border-radius:var(--fokus-control-radius);
+    border-radius: 2px;
     color: var(--fokus-accent) !important;
+
 }
 
 a.urlextern {
@@ -659,6 +662,7 @@ html[data-theme="dark"] .fokus-vault-menu[open] > summary {
 body > div.plugin-preview {
     border: 1px solid var(--fokus-border);
     border-radius: var(--fokus-radius);
+    box-shadow: 0 4px 8px var(--fokus-menu-shadow) !important;
     background: var(--fokus-surface);
     font-size: 85%;
     padding: 0px;
@@ -712,8 +716,8 @@ body > div.plugin-preview {
 
 .katex {
     text-rendering: auto;
-    font-size: 1.3rem !important;
-    line-height: 1.2;
+    font-size: 1.2rem !important;
+    line-height: 1.4;
     text-indent: 0;
 }
 
