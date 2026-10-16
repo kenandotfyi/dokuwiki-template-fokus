@@ -21,6 +21,7 @@ function initializeSidebar() {
     const pinnedStatus = document.getElementById('fokus-pinned-status');
     const pinCurrent = document.getElementById('fokus-pin-current');
     const createFile = document.getElementById('fokus-create-file');
+    const toggleNamespaces = document.getElementById('fokus-toggle-namespaces');
     const createDialog = document.getElementById('fokus-new-page-dialog');
     const createForm = document.getElementById('fokus-new-page-form');
     const createName = document.getElementById('fokus-new-page-name');
@@ -66,6 +67,7 @@ function initializeSidebar() {
     let directories = new Set();
     let labelsByPath = new Map();
     let treePages = [];
+    let allTreePaths = [];
     let namespacePages = new Map();
     let mergedPaths = new Map();
     let saveTimer;
@@ -402,7 +404,30 @@ function initializeSidebar() {
         host.hidden = !matchingCount;
         if (!query) filterExpansion = null;
         if (filesLoaded) status(panels.files, !fileCount ? 'No pages to display.' : query && !matchingCount ? 'No matching files.' : '');
+        syncNamespaceToggle();
         showCount();
+    }
+    function syncNamespaceToggle() {
+        const filtering = Boolean(filter.value.trim());
+        const anyExpanded = Boolean(tree && directories.size) &&
+            [...directories].some(path => tree.getItem(path)?.isExpanded());
+        const action = anyExpanded ? 'collapse-all' : 'expand-all';
+        const label = anyExpanded ? 'Collapse all namespaces' : 'Expand all namespaces';
+        toggleNamespaces.replaceChildren(icon(action));
+        toggleNamespaces.setAttribute('aria-label', label);
+        toggleNamespaces.title = filtering ? 'Clear the file filter to manage all namespaces' : label;
+        toggleNamespaces.disabled = !filesLoaded || !tree || directories.size === 0 || filtering;
+    }
+    function toggleAllNamespaces() {
+        if (!tree || !filesLoaded || !directories.size || filter.value.trim()) return;
+        const collapseAll = [...directories].some(path => tree.getItem(path)?.isExpanded());
+        const expandedPaths = collapseAll ? [] : [...directories];
+        filtering = true;
+        try { tree.resetPaths(allTreePaths, { initialExpandedPaths: expandedPaths }); }
+        finally { filtering = false; }
+        state.expanded = expandedPaths;
+        saveState();
+        syncNamespaceToggle();
     }
     function setFilterOpen(open) {
         navigation.classList.toggle('fokus-sidebar-filter-open', open);
@@ -460,6 +485,7 @@ function initializeSidebar() {
                 ...[...namespacePages].map(([path, page]) => [path, page.title]),
             ]);
             const paths = [...new Set(treePages.map(page => mergedPaths.get(page.path) || page.path))];
+            allTreePaths = paths;
             if (Array.isArray(state.expanded)) {
                 state.expanded = state.expanded.filter(path => directories.has(path));
                 saveState();
@@ -467,7 +493,9 @@ function initializeSidebar() {
             fileCount = treePages.length;
             filesLoaded = true;
             if (tree) {
-                tree.resetPaths(paths);
+                tree.resetPaths(paths, {
+                    initialExpandedPaths: Array.isArray(state.expanded) ? state.expanded.filter(path => directories.has(path)) : [],
+                });
             } else {
                 const fileIcon = icon('file');
                 const namespaceIcon = icon('folder');
@@ -568,6 +596,7 @@ function initializeSidebar() {
                     if (event.key === 'Enter') activateTreeRow(event);
                 }, true);
                 tree.subscribe(() => {
+                    syncNamespaceToggle();
                     if (filter.value.trim() || filtering) return;
                     clearTimeout(saveTimer);
                     saveTimer = setTimeout(() => {
@@ -580,6 +609,7 @@ function initializeSidebar() {
             status(panels.files, fileCount ? '' : 'No pages to display.');
             renderPinned();
             applyFilter();
+            syncNamespaceToggle();
             showCount();
         } catch (error) {
             if (version !== fileRequest) return;
@@ -713,6 +743,7 @@ function initializeSidebar() {
         if (button.dataset.refresh === 'files') { loadFiles(); loadPins(); }
         else loadTags(true);
     }));
+    toggleNamespaces.addEventListener('click', toggleAllNamespaces);
     pinCurrent.addEventListener('click', () => togglePinned(activePageId));
     createFile.addEventListener('click', () => showCreate());
     sidebar.addEventListener('contextmenu', handleFileContext, true);

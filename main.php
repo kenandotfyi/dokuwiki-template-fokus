@@ -41,7 +41,6 @@ $paneAdapters = ['preview', 'annotations', 'katex'];
     <?php tpl_metaheaders() ?>
     <style>
         :root{--infinitepanels-panel-width:<?php echo hsc($paneWidth); ?>rem;--infinitepanels-zoom-width:<?php echo hsc($zoomPaneWidth); ?>rem;}
-        #dokuwiki__site{padding-left:var(--fokus-page-gutter);padding-right:var(--fokus-page-gutter);}
     </style>
     <?php require_once __DIR__ . '/appearance.php'; fokus_appearance_styles(); ?>
     <?php if ($panesEnabled) : ?>

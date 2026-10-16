@@ -57,7 +57,11 @@ body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hove
     overflow-x: auto;
     overflow-y: hidden;
     background: transparent !important;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+}
+
+.infinitepanels-minimized-shelf::-webkit-scrollbar {
+    display: none;
 }
 
 .infinitepanels-active #dokuwiki__header {
@@ -183,6 +187,12 @@ body.infinitepanels-active #dokuwiki__site {
     box-sizing: border-box;
     width: 100vw;
     max-width: none;
+}
+
+/* Let only the pane area pass under the sidebar; keep the workspace shelf in place. */
+body.infinitepanels-active.infinitepanels-overflowing.infinitepanels-scrolled #dokuwiki__content {
+    width: calc(100% + var(--fokus-page-gutter));
+    margin-left: calc(-1 * var(--fokus-page-gutter));
 }
 
 .infinitepanels-active #dokuwiki__content,

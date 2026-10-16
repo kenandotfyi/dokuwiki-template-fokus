@@ -3,7 +3,7 @@ if (!defined('DOKU_INC')) die();
 
 function fokus_sidebar_icon($name) {
     // Official Phosphor duotone assets (MIT; see ../PHOSPHOR-LICENSE.txt).
-    $duotone = ['home' => 'asterisk', 'files' => 'folder', 'tags' => 'tag', 'new' => 'file-plus', 'pin' => 'push-pin', 'unpin' => 'push-pin-slash', 'file' => 'file-text', 'refresh' => 'arrows-clockwise', 'actions' => 'dots-three', 'filter' => 'binoculars', 'sidebar' => 'sidebar', 'rename' => 'text-strikethrough', 'delete' => 'trash', 'folder' => 'folder', 'folder-open' => 'folder-open'];
+    $duotone = ['home' => 'asterisk', 'files' => 'folder', 'tags' => 'tag', 'new' => 'file-plus', 'pin' => 'push-pin', 'unpin' => 'push-pin-slash', 'file' => 'file-text', 'refresh' => 'arrows-clockwise', 'actions' => 'dots-three', 'filter' => 'binoculars', 'sidebar' => 'sidebar', 'rename' => 'text-strikethrough', 'delete' => 'trash', 'folder' => 'folder', 'folder-open' => 'folder-open', 'expand-all' => 'arrows-out-line-vertical', 'collapse-all' => 'arrows-in-line-vertical'];
     return str_replace('<svg ', '<svg aria-hidden="true" focusable="false" ', file_get_contents(__DIR__ . '/icons/' . $duotone[$name] . '-duotone.svg'));
 }
 $sidebarConfig = [
@@ -50,7 +50,7 @@ $sidebarConfig = [
             <p id="fokus-pinned-status" role="status">Loading pinned files…</p>
             <p id="fokus-pinned-empty">Open a file, then pin it here.</p>
         </section>
-        <div class="fokus-sidebar-heading"><span>Files</span><div class="fokus-sidebar-heading-actions"><button type="button" class="fokus-sidebar-icon-button" data-refresh="files" aria-label="Refresh files" title="Refresh files"><?php echo fokus_sidebar_icon('refresh'); ?></button><button type="button" id="fokus-create-file" class="fokus-sidebar-icon-button" aria-label="Create file" title="Create file"><?php echo fokus_sidebar_icon('new'); ?></button></div></div>
+        <div class="fokus-sidebar-heading"><span>Files</span><div class="fokus-sidebar-heading-actions"><button type="button" class="fokus-sidebar-icon-button" data-refresh="files" aria-label="Refresh files" title="Refresh files"><?php echo fokus_sidebar_icon('refresh'); ?></button><button type="button" id="fokus-toggle-namespaces" class="fokus-sidebar-icon-button" aria-label="Expand all namespaces" title="Expand all namespaces" disabled><?php echo fokus_sidebar_icon('expand-all'); ?></button><button type="button" id="fokus-create-file" class="fokus-sidebar-icon-button" aria-label="Create file" title="Create file"><?php echo fokus_sidebar_icon('new'); ?></button></div></div>
         <p class="fokus-sidebar-status" role="status">Loading pages…</p>
         <div id="fokus-file-tree"></div>
     </section>
@@ -69,6 +69,8 @@ $sidebarConfig = [
     <template id="fokus-icon-new"><?php echo fokus_sidebar_icon('new'); ?></template>
     <template id="fokus-icon-folder"><?php echo fokus_sidebar_icon('folder'); ?></template>
     <template id="fokus-icon-folder-open"><?php echo fokus_sidebar_icon('folder-open'); ?></template>
+    <template id="fokus-icon-expand-all"><?php echo fokus_sidebar_icon('expand-all'); ?></template>
+    <template id="fokus-icon-collapse-all"><?php echo fokus_sidebar_icon('collapse-all'); ?></template>
 </aside>
 <div id="fokus-file-menu" role="menu" aria-label="File actions" data-file-tree-context-menu-root="true" hidden></div>
 <dialog id="fokus-file-action-dialog" class="fokus-sidebar-dialog" aria-labelledby="fokus-file-action-title">

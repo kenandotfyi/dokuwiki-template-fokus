@@ -56,6 +56,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let focusedPaneIndex = 0;
     const focusedPaneIndexes = new Set();
 
+    function updatePaneOverflow() {
+        if (!viewport) return;
+        const gutter = Number.parseFloat(
+            window.getComputedStyle(document.documentElement).getPropertyValue('--fokus-page-gutter')
+        ) || 0;
+        // Compare against the viewport width with the left gutter removed. This
+        // keeps overflow detection stable as the padding changes the viewport width.
+        const alreadyScrolled = document.body.classList.contains('infinitepanels-scrolled');
+        const availableWidth = viewport.clientWidth + (alreadyScrolled ? 0 : gutter);
+        const hasOverflow = viewport.scrollWidth > availableWidth + 1;
+        document.body.classList.toggle('infinitepanels-overflowing', hasOverflow);
+        document.body.classList.toggle(
+            'infinitepanels-scrolled',
+            hasOverflow && viewport.scrollLeft > 1
+        );
+    }
+
     function createPanelLayout() {
         const wrapper = document.createElement('div');
         wrapper.className = 'infinitepanels-wrapper';
@@ -81,6 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
         panes = document.createElement('div');
         panes.className = 'infinitepanels-panes';
         viewport.appendChild(panes);
+        const paneOverflowObserver = new ResizeObserver(updatePaneOverflow);
+        paneOverflowObserver.observe(viewport);
+        paneOverflowObserver.observe(panes);
+        viewport.addEventListener('scroll', updatePaneOverflow, { passive: true });
         wrapper.appendChild(viewport);
         content.insertBefore(wrapper, pageContent);
 
@@ -128,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         paneElements.push(rootPane);
         addPaneControls(rootPane, currentPageId, document, true);
         activatePanelMode();
+        updatePaneOverflow();
         refreshOpenPageLinks();
     }
 
