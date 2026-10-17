@@ -145,7 +145,7 @@ function initializeSidebar() {
             try {
                 const response = await fetch(config.ajaxEndpoint, {
                     method: 'POST', credentials: 'same-origin',
-                    body: new URLSearchParams({ call: 'pagehealth', ids: JSON.stringify(ids) }),
+                    body: new URLSearchParams({ call: 'fokusbutler_pagehealth', ids: JSON.stringify(ids) }),
                     headers: { Accept: 'application/json' },
                 });
                 if (!response.ok) throw new Error(`Page Health request failed (${response.status}).`);

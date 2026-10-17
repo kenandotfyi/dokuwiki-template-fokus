@@ -63,8 +63,8 @@ body.fokus-has-sidebar #dokuwiki__site {
     max-width: calc(100vw - var(--fokus-sidebar-width));
 }
 body.fokus-has-sidebar.infinitepanels-active #dokuwiki__site,
-body.fokus-has-sidebar #dokuwiki__site:has(> .mode_admin),
-body.fokus-has-sidebar #dokuwiki__site:has(> .mode_media) {
+body.fokus-has-sidebar #dokuwiki__site:has(> #dokuwiki__top.mode_admin),
+body.fokus-has-sidebar #dokuwiki__site:has(> #dokuwiki__top.mode_media) {
     width: calc(100vw - var(--fokus-sidebar-width));
 }
 body.fokus-sidebar-collapsed #dokuwiki__site {
@@ -73,8 +73,8 @@ body.fokus-sidebar-collapsed #dokuwiki__site {
     max-width: 100vw;
 }
 body.fokus-sidebar-collapsed.infinitepanels-active #dokuwiki__site,
-body.fokus-sidebar-collapsed #dokuwiki__site:has(> .mode_admin),
-body.fokus-sidebar-collapsed #dokuwiki__site:has(> .mode_media) { width: 100vw; }
+body.fokus-sidebar-collapsed #dokuwiki__site:has(> #dokuwiki__top.mode_admin),
+body.fokus-sidebar-collapsed #dokuwiki__site:has(> #dokuwiki__top.mode_media) { width: 100vw; }
 
 #fokus-sidebar {
     position: fixed;

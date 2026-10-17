@@ -5,6 +5,12 @@
       "url": "https://www.dokuwiki.org/plugin:move",
       "components": ["action:move_rename", "helper:move_plan", "helper:move_op"],
       "features": ["Page and namespace renaming with link updates"]
+    },
+    "moaieditor": {
+      "name": "MoaiEditor",
+      "url": "https://www.moaitools.org/dokuwiki/moaieditor",
+      "components": ["action:moaieditor"],
+      "features": ["Editing in the Fokus pane popup"]
     }
   }
 }

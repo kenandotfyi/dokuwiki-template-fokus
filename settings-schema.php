@@ -8,9 +8,9 @@ function fokus_settings_schema() {
         'dark_mode' => ['group'=>'Workspace', 'label'=>'Allow dark mode', 'type'=>'bool', 'default'=>1],
         'sidebar_enabled' => ['group'=>'Workspace', 'label'=>'Files and Tags sidebar', 'type'=>'bool', 'default'=>1],
         'sidebar_hide_regex' => ['group'=>'Workspace', 'label'=>'Hide pages and namespaces (regex)', 'type'=>'regex', 'default'=>'', 'help'=>'Without delimiters. Example: ^(?:playground|wiki)(?::|$). Matching namespaces hide descendants; Pinned and Tags are unaffected.'],
-        'adapter_preview' => ['group'=>'Integrations', 'label'=>'Preview adapter', 'type'=>'bool', 'default'=>0],
-        'adapter_annotations' => ['group'=>'Integrations', 'label'=>'Annotations adapter', 'type'=>'bool', 'default'=>0],
-        'adapter_katex' => ['group'=>'Integrations', 'label'=>'KaTeX adapter', 'type'=>'bool', 'default'=>0],
+        'adapter_preview' => ['group'=>'Modules', 'label'=>'Preview adapter', 'type'=>'bool', 'default'=>0],
+        'adapter_annotations' => ['group'=>'Modules', 'label'=>'Annotations adapter', 'type'=>'bool', 'default'=>0],
+        'adapter_katex' => ['group'=>'Modules', 'label'=>'KaTeX adapter', 'type'=>'bool', 'default'=>0],
     ];
     $colors = [
         'text' => ['Text', '#222222', '#dfdfdf', '--fokus-text'],
@@ -94,7 +94,7 @@ function fokus_interwiki_style_fields() {
     $fields = [];
     foreach (['light'=>'Light', 'dark'=>'Dark'] as $theme => $label) {
         foreach (['color'=>'text', 'hover'=>'hover text', 'background'=>'background', 'hover_background'=>'hover background'] as $name => $description) {
-            $fields[$theme . '_' . $name] = ['label'=>$label . ' ' . $description, 'section'=>'Interwiki links', 'type'=>'color', 'default'=>'', 'placeholder'=>$name === 'background' || $name === 'hover_background' ? ($theme === 'light' ? '#ffffff' : '#262626') : ($theme === 'light' ? '#4a4a4a' : '#c3c3c3')];
+            $fields[$theme . '_' . $name] = ['label'=>ucfirst($description), 'section'=>'Interwiki links', 'type'=>'color', 'theme'=>$theme, 'default'=>'', 'placeholder'=>$name === 'background' || $name === 'hover_background' ? ($theme === 'light' ? '#ffffff' : '#262626') : ($theme === 'light' ? '#4a4a4a' : '#c3c3c3')];
         }
     }
     $fields += [

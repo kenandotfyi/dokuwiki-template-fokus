@@ -14,7 +14,7 @@ $sidebarConfig = [
     'securityToken' => getSecurityToken(),
     'trackInitialPage' => $ACT === 'show' && page_exists($ID),
     'moveAvailable' => fokus_dependency_available('move'),
-    'pageHealthAvailable' => (bool) plugin_load('action', 'pagehealth'),
+    'pageHealthAvailable' => ($butler = plugin_load('helper', 'fokusbutler')) && $butler->moduleEnabled('pagehealth'),
     'ajaxEndpoint' => DOKU_BASE . 'lib/exe/ajax.php',
     'storageKey' => 'fokus-sidebar:' . DOKU_BASE . ':' . ($_SERVER['REMOTE_USER'] ?? 'anonymous'),
 ];

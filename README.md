@@ -72,7 +72,7 @@ The sidebar bundles `@pierre/trees` 1.0.0-beta.6 (Apache-2.0), Preact, `preact-r
 
 ## Fokus Settings companion
 
-The optional `fokussettings` plugin adds **Admin → Fokus Settings**, also linked from the wiki actions menu for administrators. It provides Appearance, Workspace, and Integrations sections. Install it under `lib/plugins/fokussettings` alongside the Fokus template. No live theme preview is included.
+The `fokusbutler` companion adds **Admin → Fokus Butler**, also linked from the wiki actions menu for administrators. Its **Fokus settings** module provides Appearance and Workspace sections. The **Modules** page includes separate Adapters and Dependencies sections. Move supports renaming with link updates, and MoaiEditor powers editing in the pane popup. Install the companion under `lib/plugins/fokusbutler` alongside the Fokus template. No live theme preview is included.
 
 Appearance includes separate optional light/dark color overrides (text, muted text, backgrounds, borders, accent, internal/external links and hover colors, missing page links, and search-match highlights), bundled/system font choices, heading font, text size and line height, pane padding, workspace gutter, pane gap, paragraph spacing, page/dialog corners, control/tree corners, search popup width and result height, and link decoration and weight. The search popup inherits the shared theme colors, typography, and corner radius. Search-match highlight colors apply in the popup and opened panes. Missing page links default to red with a dotted underline and can be styled independently of existing internal links. Tag plugin links (`rel="tag"`) have their own light/dark colors, hover colors, decoration, and weight. Blank colors retain template defaults. Page Health retains its semantic no-content styling for actual wiki pages. Restore defaults applies only to the selected section, preserving protected values.
 
@@ -91,3 +91,10 @@ Fokus's active screen styles use CSS variables supplied by the shared `settings-
 Component color roles preserve existing neutral light/dark shades by default and inherit their source setting when that setting is customized. This covers pages, panes, sidebar, dialogs, editors, admin views, tables, media views, and links. Page Health and semantic integration-status colors retain their own styling. Print keeps its paper-oriented styles. Standard `style.ini` color replacements remain for DokuWiki/plugin compatibility; use Fokus Settings for Fokus appearance.
 
 The template bundles pane/sidebar styles through DokuWiki's CSS pipeline. `appearance.php` emits validated variables and interwiki rules, rather than selector-specific color overrides. The generated `css/theme-defaults.css` supplies the same default variables for exports and before runtime overrides load. After changing schema defaults, regenerate it with `php lib/tpl/fokus/bin/build-appearance.php` from the wiki root. Configuration changes need no rebuild.
+
+
+## Fokus Butler companion
+
+Install the `fokusbutler` plugin alongside this template. It supplies the unified admin page and separate modules for settings, folding, Page Health, ImagePop, NoteGraph, Snips, and TodoistCompanion. Open **Fokus Butler** from the sidebar wiki-actions menu, then use **Modules** to control features or **Fokus settings** for appearance and workspace controls. Each feature keeps its own scripts and stylesheet inside the companion.
+
+The standalone fokussettings, fokusfold, pagehealth, imagepop, notegraph, snips, and todoistcompanion plugins are replaced by the companion and should not be enabled alongside it. Move, Tag, and optional adapter plugins remain external dependencies. Template pins and recents remain template-owned.

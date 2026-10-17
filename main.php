@@ -55,7 +55,7 @@ $paneAdapters = ['preview', 'annotations', 'katex'];
     <script src="<?php echo tpl_basedir(); ?>panes/adapters/<?php echo hsc($adapter); ?>.js"></script>
         <?php endif; ?>
     <?php endforeach; ?>
-    <script src="<?php echo tpl_basedir(); ?>panes/panels.js?v=<?php echo filemtime(__DIR__ . '/panes/panels.js'); ?>"></script>
+    <script src="<?php echo tpl_basedir(); ?>panes/panels.js"></script>
     <?php endif; ?>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <?php echo tpl_favicon(['favicon', 'mobile']) ?>

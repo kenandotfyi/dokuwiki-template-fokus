@@ -1173,7 +1173,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     content.addEventListener('click', (event) => {
-        const button = event.target.closest('button');
+        const clickedElement = event.target instanceof Element ? event.target : event.target.parentElement;
+        const button = clickedElement?.closest('button');
         if (button) {
             const pane = button.closest('.infinitepanels-pane')
                 || (button.matches('.infinitepanels-zoom') ? pageContent : null);
@@ -1210,7 +1211,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const clickedElement = event.target instanceof Element ? event.target : event.target.parentElement;
         const minimizeHeader = clickedElement?.closest('.infinitepanels-pane-minimize-header');
         const headerPane = minimizeHeader?.closest('.infinitepanels-pane');
         const headerPaneIndex = paneElements.indexOf(headerPane);
