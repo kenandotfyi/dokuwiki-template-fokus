@@ -50,11 +50,11 @@ function fokus_appearance_styles() {
     $css .= 'html .dokuwiki .search_hit{color:var(--fokus-text)!important;background-color:var(--fokus-search-highlight)!important;}';
     $css .= '.fokus-last30{display:block;margin:12px 0 24px;}';
     $css .= '.fokus-last30-item{box-sizing:border-box;display:flex;align-items:center;gap:7px;min-width:0;margin:0;padding:2px 4px;font-size:.92em;}';
-    $css .= '.fokus-last30-type{box-sizing:border-box;flex:0 0 auto;padding:1px 5px;border:1px solid transparent;border-radius:4px;font-family:var(--fokus-code-font);font-size:10px;line-height:1.35;font-weight:600;white-space:nowrap;}';
-    $css .= '.fokus-last30-type--deleted{color:#a82d25;background:#fff0ee;border-color:#f0cbc6;}';
-    $css .= '.fokus-last30-type--minor{color:#4d7d42;background:#edf6e9;border-color:#d2e5ca;}';
-    $css .= '.fokus-last30-type--edited,.fokus-last30-type--created{color:#25643b;background:#e2f0e5;border-color:#c5ddca;}';
-    $css .= '.fokus-last30-type--reverted{color:#76519a;background:#f1eafa;border-color:#dfd0ef;}';
+    $css .= '.fokus-last30-type{box-sizing:border-box;flex:0 0 auto;padding:1px 2px;border:1px solid transparent;border-radius:4px;font-family:var(--fokus-code-font);font-size:10px;line-height:1.35;font-weight:600;white-space:nowrap;}';
+    $css .= '.fokus-last30-type--deleted{color:#a82d25;background:#fff0ee;border-color:#f0cbc6;text-transform:uppercase;}';
+    $css .= '.fokus-last30-type--minor{color:#a77c52;background:#fae5cc;border-color:#d2e5ca;text-transform:uppercase;}';
+    $css .= '.fokus-last30-type--edited,.fokus-last30-type--created{color:#25643b;background:#e2f0e5;border-color:#c5ddca;text-transform:uppercase;}';
+    $css .= '.fokus-last30-type--reverted{color:#76519a;background:#f1eafa;border-color:#dfd0ef;text-transform:uppercase;}';
     $css .= 'html[data-theme="dark"] .fokus-last30-type--deleted{color:#ffaaa1;background:#482522;border-color:#70403b;}';
     $css .= 'html[data-theme="dark"] .fokus-last30-type--minor{color:#c1e7ae;background:#293b27;border-color:#435b3d;}';
     $css .= 'html[data-theme="dark"] .fokus-last30-type--edited,html[data-theme="dark"] .fokus-last30-type--created{color:#a9dfb4;background:#243a2a;border-color:#3e5d45;}';
