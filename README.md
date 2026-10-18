@@ -4,7 +4,7 @@ Fokus is a DokuWiki template built around an exploration-focused, multi-pane rea
 
 > For the full experience, consider installing my [Fokus Butler](https://github.com/kenandotfyi/fokusbutler) companion plugin.
 
-As you might guess, this is a very opinionated plugin with a spesific look, although I think a lot of people would be happy about the aesthetics. 
+As you might guess, this is a very opinionated template with a spesific look, although I think a lot of people would be happy about the aesthetics. 
 
 I built this for turning the arguably simple default DokuWiki visual experience to a more personal wiki/PKM type of thing. I got inspired by many tools out there, one of them being Obsidian, which I have been using since its first day. One of the reasons I built this is to be able to access my notes and stuff no matter where in the world or which computer I am using, since closed source and desktop apps generally create problems in terms of IT restrictions for work environments. 
 
