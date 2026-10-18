@@ -2,6 +2,8 @@
 
 Fokus is a DokuWiki template built around an exploration-focused, multi-pane reading experience. It is derived from Simpl and the DokuWiki default template.
 
+![Main Page Example](screenshot.png)
+
 ## Features
 
 - Open linked wiki pages in side-by-side panes and scroll each pane independently.
