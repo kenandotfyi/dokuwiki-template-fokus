@@ -10,6 +10,9 @@
 
 if (!defined('DOKU_INC')) die(); /* must be run from within DokuWiki */
 require_once __DIR__ . '/dependencies.php';
+if ($INPUT->get->str('fokus_search') === '1') require __DIR__ . '/search/data.php';
+
+require __DIR__ . '/search/config.php';
 
 $sidebarEnabled = (bool) tpl_getConf('sidebar_enabled', 1)
     && $INPUT->get->str('fokus_moai_popup') !== '1';
@@ -34,12 +37,11 @@ $paneAdapters = ['preview', 'annotations', 'katex'];
 <head>
     <meta charset="utf-8" />
     <title><?php tpl_pagetitle() ?> [<?php echo strip_tags($conf['title']) ?>]</title>
-    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/search.css" />
     <script>window.FokusDarkModeConfig = { enabled: <?php echo $darkModeEnabled ? 'true' : 'false'; ?> };</script>
     <?php if ($darkModeEnabled) : ?>
     <script src="<?php echo tpl_basedir(); ?>darkmode.js"></script>
     <?php endif; ?>
-    <script src="<?php echo tpl_basedir(); ?>search.js"></script>
+    <?php require __DIR__ . '/search/assets.php'; ?>
     <?php tpl_metaheaders() ?>
     <style>
         :root{--infinitepanels-panel-width:<?php echo hsc($paneWidth); ?>rem;--infinitepanels-zoom-width:<?php echo hsc($zoomPaneWidth); ?>rem;}
@@ -63,16 +65,7 @@ $paneAdapters = ['preview', 'annotations', 'katex'];
 </head>
 
 <body<?php if ($sidebarEnabled) echo ' class="fokus-has-sidebar"'; ?>>
-    <dialog id="fokus-search-dialog" aria-labelledby="fokus-search-title">
-        <div class="fokus-search-dialog-header"><h2 id="fokus-search-title">Search</h2><button type="button" class="fokus-search-close" aria-label="Close search">×</button></div>
-        <form class="fokus-search-form" action="<?php echo hsc(DOKU_BASE . 'doku.php'); ?>" method="get" role="search">
-            <input type="hidden" name="do" value="search">
-            <label class="a11y" for="fokus-search-input">Search the wiki</label>
-            <input id="fokus-search-input" name="q" type="search" autocomplete="off" placeholder="Search the wiki…" aria-controls="fokus-search-results" aria-expanded="false">
-            <kbd>Esc</kbd>
-        </form>
-        <div id="fokus-search-results" role="region" aria-label="Search results" aria-live="polite"></div>
-    </dialog>
+    <?php require __DIR__ . '/search/dialog.php'; ?>
     <?php if ($sidebarEnabled) include __DIR__ . '/sidebar/sidebar.php'; ?>
     <div id="dokuwiki__site"><div id="dokuwiki__top" class="site <?php echo tpl_classes(); ?>">
 

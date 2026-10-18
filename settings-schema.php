@@ -60,7 +60,7 @@ function fokus_settings_schema() {
         'paragraph_gap'=>['group'=>'Appearance', 'section'=>'Spacing and corners', 'label'=>'Paragraph spacing (em)', 'type'=>'number', 'default'=>1.4, 'min'=>0, 'max'=>3, 'step'=>0.1],
         'border_radius'=>['group'=>'Appearance', 'section'=>'Spacing and corners', 'label'=>'Page and dialog corners (px)', 'type'=>'number', 'default'=>4, 'min'=>0, 'max'=>24],
         'control_radius'=>['group'=>'Appearance', 'section'=>'Spacing and corners', 'label'=>'Button and file row corners (px)', 'type'=>'number', 'default'=>4, 'min'=>0, 'max'=>16],
-        'search_popup_width'=>['group'=>'Appearance', 'section'=>'Search popup', 'label'=>'Popup width (px)', 'type'=>'number', 'default'=>720, 'min'=>480, 'max'=>1200],
+        'search_popup_width'=>['group'=>'Appearance', 'section'=>'Search popup', 'label'=>'Popup width (px)', 'type'=>'number', 'default'=>900, 'min'=>480, 'max'=>1200],
         'search_popup_results_height'=>['group'=>'Appearance', 'section'=>'Search popup', 'label'=>'Results area height (px)', 'type'=>'number', 'default'=>480, 'min'=>200, 'max'=>900],
         'internal_decoration'=>['group'=>'Appearance', 'section'=>'Link styling', 'label'=>'Internal link decoration', 'type'=>'choice', 'default'=>'underline', 'choices'=>['none'=>'None', 'underline'=>'Underline', 'overline'=>'Overline', 'line-through'=>'Strikethrough']],
         'tag_decoration'=>['group'=>'Appearance', 'section'=>'Tag links', 'label'=>'Decoration', 'type'=>'choice', 'default'=>'underline', 'choices'=>['none'=>'None', 'underline'=>'Underline', 'overline'=>'Overline', 'line-through'=>'Strikethrough']],
