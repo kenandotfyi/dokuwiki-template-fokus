@@ -2,7 +2,52 @@
 
 Fokus is a DokuWiki template built around an exploration-focused, multi-pane reading experience. It is derived from Simpl and the DokuWiki default template.
 
-![Main Page Example](screenshot.png)
+> For the full experience, consider installing my [Fokus Butler](https://github.com/kenandotfyi/fokusbutler) companion plugin.
+
+As you might guess, this is a very opinionated plugin with a spesific look, although I think a lot of people would be happy about the aesthetics. 
+
+I built this for turning the arguably simple default DokuWiki visual experience to a more personal wiki/PKM type of thing. I got inspired by many tools out there, one of them being Obsidian, which I have been using since its first day. One of the reasons I built this is to be able to access my notes and stuff no matter where in the world or which computer I am using, since closed source and desktop apps generally create problems in terms of IT restrictions for work environments. 
+
+I wanted to have a unique look and also possibility to see multiple notes at the same time as well as being able to minimize them. This is coming from the gardening/zettelkasten principle and I have been inspired by Andy Matuschak's Notes website design. 
+
+Links open to the right of the current page. Since DokuWiki has a solid AJAX implementation, I kept using it. The visual side and interactions are all vanilla JS.
+
+Sidebar is toggleable and files section is implemented using the amazing library of [Trees](https://trees.software/) from [Pierre Computer](https://pierre.computer/), so it's not the default sidebar that DokuWiki offers as a convention not using a plugin. It scans and displays the pages in the DokuWiki installation.
+
+There are quite some stuff going on there like the pinned and recently opened pages, traditional file manager with refresh and some right click operations such as rename, delete or add new. Tags section also shows the tags in the DokuWiki using the [Tag](https://www.dokuwiki.org/plugin:tag) plugin. 
+
+Search bar is implemented again with AJAX and returns the results immediately in the pop overlay. It also shows the Zotero results if you installed and enabled my [Zotero Bridge](https://github.com/kenandotfyi/zoterobridge) plugin.
+
+It has light/dark mode toggle, which I am not very happy with the dark mode colors currently. But at least night time reading is kind of covered. 
+
+Fokus has many additional stuff built-in like: 
+- ImagePop for creating basic image lightbox on the page
+- Folding for foldable section creation
+- Page Health for styling no-content pages differently and showing a status in the sidebar
+- Snips for snippet support. 
+- Todoist Companion for synchronizing tasks (currently one way DokuWiki -> Todoist) with Todoist.
+- NoteGraph for creating local graphs with max. 3 deptsh for current page.
+
+it also has adapters for existing plugins, since many of them would not work with multiple pane methodology otherwise:
+
+- Preview Adapter for showing previews of pages in every pane
+- Annotations Adapter for multiple pane annotation support 
+- KaTeX Adapter for displaying LaTeX formulas in every pane
+
+and for better user experience, it has some plugin dependencies: 
+
+- Move -> using Move plugin for page operations. I did not want to implement my own logic for that since it works already quite well
+- MoaiEditor -> Bypassing the simple editor with Moai.
+- Tags -> Tags support in the wiki and the sidebar
+- Zotero Bridge -> Zotero integration support.
+
+All of these integrations/dependencies, appearances and some styling options are all controlled by *Fokus Butler*, since templates can not create their own Admin pages.
+
+Some screenshots below:
+
+![Main Page Example](screenshots/main.png)
+![Search Window](screenshots/search.png)
+![Fokus Butler](screenshots/fokusbutler.png)
 
 ## Features
 
@@ -14,6 +59,10 @@ Fokus is a DokuWiki template built around an exploration-focused, multi-pane rea
 - Filter the file tree and keep frequently used pages in a Pinned section.
 - Use the DokuWiki edit popup, page revisions, and other page actions from pane headers.
 - Optionally initialize Preview, annotations, and KaTeX integrations in panes.
+
+<details>
+
+<summary><h3>Installation and Development </h3></summary>
 
 ## Installation
 
@@ -110,3 +159,5 @@ With Zotero Bridge configured, administrators can search document metadata, coll
 Search reads the local index and refreshes after a published index generation changes. It polls local status while open; automatic remote synchronization is still a separate, pending worker feature.
 
 The vanilla dialog needs no React runtime or CDN. Sources live in `search/`: `provider.php` supplies private ACL-filtered wiki JSON through `fokus_search=1`; `zotero.js` adapts the standalone plugin; `format.js` and `palette.js` handle insertion and UI. After JavaScript/CSS edits, run `php lib/tpl/fokus/bin/build-search.php` to regenerate content-hashed assets and the manifest. `search/tests/format.cjs` checks reference formatting; `search/tests/wiki.php` requires an isolated `zoterobridge-runtime` DokuWiki installation and checks ACLs and rendered quote safety.
+
+</details>
