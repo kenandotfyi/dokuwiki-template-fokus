@@ -34,6 +34,20 @@
     transition: opacity 140ms ease;
 }
 
+.infinitepanels-pane[data-provider="wikipedia"] .topBanner {
+    background: color-mix(in srgb, var(--fokus-surface-soft, #f6f7f8) 75%, #7895ad);
+}
+.infinitepanels-pane .fokus-wikipedia-content {
+    display: flow-root;
+    overflow-wrap: anywhere;
+}
+.infinitepanels-pane[data-provider="wikipedia"] .fokus-page-heading { min-width: 0; }
+.infinitepanels-pane[data-provider="wikipedia"] .fokus-page-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hover) > .infinitepanels-pane:not(:hover) {
     opacity: 0.7;
 }
@@ -386,10 +400,6 @@ body.infinitepanels-active .infinitepanels-actions a:hover {
     box-sizing: border-box;
     padding: 2rem;
     background: var(--fokus-pane-backdrop);
-}
-
-body.infinitepanels-zoom-active > div.plugin-preview {
-    z-index: 10001;
 }
 
 body.infinitepanels-zoom-active > div.pp_overlay {

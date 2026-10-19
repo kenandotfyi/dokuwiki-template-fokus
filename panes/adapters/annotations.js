@@ -4,6 +4,21 @@
     const annotationStates = new Set();
     let annotationInstanceCounter = 0;
 
+// The original plugin listens on document, including content supplied by
+// external pane providers. Keep those selections out of its wiki-page context.
+function excludeExternalSelection(event) {
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed || !selection.rangeCount) return;
+    const range = selection.getRangeAt(0);
+    const external = Array.from(document.querySelectorAll('.infinitepanels-pane[data-provider="wikipedia"], .fokus-wikipedia-content'));
+    if (!external.some(root => range.intersectsNode(root))) return;
+    document.getElementById('ann-tooltip')?.remove();
+    document.getElementById('infinitepanels-ann-tooltip')?.remove();
+    event.stopPropagation();
+}
+document.addEventListener('mouseup', excludeExternalSelection, true);
+document.addEventListener('touchend', excludeExternalSelection, true);
+
 function removePanelGutterMarkers(state) {
     document.querySelectorAll('.infinitepanels-ann-gutter-marker').forEach((marker) => {
         if (marker.dataset.infinitepanelsInstance === String(state.instanceId)) marker.remove();
@@ -41,6 +56,7 @@ function annotationInfoFromDocument(doc) {
 }
 
 function initPanelAnnotations(pageId, container, sourceDocument) {
+    if (pageId.startsWith('wp.') || (container.dataset.provider && container.dataset.provider !== 'wiki')) return;
     const info = annotationInfoFromDocument(sourceDocument);
     if (!info || !info.enabled) return;
     const root = container.querySelector('.page') || container;

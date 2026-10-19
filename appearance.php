@@ -49,7 +49,7 @@ function fokus_appearance_styles() {
     $css .= fokus_interwiki_css($values['interwiki_styles']);
     $css .= 'html .dokuwiki .search_hit{color:var(--fokus-text)!important;background-color:var(--fokus-search-highlight)!important;}';
     $css .= '.fokus-last30{display:block;margin:12px 0 24px;}';
-    $css .= '.fokus-last30-item{box-sizing:border-box;display:flex;align-items:center;gap:7px;min-width:0;margin:0;padding:2px 4px;font-size:.92em;}';
+    $css .= '.fokus-last30-item{box-sizing:border-box;display:flex;align-items:center;gap:7px;min-width:0;margin:0;padding:2px 0px;font-size:.92em;}';
     $css .= '.fokus-last30-type{box-sizing:border-box;flex:0 0 auto;padding:1px 2px;border:1px solid transparent;border-radius:4px;font-family:var(--fokus-code-font);font-size:10px;line-height:1.35;font-weight:600;white-space:nowrap;}';
     $css .= '.fokus-last30-type--deleted{color:#a82d25;background:#fff0ee;border-color:#f0cbc6;text-transform:uppercase;}';
     $css .= '.fokus-last30-type--minor{color:#a77c52;background:#fae5cc;border-color:#d2e5ca;text-transform:uppercase;}';

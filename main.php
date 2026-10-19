@@ -31,7 +31,7 @@ $paneWidth = rtrim(rtrim(number_format((float)$paneWidth, 2, '.', ''), '0'), '.'
 $zoomPaneWidth = rtrim(rtrim(number_format((float)$paneWidth * 2, 2, '.', ''), '0'), '.');
 
 // Only load adapters that are both supported by Simpl and enabled in its configuration.
-$paneAdapters = ['preview', 'annotations', 'katex'];
+$paneAdapters = ['annotations', 'katex'];
 ?><!DOCTYPE html>
 <html lang="<?php echo $conf['lang'] ?>" dir="<?php echo $lang['direction'] ?>" class="no-js">
 <head>
@@ -57,6 +57,7 @@ $paneAdapters = ['preview', 'annotations', 'katex'];
     <script src="<?php echo tpl_basedir(); ?>panes/adapters/<?php echo hsc($adapter); ?>.js"></script>
         <?php endif; ?>
     <?php endforeach; ?>
+    <script src="<?php echo tpl_basedir(); ?>panes/content-providers.js"></script>
     <script src="<?php echo tpl_basedir(); ?>panes/panels.js"></script>
     <?php endif; ?>
     <meta name="viewport" content="width=device-width,initial-scale=1" />

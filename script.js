@@ -138,38 +138,3 @@ jQuery(function(){
     renderPreviewWhenChanged();
     window.setInterval(renderPreviewWhenChanged, 500);
 })();
-
-
-(function () {
-    let lastText = '';
-
-    function checkPreviews() {
-        if (typeof renderMathInElement !== 'function') {
-            return;
-        }
-
-        document.querySelectorAll('.plugin-preview').forEach(function (preview) {
-            if (preview.style.display === 'none') {
-                return;
-            }
-
-            const text = preview.textContent;
-
-            if (text === lastText) {
-                return;
-            }
-
-            lastText = text;
-
-            renderMathInElement(preview, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$', right: '$', display: false }
-                ],
-                throwOnError: false
-            });
-        });
-    }
-
-    setInterval(checkPreviews, 10);
-})();

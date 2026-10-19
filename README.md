@@ -30,7 +30,6 @@ Fokus has many additional stuff built-in like:
 
 it also has adapters for existing plugins, since many of them would not work with multiple pane methodology otherwise:
 
-- Preview Adapter for showing previews of pages in every pane
 - Annotations Adapter for multiple pane annotation support 
 - KaTeX Adapter for displaying LaTeX formulas in every pane
 
@@ -87,7 +86,6 @@ Settings are available in the Configuration Manager under the Fokus template set
 | `dark_mode` | `1` | Enable the light/dark theme switch. |
 | `sidebar_enabled` | `1` | Enable the Files and Tags sidebar. |
 | `sidebar_hide_regex` | empty | Hide matching page IDs and namespace trees from the file explorer. |
-| `adapter_preview` | `0` | Enable the Preview plugin adapter for panes. |
 | `adapter_annotations` | `0` | Enable the annotations plugin adapter for panes. |
 | `adapter_katex` | `0` | Enable KaTeX rendering in panes. |
 

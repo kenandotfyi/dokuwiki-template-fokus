@@ -9,6 +9,8 @@ function executeInfinitePanelsScripts(container) {
 }
 
 function infinitePanelsIdFromUrl(url) {
+    const external = window.FokusPaneProviders?.fromUrl(url);
+    if (external) return external.id;
     const targetUrl = new URL(url, window.location.href);
     const queryPageId = targetUrl.searchParams.get('id');
     if (queryPageId) return queryPageId;
@@ -19,6 +21,8 @@ function infinitePanelsIdFromUrl(url) {
 }
 
 function infinitePanelsUrlFromId(id) {
+    const provided = window.FokusPaneProviders?.urlForId(id);
+    if (provided) return provided;
     const baseUrl = new URL(DOKU_BASE, window.location.origin);
     const basePath = baseUrl.pathname.endsWith('/') ? baseUrl.pathname : `${baseUrl.pathname}/`;
     const pagePath = encodeURIComponent(id).replace(/%3A/gi, ':');
@@ -166,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function normalizePageId(pageId) {
         if (!pageId) return '';
+        if (pageId.startsWith('wp.')) return pageId;
         try {
             return decodeURIComponent(pageId);
         } catch (_error) {
@@ -174,19 +179,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function pageIdForLink(anchor) {
+        const external = window.FokusPaneProviders.fromLink(anchor);
+        if (external) return external.id;
         return normalizePageId(anchor.dataset.wikiId || pageIdForUrl(anchor.href));
     }
 
     function findOpenPageIndex(pageId) {
         const normalizedId = normalizePageId(pageId);
         if (!normalizedId) return -1;
-        return paneElements.findIndex((pane) => normalizePageId(pane.dataset.pageId) === normalizedId);
+        const identity = id => id.startsWith('wp.') ? id.split('#')[0] : id;
+        return paneElements.findIndex((pane) => identity(normalizePageId(pane.dataset.pageId)) === identity(normalizedId));
     }
 
     function focusOpenPage(index, url, companionIndex = -1, persistUrl = true) {
         const pane = paneElements[index];
         if (!pane) return;
-        window.fokusRegisterRecentPage?.(pane.dataset.pageId);
+        if (pane.dataset.provider !== 'wikipedia') window.fokusRegisterRecentPage?.(pane.dataset.pageId);
+        else {
+            pane.dataset.pageId = pageIdForUrl(url);
+            pane.dataset.pageUrl = url;
+        }
         pane.classList.remove('infinitepanels-pane-minimized');
         focusedPaneIndex = index;
         if (document.body.classList.contains('infinitepanels-focused')) {
@@ -216,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (_error) {
             // Keep the encoded fragment if it is malformed.
         }
-        const target = Array.from(pane.querySelectorAll('[id]')).find((element) => element.id === anchorId);
+        const target = Array.from(pane.querySelectorAll('[id]')).find((element) => element.id === anchorId || element.dataset.originalId === anchorId);
         target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -224,9 +236,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const openPageIds = new Set(paneElements.map((pane) => pane.dataset.pageId)
             .map(normalizePageId).filter(Boolean));
 
-        content.querySelectorAll('a.wikilink1, a.wikilink2').forEach((anchor) => {
+        content.querySelectorAll('a.wikilink1, a.wikilink2, a.interwiki, [data-provider="wikipedia"] a').forEach((anchor) => {
+            if (anchor.getAttribute('href')?.startsWith('#') || anchor.hasAttribute('data-pane-original')) return;
             const targetPageId = pageIdForLink(anchor);
-            anchor.classList.toggle('infinitepanels-open-page-link', openPageIds.has(targetPageId));
+            anchor.classList.toggle('infinitepanels-open-page-link', openPageIds.has(targetPageId) || findOpenPageIndex(targetPageId) >= 0);
         });
     }
 
@@ -667,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spineButton.dataset.paneIndex = String(paneElements.indexOf(pane) + 1);
         spineButton.dataset.pageId = normalizePageId(pageId) || pageId;
 
-        const pageTools = parsedDocument.querySelector('#dokuwiki__pagetools');
+        const pageTools = pane.dataset.provider === 'wiki' || !pane.dataset.provider ? parsedDocument.querySelector('#dokuwiki__pagetools') : null;
         const pageUrl = pane.dataset.pageUrl || window.location.href;
         const paneToolLinks = [
             {
@@ -784,6 +797,10 @@ document.addEventListener('DOMContentLoaded', () => {
             openButton.title = 'Open page by itself';
             openButton.setAttribute('aria-label', 'Open page by itself');
             openButton.appendChild(createPhosphorIcon('arrow-square-out'));
+            if (pane.dataset.provider === 'wikipedia') {
+                openButton.title = 'Open original Wikipedia article';
+                openButton.setAttribute('aria-label', openButton.title);
+            }
             actions.appendChild(openButton);
         }
 
@@ -886,7 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePaneIndexes() {
         paneElements.forEach((pane, index) => {
             pane.dataset.paneIndex = String(index + 1);
-            pane.setAttribute('aria-label', `Wiki page ${pane.dataset.pageId || ''}, pane ${index + 1}`);
+            pane.setAttribute('aria-label', `${pane.dataset.provider === 'wikipedia' ? 'Wikipedia article' : 'Wiki page'} ${pane.dataset.pageId || ''}, pane ${index + 1}`);
             const spine = pane.querySelector('.infinitepanels-spine')
                 || Array.from(minimizedShelf?.querySelectorAll('.infinitepanels-spine') || [])
                     .find((button) => button._infinitePanelsPane === pane);
@@ -910,39 +927,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initializeAdapters(pane, pageId, parsedDocument) {
+        if (pane.dataset.provider !== 'wiki' && pane.dataset.provider) return;
         if (pageId && window.InfinitePanelsAdapters?.annotations) {
             window.InfinitePanelsAdapters.annotations.init(pageId, pane, parsedDocument);
         }
         executeInfinitePanelsScripts(pane);
-        window.InfinitePanelsAdapters?.preview?.init(pane);
         window.InfinitePanelsAdapters?.katex?.init(pane);
     }
 
     async function loadPane(pane, url, pageId, expectedVersion) {
-        const requestUrl = new URL(url, window.location.href);
-        ['p', 'm', 'f'].forEach((parameter) => requestUrl.searchParams.delete(parameter));
-        const response = await fetch(requestUrl.href, { credentials: 'same-origin' });
-        if (!response.ok) throw new Error(`Page request failed (${response.status})`);
-        const html = await response.text();
-        if (expectedVersion !== navigationVersion || !pane.isConnected) return false;
-        const parsedDocument = new DOMParser().parseFromString(html, 'text/html');
-        const canonicalLink = parsedDocument.querySelector('link[rel="canonical"]');
-        const canonicalUrl = canonicalLink ? new URL(canonicalLink.href, requestUrl) : null;
-        pane.dataset.pageUrl = canonicalUrl?.origin === window.location.origin
-            ? canonicalUrl.href
-            : infinitePanelsUrlFromId(pageId);
-        const sourceContent = parsedDocument.querySelector('#dokuwiki__content > .pad.group')
-            || parsedDocument.querySelector('#dokuwiki__content .pad.group')
-            || parsedDocument.querySelector('#dokuwiki__content');
-        if (!sourceContent) throw new Error('Could not find the rendered page content');
-
-        const clonedContent = sourceContent.cloneNode(true);
-        pane.replaceChildren(clonedContent);
+        const provider = window.FokusPaneProviders.forId(pageId);
+        if (!provider) throw new Error('Unsupported content provider');
+        const result = await provider.load(pageId, url);
+        if (expectedVersion !== navigationVersion || !pane.isConnected || pane.dataset.pageId !== pageId) return false;
+        const { parsedDocument } = result;
+        pane.dataset.pageUrl = result.url;
+        pane.dataset.provider = result.provider;
+        pane.replaceChildren(result.content);
         pane.dataset.pageId = pageId;
         addPaneControls(pane, pageId, parsedDocument);
         updateFocusedLayout();
         initializeAdapters(pane, pageId, parsedDocument);
         refreshOpenPageLinks();
+        const hash = new URL(url, location.href).hash.slice(1);
+        if (hash) {
+            let fragment = hash;
+            try { fragment = decodeURIComponent(hash); } catch (_) { /* Preserve malformed fragments. */ }
+            const destination = Array.from(pane.querySelectorAll('[id]')).find(node => node.id === fragment || node.dataset.originalId === fragment);
+            destination?.scrollIntoView({ block: 'start' });
+        }
+        updatePaneIndexes();
         return true;
     }
 
@@ -987,11 +1001,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const loaded = await loadPane(pane, url, resolvedPageId, expectedVersion);
-            if (loaded) window.fokusRegisterRecentPage?.(resolvedPageId);
+            if (loaded && pane.dataset.provider === 'wiki') window.fokusRegisterRecentPage?.(resolvedPageId);
             if (loaded && persistUrl && expectedVersion === navigationVersion) saveUrlState();
         } catch (error) {
             if (expectedVersion !== navigationVersion || !pane.isConnected) return;
-            pane.innerHTML = '<p class="infinitepanels-error">Could not load this page.</p>';
+            pane.dataset.provider = window.FokusPaneProviders.forId(resolvedPageId)?.name || 'wiki';
+            const fallback = document.implementation.createHTMLDocument();
+            const pad = document.createElement('div'); pad.className = 'pad group';
+            const header = document.createElement('div'); header.className = 'topBanner';
+            const heading = document.createElement('div'); heading.className = 'fokus-page-heading';
+            const title = document.createElement('span'); title.className = 'fokus-page-title'; title.textContent = resolvedPageId;
+            heading.appendChild(title); header.appendChild(heading);
+            const message = document.createElement('p'); message.className = 'infinitepanels-error'; message.textContent = error.message || 'Could not load this page.';
+            const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Retry';
+            retry.addEventListener('click', async () => {
+                retry.disabled = true;
+                try {
+                    const loaded = await loadPane(pane, url, resolvedPageId, navigationVersion);
+                    if (loaded) saveUrlState();
+                } catch (retryError) { message.textContent = retryError.message; }
+                finally { retry.disabled = false; }
+            });
+            pad.append(header, message, retry); pane.replaceChildren(pad);
+            addPaneControls(pane, resolvedPageId, fallback);
+            updateFocusedLayout();
             console.error('infinitepanels: failed to load page', error);
         }
     }
@@ -1066,6 +1099,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ? (focusedPaneIndex === 0 ? 0 : focusedPaneIndex - 1)
             : -1;
         const url = new URL(window.location.href);
+        if (paneElements[1].dataset.provider === 'wikipedia') {
+            const landing = new URL(infinitePanelsUrlFromId(startPageId || currentPageId), location.origin);
+            paneElements.slice(1).forEach(pane => landing.searchParams.append(
+                pane.classList.contains('infinitepanels-pane-minimized') ? 'm' : 'p', pane.dataset.pageId));
+            window.location.href = landing.href;
+            return;
+        }
         const rootUrl = new URL(infinitePanelsUrlFromId(paneElements[1].dataset.pageId), window.location.origin);
         url.pathname = rootUrl.pathname;
         url.searchParams.delete('id');
@@ -1160,6 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isEligibleLink(anchor) {
         if (!anchor || anchor.closest('#fokus-search-dialog')) return false;
+        if (window.FokusPaneProviders.fromLink(anchor)) return true;
         if (!anchor.classList.contains('wikilink1')
             && !anchor.classList.contains('wikilink2')
             && !isIncludeSectionLink(anchor)) return false;
@@ -1192,6 +1233,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (button.matches('.infinitepanels-open')) {
                 if (zoomPane === pane) closeZoomPane(false);
+                if (pane.dataset.provider === 'wikipedia') {
+                    window.open(pane.dataset.pageUrl, '_blank', 'noopener,noreferrer');
+                    return;
+                }
                 window.location.href = pane.dataset.pageUrl
                     || infinitePanelsUrlFromId(pane.dataset.pageId);
                 return;
@@ -1246,7 +1291,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Let malformed or non-web tag links follow their normal behavior.
             }
         }
-        if (!anchor || !isEligibleLink(anchor)) return;
+        if (!anchor || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey) return;
+        const wikipediaPane = anchor.closest('.infinitepanels-pane[data-provider="wikipedia"]');
+        if (wikipediaPane && anchor.closest('.mw-ref, sup.reference')) { event.preventDefault(); return; }
+        if (wikipediaPane && anchor.getAttribute('href')?.startsWith('#')) {
+            const destination = document.getElementById(anchor.getAttribute('href').slice(1));
+            if (destination && wikipediaPane.contains(destination)) {
+                event.preventDefault();
+                destination.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                const fragment = destination.dataset.originalId;
+                if (fragment) {
+                    wikipediaPane.dataset.pageId = wikipediaPane.dataset.pageId.split('#')[0] + '#' + fragment;
+                    wikipediaPane.dataset.pageUrl = infinitePanelsUrlFromId(wikipediaPane.dataset.pageId);
+                    saveUrlState();
+                }
+            }
+            return;
+        }
+        if (!isEligibleLink(anchor)) return;
         const sourcePane = anchor.closest('.infinitepanels-pane');
         const isPopupPane = sourcePane?.classList.contains('infinitepanels-popup-pane');
         const sourceIndex = isPopupPane
@@ -1254,6 +1316,13 @@ document.addEventListener('DOMContentLoaded', () => {
             : (sourcePane ? paneElements.indexOf(sourcePane) : -1);
         if (sourceIndex < 0) return;
         if (zoomPane === sourcePane) closeZoomPane(false);
+        const provided = window.FokusPaneProviders.fromLink(anchor);
+        if (provided) {
+            if (event.shiftKey) return;
+            event.preventDefault();
+            openPaneAfter(paneElements.length - 1, provided.url, provided.id, true, ++navigationVersion);
+            return;
+        }
 
         // The configured start page is a landing page, not a persistent pane.
         // Let its first navigation load normally so the selected page replaces it.
@@ -1321,7 +1390,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', updatePaneHeight, { passive: true });
     window.addEventListener('popstate', restorePanesFromUrl);
     createPanelLayout();
-    window.InfinitePanelsAdapters?.preview?.initMainPage(pageContent);
     document.body.classList.add('infinitepanels-ready');
     refreshOpenPageLinks();
     restorePanesFromUrl();

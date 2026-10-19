@@ -8,7 +8,6 @@ function fokus_settings_schema() {
         'dark_mode' => ['group'=>'Workspace', 'label'=>'Allow dark mode', 'type'=>'bool', 'default'=>1],
         'sidebar_enabled' => ['group'=>'Workspace', 'label'=>'Files and Tags sidebar', 'type'=>'bool', 'default'=>1],
         'sidebar_hide_regex' => ['group'=>'Workspace', 'label'=>'Hide pages and namespaces (regex)', 'type'=>'regex', 'default'=>'', 'help'=>'Without delimiters. Example: ^(?:playground|wiki)(?::|$). Matching namespaces hide descendants; Pinned and Tags are unaffected.'],
-        'adapter_preview' => ['group'=>'Modules', 'label'=>'Preview adapter', 'type'=>'bool', 'default'=>0],
         'adapter_annotations' => ['group'=>'Modules', 'label'=>'Annotations adapter', 'type'=>'bool', 'default'=>0],
         'adapter_katex' => ['group'=>'Modules', 'label'=>'KaTeX adapter', 'type'=>'bool', 'default'=>0],
     ];
