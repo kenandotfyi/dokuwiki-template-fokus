@@ -146,7 +146,7 @@ The template bundles pane/sidebar styles through DokuWiki's CSS pipeline. `appea
 
 Install the `fokusbutler` plugin alongside this template. It supplies the unified admin page and separate modules for settings, folding, Page Health, ImagePop, NoteGraph, Snips, and TodoistCompanion. Open **Fokus Butler** from the sidebar wiki-actions menu, then use **Modules** to control features or **Fokus settings** for appearance and workspace controls. Each feature keeps its own scripts and stylesheet inside the companion.
 
-The standalone fokussettings, fokusfold, pagehealth, imagepop, notegraph, snips, and todoistcompanion plugins are replaced by the companion and should not be enabled alongside it. Move, Tag, and optional adapter plugins remain external dependencies. Template pins and recents remain template-owned.
+The standalone fokussettings, fokusfold, pagehealth, imagepop, notegraph, snips, and todoistcompanion plugins are replaced by the companion and should not be enabled alongside it. Move, Tag, and optional adapter plugins remain external dependencies. Template pins and recents remain template-owned. The sidebar keeps separate per-user histories for the last ten wiki pages and the last ten content-provider pages. Recent Wikipedia appears below Recents, saves article titles after successful pane loads, and reopens entries through the provider registry. Both recent sections support page previews. Hover previews do not enter this history.
 
 ## Unified search
 

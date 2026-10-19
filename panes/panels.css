@@ -34,6 +34,39 @@
     transition: opacity 140ms ease;
 }
 
+.infinitepanels-pane.infinitepanels-wikipedia-only-host {
+    display: none !important;
+}
+
+.infinitepanels-loading-state {
+    display: flex;
+    min-height: 12rem;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    color: var(--fokus-muted, #737b86);
+    font-size: 14px;
+}
+
+.infinitepanels-loading-spinner {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 1rem;
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: infinitepanels-loading-spin .7s linear infinite;
+}
+
+@keyframes infinitepanels-loading-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .infinitepanels-loading-spinner { animation-duration: 1.6s; }
+}
+
 .infinitepanels-pane[data-provider="wikipedia"] .topBanner {
     background: color-mix(in srgb, var(--fokus-surface-soft, #f6f7f8) 75%, #7895ad);
 }

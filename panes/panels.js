@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentPageId = window.JSINFO?.id || window.InfinitePanelsConfig?.pageId || '';
     const startPageId = window.InfinitePanelsConfig?.startPageId || '';
+    const wikipediaOnlyHostParam = 'fokus-wikipedia-only';
 
     let minimizedShelf = null;
     let viewport = null;
@@ -194,10 +195,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function focusOpenPage(index, url, companionIndex = -1, persistUrl = true) {
         const pane = paneElements[index];
         if (!pane) return;
-        if (pane.dataset.provider !== 'wikipedia') window.fokusRegisterRecentPage?.(pane.dataset.pageId);
+        if (!pane.dataset.provider || pane.dataset.provider === 'wiki') window.fokusRegisterRecentPage?.(pane.dataset.pageId);
         else {
             pane.dataset.pageId = pageIdForUrl(url);
             pane.dataset.pageUrl = url;
+            registerRecentContent(pane);
         }
         pane.classList.remove('infinitepanels-pane-minimized');
         focusedPaneIndex = index;
@@ -935,16 +937,33 @@ document.addEventListener('DOMContentLoaded', () => {
         window.InfinitePanelsAdapters?.katex?.init(pane);
     }
 
-    async function loadPane(pane, url, pageId, expectedVersion) {
+    function nextPaneLoadToken(pane) {
+        pane._fokusPaneLoadToken = (pane._fokusPaneLoadToken || 0) + 1;
+        return pane._fokusPaneLoadToken;
+    }
+
+    function registerRecentContent(pane) {
+        if (!pane.dataset.pageTitle || !pane.dataset.provider || pane.dataset.provider === 'wiki') return;
+        window.fokusRegisterRecentContent?.({
+            id: pane.dataset.pageId.split('#')[0],
+            title: pane.dataset.pageTitle,
+            provider: pane.dataset.provider
+        });
+    }
+
+    async function loadPane(pane, url, pageId, loadToken = nextPaneLoadToken(pane)) {
         const provider = window.FokusPaneProviders.forId(pageId);
         if (!provider) throw new Error('Unsupported content provider');
         const result = await provider.load(pageId, url);
-        if (expectedVersion !== navigationVersion || !pane.isConnected || pane.dataset.pageId !== pageId) return false;
+        if (pane._fokusPaneLoadToken !== loadToken || !pane.isConnected || pane.dataset.pageId !== pageId) return false;
         const { parsedDocument } = result;
         pane.dataset.pageUrl = result.url;
         pane.dataset.provider = result.provider;
+        pane.dataset.pageTitle = result.title || parsedDocument.title || pageId;
         pane.replaceChildren(result.content);
+        pane.removeAttribute('aria-busy');
         pane.dataset.pageId = pageId;
+        registerRecentContent(pane);
         addPaneControls(pane, pageId, parsedDocument);
         updateFocusedLayout();
         initializeAdapters(pane, pageId, parsedDocument);
@@ -982,6 +1001,20 @@ document.addEventListener('DOMContentLoaded', () => {
             paneElements.push(pane);
         }
         pane.dataset.pageId = resolvedPageId;
+        const provider = window.FokusPaneProviders.forId(resolvedPageId);
+        pane.dataset.provider = provider?.name || 'wiki';
+        pane.setAttribute('aria-busy', 'true');
+        const loading = document.createElement('div');
+        loading.className = 'infinitepanels-loading-state';
+        loading.setAttribute('role', 'status');
+        loading.setAttribute('aria-live', 'polite');
+        const spinner = document.createElement('span');
+        spinner.className = 'infinitepanels-loading-spinner';
+        spinner.setAttribute('aria-hidden', 'true');
+        const message = document.createElement('span');
+        message.textContent = provider?.name === 'wikipedia' ? 'Loading Wikipedia article…' : 'Loading page…';
+        loading.append(spinner, message);
+        pane.replaceChildren(loading);
         pane.classList.remove('infinitepanels-pane-minimized');
         focusedPaneIndex = targetIndex;
         if (document.body.classList.contains('infinitepanels-focused')) {
@@ -999,12 +1032,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         pane.scrollTop = 0;
 
+        const loadToken = nextPaneLoadToken(pane);
         try {
-            const loaded = await loadPane(pane, url, resolvedPageId, expectedVersion);
+            const loaded = await loadPane(pane, url, resolvedPageId, loadToken);
             if (loaded && pane.dataset.provider === 'wiki') window.fokusRegisterRecentPage?.(resolvedPageId);
             if (loaded && persistUrl && expectedVersion === navigationVersion) saveUrlState();
         } catch (error) {
-            if (expectedVersion !== navigationVersion || !pane.isConnected) return;
+            if (pane._fokusPaneLoadToken !== loadToken || !pane.isConnected || pane.dataset.pageId !== resolvedPageId) return;
             pane.dataset.provider = window.FokusPaneProviders.forId(resolvedPageId)?.name || 'wiki';
             const fallback = document.implementation.createHTMLDocument();
             const pad = document.createElement('div'); pad.className = 'pad group';
@@ -1016,12 +1050,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Retry';
             retry.addEventListener('click', async () => {
                 retry.disabled = true;
+                const retryToken = nextPaneLoadToken(pane);
                 try {
-                    const loaded = await loadPane(pane, url, resolvedPageId, navigationVersion);
+                    const loaded = await loadPane(pane, url, resolvedPageId, retryToken);
                     if (loaded) saveUrlState();
-                } catch (retryError) { message.textContent = retryError.message; }
+                } catch (retryError) {
+                    if (pane._fokusPaneLoadToken === retryToken && pane.isConnected) message.textContent = retryError.message;
+                }
                 finally { retry.disabled = false; }
             });
+            pane.removeAttribute('aria-busy');
             pad.append(header, message, retry); pane.replaceChildren(pad);
             addPaneControls(pane, resolvedPageId, fallback);
             updateFocusedLayout();
@@ -1081,6 +1119,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         window.InfinitePanelsAdapters?.annotations?.destroy(removed);
         removed.remove();
+        if (paneElements.length === 1 && paneElements[0].classList.contains('infinitepanels-wikipedia-only-host')) {
+            paneElements[0].classList.remove('infinitepanels-wikipedia-only-host');
+            const url = new URL(window.location.href);
+            url.searchParams.delete(wikipediaOnlyHostParam);
+            window.history.replaceState(window.history.state, '', url.href);
+        }
         updatePaneIndexes();
         refreshOpenPageLinks();
         if (persistUrl) saveUrlState();
@@ -1101,6 +1145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = new URL(window.location.href);
         if (paneElements[1].dataset.provider === 'wikipedia') {
             const landing = new URL(infinitePanelsUrlFromId(startPageId || currentPageId), location.origin);
+            landing.searchParams.set(wikipediaOnlyHostParam, '1');
             paneElements.slice(1).forEach(pane => landing.searchParams.append(
                 pane.classList.contains('infinitepanels-pane-minimized') ? 'm' : 'p', pane.dataset.pageId));
             window.location.href = landing.href;
@@ -1155,6 +1200,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const expectedVersion = ++navigationVersion;
         const state = paneStateFromUrl();
         const { ids } = state;
+        const url = new URL(window.location.href);
+        const wikipediaOnlyHost = url.searchParams.get(wikipediaOnlyHostParam) === '1'
+            && ids.length > 0
+            && window.FokusPaneProviders.forId(ids[0])?.name === 'wikipedia';
+        paneElements[0]?.classList.toggle('infinitepanels-wikipedia-only-host', wikipediaOnlyHost);
 
         document.body.classList.remove('infinitepanels-focused');
         focusedPaneIndexes.clear();

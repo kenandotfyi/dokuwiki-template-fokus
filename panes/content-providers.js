@@ -34,6 +34,7 @@
 
     registry.register({
         name: 'wikipedia',
+        label: 'Wikipedia',
         fromUrl: wikipediaTarget,
         matches: id => /^wp\.[a-z][a-z0-9-]{0,30}\..+/.test(id),
         fromLink(link) {
@@ -73,7 +74,7 @@
             body.dataset.provider = 'wikipedia';
             window.FokusButlerContent.render(body, result, 'wikipedia');
             content.append(header, body);
-            return { content, parsedDocument, url, provider: 'wikipedia' };
+            return { content, parsedDocument, url, provider: 'wikipedia', title: result.title };
         }
     });
 

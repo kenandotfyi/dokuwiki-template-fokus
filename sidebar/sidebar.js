@@ -22,6 +22,8 @@ function initializeSidebar() {
     const pinCurrent = document.getElementById('fokus-pin-current');
     const recentsSection = document.getElementById('fokus-recents-section');
     const recentsList = document.getElementById('fokus-recents-list');
+    const contentRecentsSection = document.getElementById('fokus-content-recents-section');
+    const contentRecentsList = document.getElementById('fokus-content-recents-list');
     const createFile = document.getElementById('fokus-create-file');
     const toggleNamespaces = document.getElementById('fokus-toggle-namespaces');
     const createDialog = document.getElementById('fokus-new-page-dialog');
@@ -439,6 +441,78 @@ function initializeSidebar() {
         return recentWriteQueue;
     }
     window.fokusRegisterRecentPage = registerRecentPage;
+    let recentContent = [];
+    let contentWriteVersion = 0;
+    let contentWriteQueue = Promise.resolve();
+    function renderContentRecents() {
+        contentRecentsList.replaceChildren();
+        for (const recent of recentContent) {
+            const provider = window.FokusPaneProviders?.forId(recent.id);
+            if (!provider || provider.name === 'wiki' || provider.name !== recent.provider) continue;
+            const url = provider.urlForId(recent.id);
+            if (!url) continue;
+            const link = document.createElement('a');
+            link.className = 'fokus-recent-row';
+            link.href = url;
+            link.dataset.pageId = recent.id;
+            link.dataset.provider = provider.name;
+            link.title = `${recent.title} · ${provider.label || provider.name}`;
+            const name = document.createElement('span');
+            name.textContent = recent.title;
+            let providerIcon = icon('file');
+            if (provider.name === 'wikipedia') {
+                providerIcon = document.createElement('img');
+                providerIcon.src = DOKU_BASE + 'lib/images/interwiki/wp.svg';
+                providerIcon.alt = '';
+                providerIcon.setAttribute('aria-hidden', 'true');
+                providerIcon.className = 'fokus-recent-provider-icon';
+                providerIcon.width = 16;
+                providerIcon.height = 16;
+            }
+            link.append(providerIcon, name);
+            link.addEventListener('click', event => {
+                if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                openPage({ id: recent.id, url });
+            });
+            contentRecentsList.append(link);
+        }
+        contentRecentsSection.hidden = contentRecentsList.childElementCount === 0;
+    }
+    async function loadContentRecents() {
+        const version = contentWriteVersion;
+        try {
+            const data = await request('content-recents');
+            if (version !== contentWriteVersion) return;
+            recentContent = Array.isArray(data.pages) ? data.pages : [];
+            renderContentRecents();
+        } catch (error) { console.warn('Fokus sidebar: could not load recent content.', error); }
+    }
+    window.fokusRegisterRecentContent = function (entry) {
+        if (!entry?.id || !entry.title || !entry.provider || entry.provider === 'wiki') return;
+        const version = ++contentWriteVersion;
+        contentWriteQueue = contentWriteQueue.catch(() => {}).then(async () => {
+            const data = await request('content-recents', { target: entry.id, title: entry.title, provider: entry.provider }, undefined, 'POST');
+            if (version !== contentWriteVersion) return;
+            recentContent = Array.isArray(data.pages) ? data.pages : [];
+            renderContentRecents();
+        }).catch(error => console.warn('Fokus sidebar: could not save recent content.', error));
+        return contentWriteQueue;
+    };
+    for (const list of [recentsList, contentRecentsList]) {
+        const previewRecent = event => {
+            if (event.pointerType === 'touch') return;
+            const link = event.target.closest?.('a.fokus-recent-row');
+            const previews = window.FokusButlerPreviews;
+            if (!link || !list.contains(link) || link.contains(event.relatedTarget) || !previews?.hover) return;
+            const provider = link.dataset.provider || 'wiki';
+            const id = link.dataset.pageId;
+            const target = { provider, id, url: link.href, title: link.textContent.trim(), key: `${provider}:${id}` };
+            link.removeAttribute('title');
+            previews.hover(link, target, event.type === 'pointerover' || event.type === 'focusin', event.type === 'focusin', event.relatedTarget);
+        };
+        for (const type of ['pointerover', 'pointerout', 'focusin', 'focusout']) list.addEventListener(type, previewRecent);
+    }
     function applyFilter() {
         if (!tree) return;
         const query = filter.value.trim().toLocaleLowerCase();
@@ -1001,5 +1075,6 @@ function initializeSidebar() {
     loadFiles();
     loadPins();
     loadRecents();
+    loadContentRecents();
     if (config.trackInitialPage) registerRecentPage(config.pageId);
 }

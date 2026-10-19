@@ -17,7 +17,7 @@ function fokus_recents_filename() {
     return fokus_recents_directory() . '/' . ($user === '' ? 'shared' : 'user-' . hash('sha256', $user)) . '.json';
 }
 
-function fokus_recents_read($file) {
+function fokus_recents_read($file, $content = false) {
     if (is_link($file)) throw new RuntimeException('The recents storage file must not be a symbolic link.');
     if (!is_file($file)) return [];
     $contents = @file_get_contents($file);
@@ -26,12 +26,16 @@ function fokus_recents_read($file) {
         throw new RuntimeException('Could not read recent pages. Check the recents storage file.');
     }
     foreach ($data['pages'] as $id) {
+        if ($content) {
+            if (!fokus_recents_valid_content($id)) throw new RuntimeException('Recent content contains an invalid entry.');
+            continue;
+        }
         if (!is_string($id) || $id === '' || cleanID($id) !== $id) throw new RuntimeException('Recent pages contain an invalid page ID.');
     }
-    return array_slice(array_values(array_unique($data['pages'])), 0, 10);
+    return array_slice($content ? $data['pages'] : array_values(array_unique($data['pages'])), 0, 10);
 }
 
-function fokus_recents_update($file, callable $update) {
+function fokus_recents_update($file, callable $update, $content = false) {
     global $conf;
     $directory = fokus_recents_directory(true);
     $lockFile = $file . '.lock';
@@ -41,8 +45,9 @@ function fokus_recents_update($file, callable $update) {
     $temporary = null;
     try {
         if (!flock($lock, LOCK_EX)) throw new RuntimeException('Could not lock recents storage.');
-        $previous = fokus_recents_read($file);
-        $next = array_slice(array_values(array_unique($update($previous))), 0, 10);
+        $previous = fokus_recents_read($file, $content);
+        $updated = $update($previous);
+        $next = array_slice($content ? array_values($updated) : array_values(array_unique($updated)), 0, 10);
         if ($next === $previous) return $previous;
         $temporary = @tempnam($directory, '.recents-');
         if ($temporary === false || realpath(dirname($temporary)) !== realpath($directory)) throw new RuntimeException('Could not create a temporary recents file.');
@@ -56,6 +61,30 @@ function fokus_recents_update($file, callable $update) {
         flock($lock, LOCK_UN);
         fclose($lock);
     }
+}
+
+function fokus_recents_valid_content($entry) {
+    return is_array($entry)
+        && is_string($entry['id'] ?? null) && $entry['id'] !== '' && strlen($entry['id']) <= 2048
+        && !preg_match('/[\x00-\x1f\x7f]/', $entry['id'])
+        && is_string($entry['title'] ?? null) && $entry['title'] !== '' && strlen($entry['title']) <= 2048
+        && is_string($entry['provider'] ?? null) && $entry['provider'] !== 'wiki'
+        && preg_match('/^[a-z][a-z0-9_-]{0,63}$/D', $entry['provider']);
+}
+
+function fokus_content_recents_endpoint() {
+    global $INPUT;
+    $method = $_SERVER['REQUEST_METHOD'];
+    if (!in_array($method, ['GET', 'POST'], true)) throw new RuntimeException('Use GET or POST for recent content.', 405);
+    $file = substr(fokus_recents_filename(), 0, -5) . '.content.json';
+    if ($method === 'GET') return ['pages' => fokus_recents_read($file, true)];
+    if (!checkSecurityToken($INPUT->post->str('sectok'))) throw new RuntimeException('Your session expired. Reload and try again.', 403);
+    $entry = ['id' => $INPUT->post->str('target'), 'title' => $INPUT->post->str('title'), 'provider' => $INPUT->post->str('provider')];
+    if (!fokus_recents_valid_content($entry)) throw new RuntimeException('Invalid recent content.', 400);
+    $pages = fokus_recents_update($file, static function ($previous) use ($entry) {
+        return [$entry, ...array_values(array_filter($previous, static fn($item) => $item['id'] !== $entry['id'] || $item['provider'] !== $entry['provider']))];
+    }, true);
+    return ['pages' => $pages];
 }
 
 function fokus_recents_page_hidden($id) {

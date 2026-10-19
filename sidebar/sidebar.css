@@ -230,10 +230,11 @@ html[data-theme="dark"] #fokus-sidebar .fokus-theme-toggle .fokus-theme-icon-dar
 #fokus-sidebar #fokus-pinned-status { margin: 2px 16px 5px; color: var(--fokus-muted); font-size: 12px; }
 @media (hover: none) { .fokus-pinned-row .fokus-unpin { opacity: 1; } }
 .fokus-recents-section { display: flex; flex: 0 0 auto; flex-direction: column; min-height: 0; max-height: 190px; padding-bottom: 8px; border-bottom: 1px solid var(--fokus-border); }
-#fokus-recents-list { display: flex; flex-direction: column; max-height: 150px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 0 8px; }
-#fokus-recents-list::-webkit-scrollbar { display: none; }
+#fokus-recents-list, #fokus-content-recents-list { display: flex; flex-direction: column; max-height: 150px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 0 8px; }
+#fokus-recents-list::-webkit-scrollbar, #fokus-content-recents-list::-webkit-scrollbar { display: none; }
 #fokus-sidebar .fokus-recent-row { display: flex; flex: 0 0 30px; align-items: center; min-height: 30px; padding: 5px 8px; gap: 8px; color: var(--fokus-text); text-decoration: none; }
 #fokus-sidebar .fokus-recent-row svg { color: var(--fokus-muted); }
+#fokus-sidebar .fokus-recent-provider-icon { flex: 0 0 16px; width: 16px; height: 16px; object-fit: contain; }
 .fokus-recent-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fokus-recent-row .fokus-pagehealth-empty { color: var(--pagehealth-empty-color, #89919b); opacity: var(--pagehealth-empty-opacity, 1); font-style: var(--pagehealth-empty-font-style, normal); text-decoration-line: var(--pagehealth-empty-decoration, none); text-decoration-style: var(--pagehealth-empty-decoration-style, solid); }
 .fokus-recent-row:hover .fokus-pagehealth-empty { color: var(--pagehealth-empty-hover-color, #626b76); }

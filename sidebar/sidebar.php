@@ -63,6 +63,10 @@ $sidebarConfig = [
             <div class="fokus-sidebar-heading"><span id="fokus-recents-heading">Recents</span></div>
             <div id="fokus-recents-list"></div>
         </section>
+        <section id="fokus-content-recents-section" class="fokus-recents-section" aria-labelledby="fokus-content-recents-heading" hidden>
+            <div class="fokus-sidebar-heading"><span id="fokus-content-recents-heading">Recent Wikipedia</span></div>
+            <div id="fokus-content-recents-list"></div>
+        </section>
         <div class="fokus-sidebar-heading"><span>Files</span><div class="fokus-sidebar-heading-actions"><button type="button" class="fokus-sidebar-icon-button" data-refresh="files" aria-label="Refresh files" title="Refresh files"><?php echo fokus_sidebar_icon('refresh'); ?></button><button type="button" id="fokus-toggle-namespaces" class="fokus-sidebar-icon-button" aria-label="Expand all namespaces" title="Expand all namespaces" disabled><?php echo fokus_sidebar_icon('expand-all'); ?></button><button type="button" id="fokus-create-file" class="fokus-sidebar-icon-button" aria-label="Create file" title="Create file"><?php echo fokus_sidebar_icon('new'); ?></button></div></div>
         <p class="fokus-sidebar-status" role="status">Loading pages…</p>
         <div id="fokus-file-tree"></div>
@@ -93,10 +97,11 @@ $sidebarConfig = [
 #fokus-sidebar .fokus-theme-icon-dark { display: none; }
 html[data-theme="dark"] #fokus-sidebar .fokus-theme-icon-light { display: none; }
 html[data-theme="dark"] #fokus-sidebar .fokus-theme-icon-dark { display: block; }
-#fokus-recents-list { display: flex; flex-direction: column; max-height: 150px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 0 8px; }
-#fokus-recents-list::-webkit-scrollbar { display: none; }
+#fokus-recents-list, #fokus-content-recents-list { display: flex; flex-direction: column; max-height: 150px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 0 8px; }
+#fokus-recents-list::-webkit-scrollbar, #fokus-content-recents-list::-webkit-scrollbar { display: none; }
 #fokus-sidebar .fokus-recent-row { display: flex; flex: 0 0 30px; align-items: center; min-height: 30px; padding: 5px 8px; gap: 8px; color: var(--fokus-text); text-decoration: none; }
 #fokus-sidebar .fokus-recent-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#fokus-sidebar .fokus-recent-provider-icon { flex: 0 0 16px; width: 16px; height: 16px; object-fit: contain; }
 </style>
 <script>
 (function () {
