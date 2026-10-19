@@ -603,6 +603,22 @@ function initializeSidebar() {
                 treeHost.style.width = '100%';
                 // Keep the tree's outer inset aligned with the 8px-padded pinned and recent rows.
                 treeHost.style.setProperty('--trees-padding-inline-override', '8px');
+                const treeRoot = treeHost.shadowRoot;
+                if (treeRoot) {
+                    const previewTreeRow = event => {
+                        const row = event.target instanceof Element ? event.target.closest('[role="treeitem"][data-item-path]') : null;
+                        const previews = window.FokusButlerPreviews;
+                        if (!row || !previews?.hover) return;
+                        const page = namespacePages.get(row.dataset.itemPath) || pagesByPath.get(row.dataset.itemPath);
+                        if (!page) return;
+                        const target = { provider: 'wiki', id: page.id, url: page.url, title: page.title, key: 'wiki:' + page.id };
+                        previews.hover(row, target, event.type === 'pointerover' || event.type === 'focusin', event.type === 'focusin', event.relatedTarget);
+                    };
+                    treeRoot.addEventListener('pointerover', previewTreeRow);
+                    treeRoot.addEventListener('pointerout', previewTreeRow);
+                    treeRoot.addEventListener('focusin', previewTreeRow);
+                    treeRoot.addEventListener('focusout', previewTreeRow);
+                }
                 // Trees derives accessible names from paths. Keep virtualized and
                 // recycled rows in sync with their visible heading labels as well.
                 const syncRowLabels = () => {
