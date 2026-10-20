@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentPageId = window.JSINFO?.id || window.InfinitePanelsConfig?.pageId || '';
     const startPageId = window.InfinitePanelsConfig?.startPageId || '';
-    const wikipediaOnlyHostParam = 'fokus-wikipedia-only';
 
     let minimizedShelf = null;
     let viewport = null;
@@ -340,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 || Array.from(minimizedShelf.querySelectorAll('.infinitepanels-spine'))
                     .find((button) => button._infinitePanelsPane === pane);
             if (!spine) return;
+            spine.hidden = pane.classList.contains('infinitepanels-wikipedia-only-host');
             const minimized = pane.classList.contains('infinitepanels-pane-minimized')
                 || (document.body.classList.contains('infinitepanels-focused') && !focusedPaneIndexes.has(index));
             spine.dataset.paneIndex = String(index + 1);
@@ -514,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pane.classList.contains('infinitepanels-pane')) {
                 const pageId = pane.dataset.pageId;
                 const pageUrl = pane.dataset.pageUrl || infinitePanelsUrlFromId(pageId);
-                loadPane(pane, pageUrl, pageId, navigationVersion).catch((error) => {
+                loadPane(pane, pageUrl, pageId).catch((error) => {
                     console.error('infinitepanels: failed to refresh edited page', error);
                 });
             } else {
@@ -1075,11 +1075,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (paneClass) pane.classList.add(paneClass);
         pane.dataset.pageId = pageId;
         pane.innerHTML = '<p class="infinitepanels-loading">Loading…</p>';
-        const expectedVersion = ++navigationVersion;
+        ++navigationVersion;
         toggleZoomPane(pane, trigger, true);
 
         try {
-            const loaded = await loadPane(pane, url, pageId, expectedVersion);
+            const loaded = await loadPane(pane, url, pageId);
             if (loaded && zoomPane === pane) setZoomButtonState(pane, true);
         } catch (error) {
             if (!pane.isConnected) return;
@@ -1121,9 +1121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         removed.remove();
         if (paneElements.length === 1 && paneElements[0].classList.contains('infinitepanels-wikipedia-only-host')) {
             paneElements[0].classList.remove('infinitepanels-wikipedia-only-host');
-            const url = new URL(window.location.href);
-            url.searchParams.delete(wikipediaOnlyHostParam);
-            window.history.replaceState(window.history.state, '', url.href);
         }
         updatePaneIndexes();
         refreshOpenPageLinks();
@@ -1143,9 +1140,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ? (focusedPaneIndex === 0 ? 0 : focusedPaneIndex - 1)
             : -1;
         const url = new URL(window.location.href);
-        if (paneElements[1].dataset.provider === 'wikipedia') {
+        if (paneElements[1].dataset.provider && paneElements[1].dataset.provider !== 'wiki') {
             const landing = new URL(infinitePanelsUrlFromId(startPageId || currentPageId), location.origin);
-            landing.searchParams.set(wikipediaOnlyHostParam, '1');
             paneElements.slice(1).forEach(pane => landing.searchParams.append(
                 pane.classList.contains('infinitepanels-pane-minimized') ? 'm' : 'p', pane.dataset.pageId));
             window.location.href = landing.href;
@@ -1201,9 +1197,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const state = paneStateFromUrl();
         const { ids } = state;
         const url = new URL(window.location.href);
-        const wikipediaOnlyHost = url.searchParams.get(wikipediaOnlyHostParam) === '1'
+        // Clean up links created before the start-page host was inferred.
+        if (url.searchParams.has('fokus-wikipedia-only')) {
+            url.searchParams.delete('fokus-wikipedia-only');
+            window.history.replaceState(window.history.state, '', url.href);
+        }
+        const firstProvider = window.FokusPaneProviders.forId(ids[0] || '');
+        const wikipediaOnlyHost = Boolean(startPageId
+            && normalizePageId(currentPageId) === normalizePageId(startPageId)
             && ids.length > 0
-            && window.FokusPaneProviders.forId(ids[0])?.name === 'wikipedia';
+            && firstProvider && firstProvider.name !== 'wiki');
         paneElements[0]?.classList.toggle('infinitepanels-wikipedia-only-host', wikipediaOnlyHost);
 
         document.body.classList.remove('infinitepanels-focused');
@@ -1367,18 +1370,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sourceIndex < 0) return;
         if (zoomPane === sourcePane) closeZoomPane(false);
         const provided = window.FokusPaneProviders.fromLink(anchor);
+        if (!event.shiftKey && navigateFromStartPage(provided?.url || anchor.href, provided?.id || pageIdForLink(anchor))) {
+            event.preventDefault();
+            return;
+        }
         if (provided) {
             if (event.shiftKey) return;
             event.preventDefault();
             openPaneAfter(paneElements.length - 1, provided.url, provided.id, true, ++navigationVersion);
-            return;
-        }
-
-        // The configured start page is a landing page, not a persistent pane.
-        // Let its first navigation load normally so the selected page replaces it.
-        if (startPageId
-            && paneElements.length === 1
-            && normalizePageId(currentPageId) === normalizePageId(startPageId)) {
             return;
         }
 
@@ -1423,9 +1422,27 @@ document.addEventListener('DOMContentLoaded', () => {
         openPaneAfter(sourceIndex, anchor.href, targetPageId || null, true, expectedVersion);
     });
 
+    function navigateFromStartPage(url, pageId) {
+        if (!startPageId || paneElements.length !== 1
+            || normalizePageId(paneElements[0].dataset.pageId) !== normalizePageId(startPageId)) return false;
+        const provider = window.FokusPaneProviders.forId(pageId);
+        if (!provider) return false;
+        if (provider.name === 'wiki') {
+            window.location.href = url;
+        } else {
+            // The start page hosts the workspace; restoration hides it when
+            // the first requested pane uses an external content provider.
+            const landing = new URL(infinitePanelsUrlFromId(startPageId), window.location.origin);
+            landing.searchParams.set('p', pageId);
+            window.location.href = landing.href;
+        }
+        return true;
+    }
+
     async function openInInfinitePanels(url, persistUrl = true, pageId = null) {
         const resolvedPageId = normalizePageId(pageId || pageIdForUrl(url));
         if (!resolvedPageId) return;
+        if (persistUrl && navigateFromStartPage(url, resolvedPageId)) return;
         const expectedVersion = persistUrl ? ++navigationVersion : navigationVersion;
         return openPaneAfter(paneElements.length - 1, url, resolvedPageId, persistUrl, expectedVersion);
     }

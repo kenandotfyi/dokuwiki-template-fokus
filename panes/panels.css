@@ -38,6 +38,10 @@
     display: none !important;
 }
 
+.infinitepanels-spine[hidden] {
+    display: none !important;
+}
+
 .infinitepanels-loading-state {
     display: flex;
     min-height: 12rem;
