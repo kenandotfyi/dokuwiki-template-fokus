@@ -1,10 +1,5 @@
 .infinitepanels-wrapper,
 .infinitepanels-viewport {
-    width: 100%;
-    max-width: 100%;
-}
-
-.infinitepanels-viewport {
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
@@ -636,3 +631,4 @@ body.infinitepanels-active .infinitepanels-zoom-backdrop .infinitepanels-popup-p
         height: 0;
     }
 }
+

@@ -57,6 +57,8 @@ Some screenshots below:
 - Browse pages in a resizable Files sidebar powered by Pierre Trees, or switch to Tags to browse the Tag plugin's indexed tags and their pages.
 - Filter the file tree and keep frequently used pages in a Pinned section.
 - Use the DokuWiki edit popup, page revisions, and other page actions from pane headers.
+- Normal link clicks replace the current pane and update its URL state. Shift-click adds a pane on the right. A destination already open in the workspace is focused instead of duplicated. Sidebar links retain their existing append behavior. Wiki and Wikipedia panes follow the same navigation rules, with neighboring panes preserved.
+- Select page text to search it using the icon actions beside Annotate: the Phosphor magnifying glass opens the wiki search popup with the Wiki filter, and the Wikipedia icon opens search results in a workspace pane. Wikipedia pane selections offer the search actions without annotations and use the article's language edition. Search results use `wpsearch.en.Fermi_level` IDs and support refining the query. Normal result clicks replace the search pane with the article; Shift-click opens an additional pane. They restore on reload and stay separate from recent articles.
 - Optionally initialize Preview, annotations, and KaTeX integrations in panes.
 
 <details>

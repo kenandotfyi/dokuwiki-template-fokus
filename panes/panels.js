@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function normalizePageId(pageId) {
         if (!pageId) return '';
-        if (pageId.startsWith('wp.')) return pageId;
+        if (pageId.startsWith('wp.') || pageId.startsWith('wpsearch.')) return pageId;
         try {
             return decodeURIComponent(pageId);
         } catch (_error) {
@@ -248,13 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const focused = document.body.classList.contains('infinitepanels-focused');
         const url = new URL(window.location.href);
         ['p', 'm', 'f'].forEach((parameter) => url.searchParams.delete(parameter));
+        const repeatedRoot = paneElements.slice(1).some(pane => pane.dataset.pageId === paneElements[0]?.dataset.pageId);
         paneElements.forEach((pane, index) => {
             const id = pane.dataset.pageId;
             if (!id) return;
             const isFocusAnchor = focused && index === focusedPaneIndex;
             const isMinimized = pane.classList.contains('infinitepanels-pane-minimized')
                 || (focused && !focusedPaneIndexes.has(index));
-            const state = isFocusAnchor ? 'f' : (isMinimized ? 'm' : (index > 0 ? 'p' : ''));
+            const state = isFocusAnchor ? 'f' : (isMinimized ? 'm' : (index > 0 || repeatedRoot ? 'p' : ''));
             if (state) url.searchParams.append(state, id);
         });
 
@@ -800,7 +801,7 @@ document.addEventListener('DOMContentLoaded', () => {
             openButton.setAttribute('aria-label', 'Open page by itself');
             openButton.appendChild(createPhosphorIcon('arrow-square-out'));
             if (pane.dataset.provider === 'wikipedia') {
-                openButton.title = 'Open original Wikipedia article';
+                openButton.title = pageId.startsWith('wpsearch.') ? 'Open Wikipedia search results' : 'Open original Wikipedia article';
                 openButton.setAttribute('aria-label', openButton.title);
             }
             actions.appendChild(openButton);
@@ -905,7 +906,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePaneIndexes() {
         paneElements.forEach((pane, index) => {
             pane.dataset.paneIndex = String(index + 1);
-            pane.setAttribute('aria-label', `${pane.dataset.provider === 'wikipedia' ? 'Wikipedia article' : 'Wiki page'} ${pane.dataset.pageId || ''}, pane ${index + 1}`);
+            const label = pane.dataset.pageId?.startsWith('wpsearch.') ? 'Wikipedia search' : pane.dataset.provider === 'wikipedia' ? 'Wikipedia article' : 'Wiki page';
+            pane.setAttribute('aria-label', `${label} ${pane.dataset.pageId || ''}, pane ${index + 1}`);
             const spine = pane.querySelector('.infinitepanels-spine')
                 || Array.from(minimizedShelf?.querySelectorAll('.infinitepanels-spine') || [])
                     .find((button) => button._infinitePanelsPane === pane);
@@ -943,6 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function registerRecentContent(pane) {
+        if (pane.dataset.pageId?.startsWith('wpsearch.')) return;
         if (!pane.dataset.pageTitle || !pane.dataset.provider || pane.dataset.provider === 'wiki') return;
         window.fokusRegisterRecentContent?.({
             id: pane.dataset.pageId.split('#')[0],
@@ -979,10 +982,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    async function openPaneAfter(parentIndex, url, pageId = null, persistUrl = true, expectedVersion = navigationVersion) {
+    async function openPaneAfter(parentIndex, url, pageId = null, persistUrl = true, expectedVersion = navigationVersion, reuseExisting = true, replaceCurrent = false) {
         const resolvedPageId = pageId || pageIdForUrl(url);
         if (!resolvedPageId) return;
-        const existingPageIndex = findOpenPageIndex(resolvedPageId);
+        const existingPageIndex = reuseExisting ? findOpenPageIndex(resolvedPageId) : -1;
         if (existingPageIndex >= 0) {
             focusOpenPage(existingPageIndex, url, parentIndex, persistUrl);
             return;
@@ -1012,20 +1015,20 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.className = 'infinitepanels-loading-spinner';
         spinner.setAttribute('aria-hidden', 'true');
         const message = document.createElement('span');
-        message.textContent = provider?.name === 'wikipedia' ? 'Loading Wikipedia article…' : 'Loading page…';
+        message.textContent = resolvedPageId.startsWith('wpsearch.') ? 'Searching Wikipedia…' : provider?.name === 'wikipedia' ? 'Loading Wikipedia article…' : 'Loading page…';
         loading.append(spinner, message);
         pane.replaceChildren(loading);
         pane.classList.remove('infinitepanels-pane-minimized');
         focusedPaneIndex = targetIndex;
         if (document.body.classList.contains('infinitepanels-focused')) {
-            if (parentIndex >= 0) focusedPaneIndexes.add(parentIndex);
+            if (!replaceCurrent && parentIndex >= 0) focusedPaneIndexes.add(parentIndex);
             focusedPaneIndexes.add(targetIndex);
         }
         updatePaneIndexes();
         refreshOpenPageLinks();
         activatePanelMode();
         viewport.scrollTo({
-            left: document.body.classList.contains('infinitepanels-focused')
+            left: document.body.classList.contains('infinitepanels-focused') && !replaceCurrent
                 ? (paneElements[parentIndex]?.offsetLeft || 0)
                 : pane.offsetLeft,
             behavior: 'smooth'
@@ -1153,12 +1156,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ['p', 'm', 'f'].forEach((parameter) => url.searchParams.delete(parameter));
         url.hash = '';
 
+        const repeatedRoot = paneElements.slice(2).some(pane => pane.dataset.pageId === paneElements[1].dataset.pageId);
         paneElements.slice(1).forEach((pane, oldIndex) => {
             const index = oldIndex;
             const isFocusAnchor = wasFocused && index === nextFocusedIndex;
             const isMinimized = pane.classList.contains('infinitepanels-pane-minimized')
                 || (wasFocused && !focusedPaneIndexes.has(oldIndex + 1));
-            const state = isFocusAnchor ? 'f' : (isMinimized ? 'm' : (index > 0 ? 'p' : ''));
+            const state = isFocusAnchor ? 'f' : (isMinimized ? 'm' : (index > 0 || repeatedRoot ? 'p' : ''));
             if (state) url.searchParams.append(state, pane.dataset.pageId);
         });
 
@@ -1171,24 +1175,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function paneStateFromUrl() {
         const params = new URL(window.location.href).searchParams;
         const rootId = normalizePageId(currentPageId);
-        const paneStates = new Map();
+        const paneStates = [];
+        let rootState = '';
         Array.from(params.entries()).forEach(([state, rawPageId]) => {
             if (!['p', 'm', 'f'].includes(state)) return;
             const pageId = normalizePageId(rawPageId);
             if (!pageId) return;
-            paneStates.set(pageId, state);
+            // The root is omitted unless minimized/focused. Keep every later
+            // occurrence: Shift-click may deliberately open the same page twice.
+            if (!rootState && !paneStates.length && pageId === rootId) rootState = state;
+            else paneStates.push({ pageId, state });
         });
-        const ids = Array.from(paneStates.keys()).filter((pageId) => pageId !== rootId);
-        const minimizedIds = new Set(Array.from(paneStates)
-            .filter(([, state]) => state === 'm')
-            .map(([pageId]) => pageId));
-        const focusId = Array.from(paneStates)
-            .find(([, state]) => state === 'f')?.[0] || '';
-        const knownIds = new Set([normalizePageId(currentPageId), ...ids]);
+        const ids = paneStates.map(pane => pane.pageId);
+        const minimizedIndexes = new Set(paneStates.flatMap((pane, index) => pane.state === 'm' ? [index + 1] : []));
+        if (rootState === 'm') minimizedIndexes.add(0);
+        const focused = paneStates.findIndex(pane => pane.state === 'f');
+        const focusIndex = rootState === 'f' ? 0 : focused < 0 ? -1 : focused + 1;
         return {
-            ids,
-            minimizedIds: new Set(Array.from(minimizedIds).filter((pageId) => knownIds.has(pageId))),
-            focusId: focusId && knownIds.has(focusId) ? focusId : ''
+            ids, minimizedIndexes, focusIndex
         };
     }
 
@@ -1221,16 +1225,13 @@ document.addEventListener('DOMContentLoaded', () => {
         closeAfter(matching, false);
         for (let index = matching; index < ids.length; index++) {
             if (expectedVersion !== navigationVersion) return;
-            await openPaneAfter(index, infinitePanelsUrlFromId(ids[index]), ids[index], false, expectedVersion);
+            await openPaneAfter(index, infinitePanelsUrlFromId(ids[index]), ids[index], false, expectedVersion, false);
         }
         if (expectedVersion !== navigationVersion) return;
 
-        const focusIndex = state.focusId
-            ? paneElements.findIndex((pane) => normalizePageId(pane.dataset.pageId) === state.focusId)
-            : -1;
+        const focusIndex = state.focusIndex;
         paneElements.forEach((pane, index) => {
-            const pageId = normalizePageId(pane.dataset.pageId);
-            const minimized = state.minimizedIds.has(pageId);
+            const minimized = state.minimizedIndexes.has(index);
             pane.classList.toggle('infinitepanels-pane-minimized', minimized);
             if (focusIndex >= 0 && !minimized) focusedPaneIndexes.add(index);
         });
@@ -1351,6 +1352,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const destination = document.getElementById(anchor.getAttribute('href').slice(1));
             if (destination && wikipediaPane.contains(destination)) {
                 event.preventDefault();
+                if (event.shiftKey && destination.dataset.originalId) {
+                    const id = wikipediaPane.dataset.pageId.split('#')[0] + '#' + destination.dataset.originalId;
+                    openPaneAfter(paneElements.length - 1, infinitePanelsUrlFromId(id), id, true, ++navigationVersion);
+                    return;
+                }
                 destination.scrollIntoView({ block: 'start', behavior: 'smooth' });
                 const fragment = destination.dataset.originalId;
                 if (fragment) {
@@ -1370,57 +1376,69 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sourceIndex < 0) return;
         if (zoomPane === sourcePane) closeZoomPane(false);
         const provided = window.FokusPaneProviders.fromLink(anchor);
-        if (!event.shiftKey && navigateFromStartPage(provided?.url || anchor.href, provided?.id || pageIdForLink(anchor))) {
-            event.preventDefault();
-            return;
-        }
-        if (provided) {
-            if (event.shiftKey) return;
-            event.preventDefault();
-            openPaneAfter(paneElements.length - 1, provided.url, provided.id, true, ++navigationVersion);
-            return;
-        }
-
-        const targetPageId = pageIdForLink(anchor);
-        const existingPageIndex = findOpenPageIndex(targetPageId);
-        if (existingPageIndex >= 0) {
-            event.preventDefault();
-            focusOpenPage(existingPageIndex, anchor.href, sourceIndex, true);
-            return;
-        }
-        if (isPopupPane) {
-            event.preventDefault();
-            const expectedVersion = ++navigationVersion;
-            openPaneAfter(
-                paneElements.length - 1,
-                anchor.href,
-                targetPageId || null,
-                true,
-                expectedVersion
-            );
-            return;
-        }
-        if (paneElements.length > 1) {
-            event.preventDefault();
-            const expectedVersion = ++navigationVersion;
-            openPaneAfter(
-                paneElements.length - 1,
-                anchor.href,
-                targetPageId || null,
-                true,
-                expectedVersion
-            );
-            return;
-        }
-        if (event.shiftKey) {
-            event.preventDefault();
-            window.location.href = anchor.href;
-            return;
-        }
+        const targetPageId = provided?.id || pageIdForLink(anchor);
+        const targetUrl = provided?.url || anchor.href;
         event.preventDefault();
-        const expectedVersion = ++navigationVersion;
-        openPaneAfter(sourceIndex, anchor.href, targetPageId || null, true, expectedVersion);
+        if (event.shiftKey || isPopupPane) {
+            openPaneAfter(paneElements.length - 1, targetUrl, targetPageId, true, ++navigationVersion);
+        } else {
+            replacePaneAt(sourceIndex, targetUrl, targetPageId);
+        }
     });
+
+    // Sidebar handlers leave modified anchor clicks alone. Catch Shift-clicks
+    // there and in hover previews without changing their normal-click behavior.
+    document.addEventListener('click', event => {
+        if (!event.shiftKey || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey) return;
+        const anchor = event.composedPath().find(node => node instanceof Element && node.matches('a[href]'));
+        const sidebarId = anchor?.closest('#fokus-sidebar')
+            ? anchor.dataset.pageId || (anchor.matches('.fokus-sidebar-home') ? pageIdForUrl(anchor.href) : null) : null;
+        if (!anchor || (!sidebarId && !isEligibleLink(anchor))) return;
+        const provided = window.FokusPaneProviders.fromLink(anchor);
+        const id = sidebarId || provided?.id || pageIdForLink(anchor);
+        if (!id) return;
+        event.preventDefault();
+        openPaneAfter(paneElements.length - 1, provided?.url || anchor.href, id, true, ++navigationVersion);
+    });
+
+    function replacementRootUrl(index, targetUrl, pageId) {
+        const focused = document.body.classList.contains('infinitepanels-focused');
+        const entries = paneElements.flatMap((pane, paneIndex) => {
+            if (pane.classList.contains('infinitepanels-wikipedia-only-host')) return [];
+            return [{
+                id: paneIndex === index ? pageId : pane.dataset.pageId,
+                url: paneIndex === index ? targetUrl : (pane.dataset.pageUrl || infinitePanelsUrlFromId(pane.dataset.pageId)),
+                state: focused && paneIndex === focusedPaneIndex ? 'f'
+                    : pane.classList.contains('infinitepanels-pane-minimized') || (focused && !focusedPaneIndexes.has(paneIndex)) ? 'm' : 'p'
+            }];
+        });
+        const wikiRoot = window.FokusPaneProviders.forId(entries[0].id)?.name === 'wiki';
+        const url = new URL(wikiRoot ? entries[0].url : infinitePanelsUrlFromId(startPageId || currentPageId), location.origin);
+        ['p', 'm', 'f'].forEach(key => url.searchParams.delete(key));
+        const repeatedRoot = entries.slice(1).some(entry => entry.id === entries[0].id);
+        entries.forEach((entry, entryIndex) => {
+            if (!wikiRoot || entryIndex > 0 || entry.state !== 'p' || repeatedRoot) url.searchParams.append(entry.state, entry.id);
+        });
+        const query = url.searchParams.toString().replace(/(^|&)([pmf])=([^&]*)/g, (_match, prefix, parameter, value) => {
+            return `${prefix}${parameter}=${value.replace(/%3A/gi, ':')}`;
+        });
+        return `${url.origin}${url.pathname}${query ? `?${query}` : ''}${url.hash}`;
+    }
+
+    function replacePaneAt(index, url, pageId) {
+        if (index < 0 || !paneElements[index] || !pageId) return;
+        const existingIndex = findOpenPageIndex(pageId);
+        if (existingIndex >= 0) {
+            focusOpenPage(existingIndex, url, index);
+            return;
+        }
+        const firstVisible = index === 0 || (index === 1 && paneElements[0].classList.contains('infinitepanels-wikipedia-only-host'));
+        if (firstVisible) {
+            window.location.href = replacementRootUrl(index, url, pageId);
+            return;
+        }
+        return openPaneAfter(index - 1, url, pageId, true, ++navigationVersion, true, true);
+    }
 
     function navigateFromStartPage(url, pageId) {
         if (!startPageId || paneElements.length !== 1

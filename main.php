@@ -42,6 +42,8 @@ $paneAdapters = ['annotations', 'katex'];
     <script src="<?php echo tpl_basedir(); ?>darkmode.js"></script>
     <?php endif; ?>
     <?php require __DIR__ . '/search/assets.php'; ?>
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/selection-search.css">
+    <script src="<?php echo tpl_basedir(); ?>selection-search.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/selection-search.js'), 0, 12); ?>" defer></script>
     <?php tpl_metaheaders() ?>
     <style>
         :root{--infinitepanels-panel-width:<?php echo hsc($paneWidth); ?>rem;--infinitepanels-zoom-width:<?php echo hsc($zoomPaneWidth); ?>rem;}
@@ -57,8 +59,8 @@ $paneAdapters = ['annotations', 'katex'];
     <script src="<?php echo tpl_basedir(); ?>panes/adapters/<?php echo hsc($adapter); ?>.js"></script>
         <?php endif; ?>
     <?php endforeach; ?>
-    <script src="<?php echo tpl_basedir(); ?>panes/content-providers.js"></script>
-    <script src="<?php echo tpl_basedir(); ?>panes/panels.js"></script>
+    <script src="<?php echo tpl_basedir(); ?>panes/content-providers.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/panes/content-providers.js'), 0, 12); ?>"></script>
+    <script src="<?php echo tpl_basedir(); ?>panes/panels.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/panes/panels.js'), 0, 12); ?>"></script>
     <?php endif; ?>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <?php echo tpl_favicon(['favicon', 'mobile']) ?>

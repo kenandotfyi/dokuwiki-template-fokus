@@ -49,7 +49,7 @@
         registerProvider: provider => providers.set(provider.id, provider),
         setStatusProvider: provider => { statusProvider = provider; },
         setAutoSyncProvider: provider => { autoSyncProvider = provider; },
-        open: () => { if (opener) opener(); }
+        open: (query, options) => { if (opener) opener(query, options); }
     };
     providers.set('wiki', {
         id: 'wiki', label: 'Wiki pages',
@@ -131,8 +131,14 @@
             if (!textarea || textarea.disabled || textarea.readOnly || !textarea.getClientRects().length) return null;
             return { textarea: textarea, value: textarea.value, start: textarea.selectionStart, end: textarea.selectionEnd, scroll: textarea.scrollTop };
         }
-        function openSearch() {
-            if (dialog.open) { input.focus(); return; }
+        function openSearch(query, options = {}) {
+            if (typeof query === 'string') input.value = query;
+            if (options.provider && providers.has(options.provider)) filter = options.provider;
+            if (dialog.open) {
+                input.focus();
+                if (typeof query === 'string') search(false);
+                return;
+            }
             returnFocus = document.activeElement;
             editor = captureEditor();
             previewRow = undefined;
@@ -507,12 +513,18 @@
         function editorTrigger() {
             if (!document.getElementById('wiki__text')) return;
             const host = document.getElementById('moaied__buttons') || document.getElementById('tool__bar');
-            if (!host || host.querySelector('.fokus-search-editor-launch')) return;
-            const launch = button('Search & insert', openSearch);
-            launch.className = 'fokus-search-editor-launch';
-            launch.title = 'Search and insert a reference (Ctrl/Cmd+Shift+F)';
-            launch.prepend(icon('wiki'));
-            host.append(launch);
+            if (!host) return;
+            const launches = Array.from(document.querySelectorAll('.fokus-search-editor-launch'));
+            let launch = launches.shift();
+            launches.forEach(duplicate => duplicate.remove());
+            if (!launch) {
+                launch = button('Search & insert', openSearch);
+                launch.className = 'fokus-search-editor-launch';
+                launch.title = 'Search and insert a reference (Ctrl/Cmd+Shift+F)';
+                launch.prepend(icon('wiki'));
+            }
+            // Moai creates its toolbar asynchronously after DokuWiki's toolbar.
+            if (launch.parentElement !== host) host.append(launch);
         }
         editorTrigger();
         if (document.getElementById('wiki__text')) new MutationObserver(editorTrigger).observe(document.body, { childList: true, subtree: true });

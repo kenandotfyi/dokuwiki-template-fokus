@@ -1,0 +1,42 @@
+body [data-fokus-selection-toolbar] {
+    position: absolute;
+    z-index: 19000;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--fokus-border, #c8ccd0);
+    border-radius: var(--fokus-control-radius, 3px);
+    background: var(--fokus-surface, #fff);
+    color: var(--fokus-text, #333);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 18%);
+}
+[data-fokus-selection-toolbar] .fokus-selection-search-action {
+    display: grid;
+    place-items: center;
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    padding: 4px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+[data-fokus-selection-toolbar] .fokus-selection-search-action:hover {
+    background: var(--fokus-accent-soft, #e9edf0);
+}
+[data-fokus-selection-toolbar] .fokus-selection-search-action:focus-visible {
+    outline: 2px solid var(--fokus-accent, #526f87);
+    outline-offset: -2px;
+}
+.fokus-selection-search-action img {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+html[data-theme="dark"] .fokus-selection-search-action[data-search-target="wiki"] img {
+    filter: invert(1);
+}

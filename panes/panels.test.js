@@ -105,7 +105,7 @@ function navigationHarness(ids = ['start']) {
         navigationVersion: 0,
         window: {
             location: { href: 'https://wiki.example/start', origin: 'https://wiki.example' },
-            FokusPaneProviders: { forId: id => ({ name: id.startsWith('wp.') ? 'wikipedia'
+            FokusPaneProviders: { forId: id => ({ name: id.startsWith('wp.') || id.startsWith('wpsearch.') ? 'wikipedia'
                 : id.startsWith('example.') ? 'example' : 'wiki' }) }
         },
         pageIdForUrl: url => new URL(url).pathname.slice(1),
@@ -124,7 +124,7 @@ Deno.test('Sidebar navigation replaces the lone start page with a wiki page', as
 });
 
 Deno.test('Sidebar navigation hosts external providers as the sole visible page', async () => {
-    for (const id of ['wp.en.Capacitor#History', 'example.article']) {
+    for (const id of ['wp.en.Capacitor#History', 'wpsearch.en.Fermi_level', 'example.article']) {
         const { context, appended } = navigationHarness();
         await context.openInInfinitePanels('https://external.example/article', true, id);
         const destination = new URL(context.window.location.href);
@@ -201,6 +201,7 @@ Deno.test('Inference preserves ordinary wiki roots and supports other external p
         ['article', '?p=wp.en.Capacitor', false],
         ['start', '?p=article&p=wp.en.Capacitor', false],
         ['start', '?p=example.article', true],
+        ['start', '?p=wpsearch.en.Fermi_level', true],
         ['start', '?f=wp.en.Capacitor', true],
         ['start', '?m=wp.en.Capacitor', true]
     ]) {
@@ -208,6 +209,11 @@ Deno.test('Inference preserves ordinary wiki roots and supports other external p
         await context.restorePanesFromUrl();
         assert.equal(context.paneElements[0].classList.contains('infinitepanels-wikipedia-only-host'), hidden);
     }
+});
+
+Deno.test('Search pane IDs preserve query escaping when normalized', () => {
+    const { context } = navigationHarness();
+    assert.equal(context.normalizePageId('wpsearch.en.A%2520B'), 'wpsearch.en.A%2520B');
 });
 
 Deno.test('Older workspace URLs still restore and lose the redundant flag', async () => {
@@ -226,4 +232,82 @@ Deno.test('Promoting an external pane to the first pane produces a URL without a
     loadFunctions(context, ['closeRootPane']);
     context.closeRootPane();
     assert.equal(context.window.location.href, 'https://wiki.example/start?p=wp.en.Capacitor');
+});
+
+function replacementHarness(ids) {
+    const { context, appended } = navigationHarness(ids);
+    Object.assign(context, {
+        currentPageId: ids[0], location: context.window.location,
+        document: { body: { classList: { contains: () => false } } },
+        focusedPaneIndex: 0, focusedPaneIndexes: new Set()
+    });
+    context.paneElements.forEach(pane => { pane.classList = { contains: () => false }; });
+    context.focused = [];
+    context.focusOpenPage = (...args) => context.focused.push(args);
+    loadFunctions(context, ['findOpenPageIndex', 'replacementRootUrl', 'replacePaneAt']);
+    return { context, appended };
+}
+
+Deno.test('Normal navigation replaces a secondary pane slot for a new destination', () => {
+    const { context, appended } = replacementHarness(['article', 'second', 'third']);
+    context.replacePaneAt(1, 'https://wiki.example/next', 'next');
+    assert.equal(appended.length, 1);
+    assert.equal(appended[0][0], 0);
+    assert.equal(appended[0][2], 'next');
+    assert.equal(appended[0][5], true);
+    assert.equal(appended[0][6], true);
+    assert.equal(context.paneElements.length, 3);
+});
+
+Deno.test('Normal clicks focus an existing destination without replacing or adding panes', () => {
+    for (const source of [0, 1]) {
+        const { context, appended } = replacementHarness(['article', 'second', 'third']);
+        context.replacePaneAt(source, 'https://wiki.example/third', 'third');
+        assert.equal(appended.length, 0);
+        assert.equal(context.focused[0][0], 2);
+        assert.equal(context.paneElements.length, 3);
+    }
+});
+
+Deno.test('Shift/sidebar appends reuse an existing Wikipedia article across section fragments', async () => {
+    const { context } = replacementHarness(['article', 'wp.en.Earth#History']);
+    loadFunctions(context, ['openPaneAfter']);
+    await context.openPaneAfter(1, 'https://en.wikipedia.org/wiki/Earth#Climate', 'wp.en.Earth#Climate');
+    assert.equal(context.focused[0][0], 1);
+    assert.equal(context.paneElements.length, 2);
+});
+
+Deno.test('Replacing the wiki root changes the base URL and preserves neighboring panes', () => {
+    const { context } = replacementHarness(['article', 'second', 'wp.en.Capacitor']);
+    context.replacePaneAt(0, 'https://wiki.example/next#section', 'next');
+    const url = new URL(context.window.location.href);
+    assert.equal(url.pathname, '/next');
+    assert.equal(url.hash, '#section');
+    assert.deepEqual(url.searchParams.getAll('p'), ['second', 'wp.en.Capacitor']);
+});
+
+Deno.test('Replacing the wiki root with Wikipedia retains all visible panes on the local host', () => {
+    const { context } = replacementHarness(['article', 'second']);
+    context.replacePaneAt(0, 'https://en.wikipedia.org/wiki/Earth', 'wp.en.Earth');
+    assert.equal(context.window.location.href, 'https://wiki.example/start?p=wp.en.Earth&p=second');
+});
+
+Deno.test('Replacing the first Wikipedia pane with a wiki page removes the hidden landing host', () => {
+    const { context } = replacementHarness(['start', 'wp.en.Earth', 'third']);
+    context.paneElements[0].classList.contains = name => name === 'infinitepanels-wikipedia-only-host';
+    context.replacePaneAt(1, 'https://wiki.example/next', 'next');
+    assert.equal(context.window.location.href, 'https://wiki.example/next?p=third');
+});
+
+Deno.test('Duplicate panes restore in order with independent focus and minimization', async () => {
+    const context = restorationHarness('article', '?p=article&p=article&m=second&f=second');
+    const state = context.paneStateFromUrl();
+    assert.deepEqual([...state.ids], ['article', 'second', 'second']);
+    assert.deepEqual([...state.minimizedIndexes], [2]);
+    assert.equal(state.focusIndex, 3);
+    await context.restorePanesFromUrl();
+    assert.deepEqual(context.paneElements.map(p=>p.dataset.pageId), ['article', 'article', 'second', 'second']);
+    assert.equal(context.paneElements[2].classList.contains('infinitepanels-pane-minimized'), true);
+    assert.equal(context.paneElements[3].classList.contains('infinitepanels-pane-minimized'), false);
+    assert.equal(context.focusedPaneIndex, 3);
 });

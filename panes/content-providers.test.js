@@ -59,6 +59,27 @@ Deno.test('Wiki identifiers use the wiki provider and retain namespace separator
     assert.equal(providers.forId('component:capacitor').name, 'wiki');
     assert.equal(providers.urlForId('component:capacitor'), 'https://wiki.example/notes/component:capacitor');
     assert.equal(providers.forId('wp.bad'), undefined);
+    assert.equal(providers.forId('wpsearch.bad'), undefined);
+});
+
+Deno.test('Wikipedia search IDs stay distinct from articles and round-trip the exact query', () => {
+    for (const query of ['Fermi level', 'A_B', 'A%20B', 'R&D #1', 'Dr. No', 'Schrödinger equation']) {
+        const target = wikipedia.searchTarget(query, 'de');
+        assert.ok(target.id.startsWith('wpsearch.de.'));
+        assert.equal(providers.forId(target.id), wikipedia);
+        const url = providers.urlForId(target.id);
+        assert.equal(new URL(url).searchParams.get('search'), query);
+        assert.equal(providers.fromUrl(url).id, target.id);
+    }
+    assert.equal(wikipedia.searchTarget('Fermi level').id, 'wpsearch.en.Fermi_level');
+    assert.notEqual(wikipedia.searchTarget('Fermi level').id, providers.fromUrl('https://en.wikipedia.org/wiki/Fermi_level').id);
+});
+
+Deno.test('Wikipedia searches reject invalid editions, blank queries, and unrelated URLs', () => {
+    assert.equal(wikipedia.searchTarget('   '), null);
+    assert.equal(wikipedia.searchTarget('bad\nquery'), null);
+    assert.equal(wikipedia.searchTarget('test', 'en.evil.test'), null);
+    assert.equal(providers.fromUrl('https://en.wikipedia.org.evil.test/w/index.php?search=Earth'), undefined);
 });
 
 Deno.test('Registry can accept another provider without modifying pane navigation', () => {
