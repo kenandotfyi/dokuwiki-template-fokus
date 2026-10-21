@@ -88,7 +88,13 @@
         }
         function captureEditor() {
             const textarea = document.getElementById('wiki__text');
-            if (!textarea || textarea.disabled || textarea.readOnly || !textarea.getClientRects().length) return null;
+            if (!textarea || textarea.disabled || textarea.readOnly) return null;
+            const cm = window.plugin_codemirror?.cm;
+            if (cm && cm.getTextArea() === textarea && cm.getWrapperElement().getClientRects().length) {
+                if (cm.getOption('readOnly')) return null;
+                return { textarea, cm, value: cm.getValue(), start: cm.indexFromPos(cm.getCursor('from')), end: cm.indexFromPos(cm.getCursor('to')), scroll: cm.getScrollInfo() };
+            }
+            if (!textarea.getClientRects().length) return null;
             return { textarea: textarea, value: textarea.value, start: textarea.selectionStart, end: textarea.selectionEnd, scroll: textarea.scrollTop };
         }
         function openSearch(query, options = {}) {
@@ -376,7 +382,8 @@
             }
         }
         function insertResult(row, quote) {
-            if (!editor || !editor.textarea.isConnected || editor.textarea !== document.getElementById('wiki__text') || editor.textarea.value !== editor.value) { hint('The editor changed. Close and reopen search from the editor before inserting.'); return; }
+            const currentEditor = captureEditor();
+            if (!editor || !editor.textarea.isConnected || !currentEditor || currentEditor.textarea !== editor.textarea || currentEditor.cm !== editor.cm || currentEditor.value !== editor.value) { hint('The editor changed. Close and reopen search from the editor before inserting.'); return; }
             let text;
             try { text = quote ? format.annotation(row, includeComment) : format.reference(row, chosenPDF); }
             catch (error) { hint(error.message); return; }
@@ -385,6 +392,16 @@
             if (quote) text = format.blockAtSelection(text, saved.value, saved.start, saved.end);
             returnFocus = target;
             closeSearch();
+            if (saved.cm) {
+                saved.cm.focus();
+                saved.cm.setSelection(saved.cm.posFromIndex(saved.start), saved.cm.posFromIndex(saved.end));
+                saved.cm.replaceSelection(text, 'end', '+input');
+                saved.cm.save();
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+                target.dispatchEvent(new Event('change', { bubbles: true }));
+                saved.cm.scrollTo(saved.scroll.left, saved.scroll.top);
+                return;
+            }
             target.focus({ preventScroll: true });
             target.setSelectionRange(saved.start, saved.end);
             // Native insertion preserves the browser's undo history. The fallback
