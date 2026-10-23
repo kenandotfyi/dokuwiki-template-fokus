@@ -35,6 +35,22 @@ function fokus_recents_read($file, $content = false) {
     return array_slice($content ? $data['pages'] : array_values(array_unique($data['pages'])), 0, 10);
 }
 
+function fokus_recents_entry_key($entry, $content = false) {
+    return $content ? (($entry['provider'] ?? '') . ':' . ($entry['id'] ?? '')) : (string)$entry;
+}
+
+function fokus_recents_timestamps($file, $entries, $content = false) {
+    $data = is_file($file) ? json_decode((string)@file_get_contents($file), true) : [];
+    $stored = is_array($data) && is_array($data['updated_at'] ?? null) ? $data['updated_at'] : [];
+    $timestamps = [];
+    $fallback = time() - ($content ? 0.5 : 0);
+    foreach ($entries as $index => $entry) {
+        $key = fokus_recents_entry_key($entry, $content);
+        $timestamps[$key] = is_numeric($stored[$key] ?? null) ? (float)$stored[$key] : (float)($fallback - $index);
+    }
+    return $timestamps;
+}
+
 function fokus_recents_update($file, callable $update, $content = false) {
     global $conf;
     $directory = fokus_recents_directory(true);
@@ -48,10 +64,16 @@ function fokus_recents_update($file, callable $update, $content = false) {
         $previous = fokus_recents_read($file, $content);
         $updated = $update($previous);
         $next = array_slice($content ? array_values($updated) : array_values(array_unique($updated)), 0, 10);
-        if ($next === $previous) return $previous;
+        $timestamps = fokus_recents_timestamps($file, $previous, $content);
+        $nextTimestamps = [];
+        foreach ($next as $index => $entry) {
+            $key = fokus_recents_entry_key($entry, $content);
+            $nextTimestamps[$key] = $timestamps[$key] ?? (float)(time() - $index);
+        }
+        if ($next) $nextTimestamps[fokus_recents_entry_key($next[0], $content)] = microtime(true);
         $temporary = @tempnam($directory, '.recents-');
         if ($temporary === false || realpath(dirname($temporary)) !== realpath($directory)) throw new RuntimeException('Could not create a temporary recents file.');
-        $json = json_encode(['version' => 1, 'pages' => $next], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
+        $json = json_encode(['version' => 1, 'pages' => $next, 'updated_at' => $nextTimestamps], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
         if (@file_put_contents($temporary, $json) !== strlen($json)) throw new RuntimeException('Could not save recent pages.');
         if (!@chmod($temporary, $conf['fmode'] ?? 0644) || !@rename($temporary, $file)) throw new RuntimeException('Could not replace recent pages.');
         $temporary = null;
@@ -77,13 +99,22 @@ function fokus_content_recents_endpoint() {
     $method = $_SERVER['REQUEST_METHOD'];
     if (!in_array($method, ['GET', 'POST'], true)) throw new RuntimeException('Use GET or POST for recent content.', 405);
     $file = substr(fokus_recents_filename(), 0, -5) . '.content.json';
-    if ($method === 'GET') return ['pages' => fokus_recents_read($file, true)];
+    if ($method === 'GET') {
+        $pages = fokus_recents_read($file, true);
+        $timestamps = fokus_recents_timestamps($file, $pages, true);
+        foreach ($pages as &$page) $page['updatedAt'] = $timestamps[fokus_recents_entry_key($page, true)] ?? 0;
+        unset($page);
+        return ['pages' => $pages];
+    }
     if (!checkSecurityToken($INPUT->post->str('sectok'))) throw new RuntimeException('Your session expired. Reload and try again.', 403);
     $entry = ['id' => $INPUT->post->str('target'), 'title' => $INPUT->post->str('title'), 'provider' => $INPUT->post->str('provider')];
     if (!fokus_recents_valid_content($entry)) throw new RuntimeException('Invalid recent content.', 400);
     $pages = fokus_recents_update($file, static function ($previous) use ($entry) {
         return [$entry, ...array_values(array_filter($previous, static fn($item) => $item['id'] !== $entry['id'] || $item['provider'] !== $entry['provider']))];
     }, true);
+    $timestamps = fokus_recents_timestamps($file, $pages, true);
+    foreach ($pages as &$page) $page['updatedAt'] = $timestamps[fokus_recents_entry_key($page, true)] ?? 0;
+    unset($page);
     return ['pages' => $pages];
 }
 
@@ -98,7 +129,7 @@ function fokus_recents_page_hidden($id) {
     return false;
 }
 
-function fokus_recents_visible_pages($ids) {
+function fokus_recents_visible_pages($ids, $timestamps = []) {
     $pages = [];
     foreach ($ids as $id) {
         if (!page_exists($id) || auth_quickaclcheck($id) < AUTH_READ || fokus_recents_page_hidden($id)) continue;
@@ -107,6 +138,7 @@ function fokus_recents_visible_pages($ids) {
             'id' => $id,
             'title' => $title !== '' ? $title : str_replace('_', ' ', noNS($id)),
             'url' => wl($id, '', true, '&'),
+            'updatedAt' => $timestamps[$id] ?? 0,
         ];
     }
     return $pages;
@@ -117,7 +149,10 @@ function fokus_recents_endpoint() {
     $method = $_SERVER['REQUEST_METHOD'];
     if (!in_array($method, ['GET', 'POST'], true)) throw new RuntimeException('Use GET or POST for recent pages.', 405);
     $file = fokus_recents_filename();
-    if ($method === 'GET') return ['pages' => fokus_recents_visible_pages(fokus_recents_read($file))];
+    if ($method === 'GET') {
+        $ids = fokus_recents_read($file);
+        return ['pages' => fokus_recents_visible_pages($ids, fokus_recents_timestamps($file, $ids))];
+    }
 
     if (!checkSecurityToken($INPUT->post->str('sectok'))) throw new RuntimeException('Your session expired. Reload and try again.', 403);
     $id = $INPUT->post->str('target');
@@ -127,5 +162,5 @@ function fokus_recents_endpoint() {
     $ids = fokus_recents_update($file, static function ($previous) use ($id) {
         return [$id, ...array_values(array_diff($previous, [$id]))];
     });
-    return ['pages' => fokus_recents_visible_pages($ids)];
+    return ['pages' => fokus_recents_visible_pages($ids, fokus_recents_timestamps($file, $ids))];
 }

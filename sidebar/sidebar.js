@@ -22,8 +22,22 @@ function initializeSidebar() {
     const pinCurrent = document.getElementById('fokus-pin-current');
     const recentsSection = document.getElementById('fokus-recents-section');
     const recentsList = document.getElementById('fokus-recents-list');
-    const contentRecentsSection = document.getElementById('fokus-content-recents-section');
-    const contentRecentsList = document.getElementById('fokus-content-recents-list');
+    const recentsToggle = document.getElementById('fokus-recents-toggle');
+    const recentsStorageKey = `${config.storageKey}:recents-collapsed`;
+    let recentsCollapsed = false;
+    try { recentsCollapsed = localStorage.getItem(recentsStorageKey) === 'true'; } catch (error) { /* Storage may be unavailable. */ }
+    recentsList.hidden = recentsCollapsed;
+    recentsToggle.setAttribute('aria-expanded', String(!recentsCollapsed));
+    recentsToggle.title = recentsCollapsed ? 'Expand Recents' : 'Collapse Recents';
+    recentsToggle.setAttribute('aria-label', recentsToggle.title);
+    recentsToggle.addEventListener('click', () => {
+        recentsCollapsed = !recentsCollapsed;
+        recentsList.hidden = recentsCollapsed;
+        recentsToggle.setAttribute('aria-expanded', String(!recentsCollapsed));
+        recentsToggle.title = recentsCollapsed ? 'Expand Recents' : 'Collapse Recents';
+        recentsToggle.setAttribute('aria-label', recentsToggle.title);
+        try { localStorage.setItem(recentsStorageKey, String(recentsCollapsed)); } catch (error) { /* Storage may be unavailable. */ }
+    });
     const createFile = document.getElementById('fokus-create-file');
     const toggleNamespaces = document.getElementById('fokus-toggle-namespaces');
     const createDialog = document.getElementById('fokus-new-page-dialog');
@@ -387,22 +401,45 @@ function initializeSidebar() {
     }
     function renderRecents() {
         recentsList.replaceChildren();
-        for (const recent of recentPages) {
+        const entries = [
+            ...recentPages.map(recent => ({ ...recent, provider: 'wiki' })),
+            ...recentContent
+        ].sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+        for (const recent of entries) {
+            const provider = recent.provider === 'wiki' ? { name: 'wiki' } : window.FokusPaneProviders?.forId(recent.id);
+            if (!provider || provider.name !== recent.provider) continue;
+            const url = recent.provider === 'wiki' ? recent.url : provider.urlForId(recent.id);
+            if (!url) continue;
             const link = document.createElement('a');
             const name = document.createElement('span');
             link.className = 'fokus-recent-row';
-            link.href = recent.url;
-            link.title = recent.id;
+            link.href = url;
+            link.title = recent.provider === 'wiki' ? recent.id : `${recent.title} · ${provider.label || provider.name}`;
             link.dataset.pageId = recent.id;
+            link.dataset.provider = recent.provider;
             name.textContent = recent.title;
-            name.classList.toggle('fokus-pagehealth-empty', pageHealth.get(recent.id) === true);
-            link.append(icon('file'), name);
+            if (recent.provider === 'wiki') name.classList.toggle('fokus-pagehealth-empty', pageHealth.get(recent.id) === true);
+            let providerIcon = icon('file');
+            if (provider.name === 'wikipedia') {
+                providerIcon = document.createElement('img');
+                providerIcon.src = DOKU_BASE + 'lib/images/interwiki/wp.svg';
+                providerIcon.alt = '';
+                providerIcon.setAttribute('aria-hidden', 'true');
+                providerIcon.className = 'fokus-recent-provider-icon';
+                providerIcon.width = 16;
+                providerIcon.height = 16;
+            }
+            link.append(providerIcon, name);
             link.addEventListener('click', event => {
                 if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
                 event.preventDefault();
+                if (recent.provider !== 'wiki') {
+                    openPage({ id: recent.id, url });
+                    return;
+                }
                 const page = pagesById.get(recent.id);
                 if (page) openPage(page);
-                else location.href = recent.url;
+                else location.href = url;
             });
             recentsList.append(link);
         }
@@ -437,48 +474,13 @@ function initializeSidebar() {
     let recentContent = [];
     let contentWriteVersion = 0;
     let contentWriteQueue = Promise.resolve();
-    function renderContentRecents() {
-        contentRecentsList.replaceChildren();
-        for (const recent of recentContent) {
-            const provider = window.FokusPaneProviders?.forId(recent.id);
-            if (!provider || provider.name === 'wiki' || provider.name !== recent.provider) continue;
-            const url = provider.urlForId(recent.id);
-            if (!url) continue;
-            const link = document.createElement('a');
-            link.className = 'fokus-recent-row';
-            link.href = url;
-            link.dataset.pageId = recent.id;
-            link.dataset.provider = provider.name;
-            link.title = `${recent.title} · ${provider.label || provider.name}`;
-            const name = document.createElement('span');
-            name.textContent = recent.title;
-            let providerIcon = icon('file');
-            if (provider.name === 'wikipedia') {
-                providerIcon = document.createElement('img');
-                providerIcon.src = DOKU_BASE + 'lib/images/interwiki/wp.svg';
-                providerIcon.alt = '';
-                providerIcon.setAttribute('aria-hidden', 'true');
-                providerIcon.className = 'fokus-recent-provider-icon';
-                providerIcon.width = 16;
-                providerIcon.height = 16;
-            }
-            link.append(providerIcon, name);
-            link.addEventListener('click', event => {
-                if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-                event.preventDefault();
-                openPage({ id: recent.id, url });
-            });
-            contentRecentsList.append(link);
-        }
-        contentRecentsSection.hidden = contentRecentsList.childElementCount === 0;
-    }
     async function loadContentRecents() {
         const version = contentWriteVersion;
         try {
             const data = await request('content-recents');
             if (version !== contentWriteVersion) return;
             recentContent = Array.isArray(data.pages) ? data.pages : [];
-            renderContentRecents();
+            renderRecents();
         } catch (error) { console.warn('Fokus sidebar: could not load recent content.', error); }
     }
     window.fokusRegisterRecentContent = function (entry) {
@@ -488,11 +490,11 @@ function initializeSidebar() {
             const data = await request('content-recents', { target: entry.id, title: entry.title, provider: entry.provider }, undefined, 'POST');
             if (version !== contentWriteVersion) return;
             recentContent = Array.isArray(data.pages) ? data.pages : [];
-            renderContentRecents();
+            renderRecents();
         }).catch(error => console.warn('Fokus sidebar: could not save recent content.', error));
         return contentWriteQueue;
     };
-    for (const list of [recentsList, contentRecentsList]) {
+    for (const list of [recentsList]) {
         const previewRecent = event => {
             if (event.pointerType === 'touch') return;
             const link = event.target.closest?.('a.fokus-recent-row');
