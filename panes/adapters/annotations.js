@@ -10,7 +10,7 @@ function excludeExternalSelection(event) {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed || !selection.rangeCount) return;
     const range = selection.getRangeAt(0);
-    const external = Array.from(document.querySelectorAll('.infinitepanels-pane[data-provider="wikipedia"], .fokus-wikipedia-content'));
+    const external = Array.from(document.querySelectorAll('.infinitepanels-pane[data-provider]:not([data-provider="wiki"]), .fokus-wikipedia-content, .fokus-jots-provider'));
     if (!external.some(root => range.intersectsNode(root))) return;
     document.getElementById('ann-tooltip')?.remove();
     document.getElementById('infinitepanels-ann-tooltip')?.remove();

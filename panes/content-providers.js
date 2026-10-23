@@ -157,7 +157,7 @@
 
     registry.register({
         name: 'wiki',
-        matches: id => Boolean(id) && !id.startsWith('wp.') && !id.startsWith('wpsearch.'),
+        matches: id => Boolean(id) && !id.startsWith('wp.') && !id.startsWith('wpsearch.') && id !== 'jots.inbox',
         urlForId(id) {
             const base = new URL(DOKU_BASE, location.origin);
             return new URL(base.pathname.replace(/\/?$/, '/') + encodeURIComponent(id).replace(/%3A/gi, ':'), base.origin).href;

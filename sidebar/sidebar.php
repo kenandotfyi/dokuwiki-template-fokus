@@ -18,6 +18,11 @@ $sidebarConfig = [
     'ajaxEndpoint' => DOKU_BASE . 'lib/exe/ajax.php',
     'storageKey' => 'fokus-sidebar:' . DOKU_BASE . ':' . ($_SERVER['REMOTE_USER'] ?? 'anonymous'),
 ];
+$jotsAvailable = false;
+if ($butler && $butler->moduleEnabled('memos')) {
+    require_once DOKU_PLUGIN . 'fokusbutler/modules/memos/Action.php';
+    $jotsAvailable = FokusButler_Module_Memos_Action::allowed();
+}
 ?>
 <aside id="fokus-sidebar" aria-label="Wiki navigation">
     <div class="fokus-sidebar-top">
@@ -42,11 +47,17 @@ $sidebarConfig = [
             <button type="button" id="fokus-files-tab" role="tab" aria-label="Files" title="Files" aria-selected="true" aria-controls="fokus-files-panel" data-view="files"><?php echo fokus_sidebar_icon('files'); ?></button>
             <button type="button" id="fokus-tags-tab" role="tab" aria-label="Tags" title="Tags" aria-selected="false" aria-controls="fokus-tags-panel" data-view="tags" tabindex="-1"><?php echo fokus_sidebar_icon('tags'); ?></button>
             </div>
+            <?php if ($jotsAvailable) : ?>
+            <button type="button" class="fokus-sidebar-icon-button" data-fokus-jots-open aria-label="Browse jots" title="Jots"><?php echo file_get_contents(DOKU_PLUGIN . 'fokusbutler/core/icons/notepad-duotone.svg'); ?></button>
+            <?php endif; ?>
             </div>
             <label class="fokus-sidebar-filter" id="fokus-sidebar-filter-area" aria-hidden="true" inert>
                 <input type="search" id="fokus-sidebar-filter" placeholder="Filter…" aria-label="Filter files" autocomplete="off" spellcheck="false" disabled />
             </label>
             <div class="fokus-sidebar-navigation-actions">
+                <?php if ($jotsAvailable) : ?>
+                <button type="button" class="fokus-sidebar-icon-button" data-fokus-jot aria-label="Quick jot" title="Quick jot"><?php echo file_get_contents(DOKU_PLUGIN . 'fokusbutler/core/icons/pen-nib-duotone.svg'); ?></button>
+                <?php endif; ?>
                 <button type="button" class="fokus-search-open" aria-label="Search the wiki" title="Search the wiki (Ctrl+Shift+F)"><?php echo fokus_sidebar_icon('search'); ?></button>
                 <button type="button" class="fokus-sidebar-filter-toggle" aria-label="Toggle file filter" title="Filter files" aria-controls="fokus-sidebar-filter-area" aria-expanded="false"><?php echo fokus_sidebar_icon('filter'); ?></button>
             </div>

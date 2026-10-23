@@ -728,6 +728,11 @@ document.addEventListener('DOMContentLoaded', () => {
             spineButton.replaceChildren(spineLabel);
         }
         spineLabel.textContent = paneTitle;
+        if (pane.dataset.provider === 'memos') {
+            const providerIcon = createPhosphorIcon('pen-nib');
+            providerIcon.classList.add('fokus-jots-shelf-icon');
+            spineLabel.prepend(providerIcon);
+        }
         let spinePageId = spineButton.querySelector('.infinitepanels-spine-pageid');
         if (!spinePageId) {
             spinePageId = document.createElement('span');
@@ -963,7 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePaneIndexes() {
         paneElements.forEach((pane, index) => {
             pane.dataset.paneIndex = String(index + 1);
-            const label = pane.dataset.pageId?.startsWith('wpsearch.') ? 'Wikipedia search' : pane.dataset.provider === 'wikipedia' ? 'Wikipedia article' : 'Wiki page';
+            const label = pane.dataset.provider === 'memos' ? 'Jots' : pane.dataset.pageId?.startsWith('wpsearch.') ? 'Wikipedia search' : pane.dataset.provider === 'wikipedia' ? 'Wikipedia article' : 'Wiki page';
             pane.setAttribute('aria-label', `${label} ${pane.dataset.pageId || ''}, pane ${index + 1}`);
             const spine = pane.querySelector('.infinitepanels-spine')
                 || Array.from(minimizedShelf?.querySelectorAll('.infinitepanels-spine') || [])
@@ -1002,6 +1007,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function registerRecentContent(pane) {
+        if (pane.dataset.provider === 'memos') return;
         if (pane.dataset.pageId?.startsWith('wpsearch.')) return;
         if (!pane.dataset.pageTitle || !pane.dataset.provider || pane.dataset.provider === 'wiki') return;
         window.fokusRegisterRecentContent?.({
@@ -1239,6 +1245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URL(window.location.href).searchParams;
         const rootId = normalizePageId(currentPageId);
         const zoomId = normalizePageId(params.get('z') || '');
+        const legacyZoomPath = zoomId !== rootId && Array.from(params.entries()).some(([state, id]) => state === 'p' && normalizePageId(id) === zoomId);
         const paneStates = [];
         let rootState = '';
         let legacyZoomPathConsumed = false;
@@ -1246,11 +1253,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!['p', 'm', 'f', 'z'].includes(state)) return;
             const pageId = normalizePageId(rawPageId);
             if (!pageId) return;
-            // Earlier URLs stored a zoomed secondary pane in both p and z.
-            // Treat that pair as one pane while continuing to allow duplicate IDs.
-            if (state === 'p' && zoomId && zoomId !== rootId && pageId === zoomId && !legacyZoomPathConsumed) {
+            // Earlier URLs stored zoom as an extra parameter. Keep the pane's
+            // original position when reading those URLs, without duplicating it.
+            if (state === 'z' && (pageId === rootId || legacyZoomPath)) return;
+            if (state === 'p' && legacyZoomPath && pageId === zoomId && !legacyZoomPathConsumed) {
                 legacyZoomPathConsumed = true;
-                return;
+                state = 'z';
             }
             // The root is omitted unless minimized/focused. Keep every later
             // occurrence: Shift-click may deliberately open the same page twice.

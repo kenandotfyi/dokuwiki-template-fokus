@@ -94,13 +94,25 @@ Deno.test('Workspace zoom restores from a readable pane ID without changing mini
     assert.equal(c.paneElements[2].classList.contains('infinitepanels-pane-minimized'), true);
 });
 
-Deno.test('Replacing a zoomed root preserves zoom on its new destination', () => {
+Deno.test('Replacing a zoomed root omits a redundant root zoom parameter', () => {
     const { context } = replacementHarness(['article', 'second']);
     context.window.location.href = 'https://wiki.example/article?p=second&z=article';
     context.replacePaneAt(0, 'https://wiki.example/next', 'next');
     const url = new URL(context.window.location.href);
-    assert.equal(url.searchParams.get('z'), 'next');
+    assert.equal(url.searchParams.has('z'), false);
     assert.deepEqual(url.searchParams.getAll('p'), ['second']);
+});
+
+Deno.test('Compact z pane states restore in order and legacy root zoom does not duplicate the root', async () => {
+    const compact = restorationHarness('article', '?z=second&m=third');
+    await compact.restorePanesFromUrl();
+    assert.deepEqual(compact.paneElements.map(p => p.dataset.pageId), ['article', 'second', 'third']);
+    assert.equal(compact.workspaceZoomPane, compact.paneElements[1]);
+    assert.equal(compact.paneElements[2].classList.contains('infinitepanels-pane-minimized'), true);
+    const legacy = restorationHarness('article', '?p=second&z=article');
+    await legacy.restorePanesFromUrl();
+    assert.equal(legacy.paneElements.length, 2);
+    assert.equal(legacy.workspaceZoomPane, legacy.paneElements[0]);
 });
 
 // Exercise the real popup and loader together without booting the wiki layout.

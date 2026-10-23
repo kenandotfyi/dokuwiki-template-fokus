@@ -36,4 +36,5 @@ Deno.test('Wikipedia IDs and external containers cannot initialize annotations',
     const source = { get scripts() { assert.fail('External content reached annotation initialization'); } };
     window.InfinitePanelsAdapters.annotations.init('wp.en.Capacitor', { dataset: {} }, source);
     window.InfinitePanelsAdapters.annotations.init('article', { dataset: { provider: 'wikipedia' } }, source);
+    window.InfinitePanelsAdapters.annotations.init('jots.inbox', { dataset: { provider: 'memos' } }, source);
 });

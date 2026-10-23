@@ -1060,6 +1060,7 @@ function initializeSidebar() {
     });
     narrow.addEventListener('change', () => setCollapsed(narrow.matches || state.collapsed === true, false));
     window.addEventListener('focus', () => loadPins());
+    document.addEventListener('fokus:jots-page-created', () => { loadFiles(); loadPins(); });
     document.addEventListener('visibilitychange', () => { if (!document.hidden) loadPins(); });
     setWidth(state.width);
     setCollapsed(narrow.matches || state.collapsed === true, false);
