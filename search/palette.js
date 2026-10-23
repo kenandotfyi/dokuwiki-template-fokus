@@ -36,6 +36,18 @@
         fulltext.before(syncBadge);
         const config = window.FokusSearchConfig;
         const format = window.FokusSearchFormat;
+        if (config.wikipedia) providers.set('wikipedia', {
+            id: 'wikipedia', label: 'Wikipedia', includeInAll: false,
+            async search(query, options) {
+                const response = await fetch(DOKU_BASE + 'lib/exe/ajax.php?call=fokusbutler_content', {
+                    method: 'POST', credentials: 'same-origin', signal: options.signal,
+                    body: new URLSearchParams({ provider: 'wikipedia-search', language: 'en', query })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.ok) throw new Error(data.error || 'Wikipedia search is unavailable.');
+                return { results: data.results.map(row => ({ kind: 'wikipedia', key: row.url, title: row.title, text: row.excerpt || row.description, openUrl: row.url })), hasMore: false };
+            }
+        });
         const states = new Map();
         let selected = null;
         let previewRow;
@@ -72,14 +84,14 @@
             element.append(document.createTextNode(value.slice(cursor)));
         }
         function uid(row) { return row.kind + ':' + row.key; }
-        function visibleProviders() { return Array.from(providers.values()).filter(provider => filter === 'all' || provider.id === filter); }
+        function visibleProviders() { return Array.from(providers.values()).filter(provider => filter === 'all' ? provider.includeInAll !== false : provider.id === filter); }
         function rows() { return visibleProviders().flatMap(provider => (states.get(provider.id) || {}).rows || []); }
         function current() { return rows().find(row => uid(row) === selected) || null; }
         function icon(kind, row) {
             const image = node('img', 'fokus-search-result-icon');
             const isImageAnnotation = kind === 'annotation' && row && row.annotationType === 'image';
             image.alt = isImageAnnotation ? 'Image annotation' : '';
-            image.src = config.templateBase + (kind === 'wiki' ? 'sidebar/icons/file-text-duotone.svg' : 'search/icons/' + (kind === 'document' ? 'books' : isImageAnnotation ? 'image' : 'quotes') + '-duotone.svg');
+            image.src = kind === 'wikipedia' ? DOKU_BASE + 'lib/images/interwiki/wp.svg' : config.templateBase + (kind === 'wiki' ? 'sidebar/icons/file-text-duotone.svg' : 'search/icons/' + (kind === 'document' ? 'books' : isImageAnnotation ? 'image' : 'quotes') + '-duotone.svg');
             return image;
         }
         function hint(message) {
@@ -153,15 +165,15 @@
             target.search = new URLSearchParams({ do: 'search', q: query });
             fulltext.href = target.href;
             if (!query) { render(); return; }
-            providers.forEach(provider => {
+            visibleProviders().forEach(provider => {
                 const previous = states.get(provider.id);
                 states.set(provider.id, { rows: preserve && previous ? previous.rows : [], loading: true, total: preserve && previous ? previous.total : null, hasMore: false, error: null });
             });
             render();
             timer = window.setTimeout(function () {
                 timer = null;
-                providers.forEach(provider => load(provider, id, query, false));
-            }, preserve ? 0 : 180);
+                visibleProviders().forEach(provider => load(provider, id, query, false));
+            }, preserve ? 0 : filter === 'wikipedia' ? 450 : 180);
         }
         async function load(provider, id, query, append) {
             const state = states.get(provider.id);
@@ -185,6 +197,7 @@
             }
         }
         function render() {
+            dialog.querySelector('.fokus-search-match-mode').hidden = filter === 'wikipedia';
             const scroll = results.scrollTop;
             const all = rows();
             if (!all.some(row => uid(row) === selected)) selected = all.length ? uid(all[0]) : null;
@@ -218,6 +231,7 @@
                         const element = node('div', 'fokus-search-result');
                         element.id = 'fokus-result-' + provider.id + '-' + index;
                         element.dataset.result = uid(row);
+                        element.dataset.provider = provider.id;
                         element.setAttribute('role', 'option');
                         element.setAttribute('aria-selected', String(uid(row) === selected));
                         element.append(icon(row.kind, row));
@@ -240,7 +254,7 @@
                             highlighted(meta, metadata);
                             body.append(meta);
                         }
-                        if (row.kind === 'wiki' && row.text) { const excerpt = node('div', 'fokus-search-result-excerpt'); highlighted(excerpt, row.text); body.append(excerpt); }
+                        if (['wiki', 'wikipedia'].includes(row.kind) && row.text) { const excerpt = node('div', 'fokus-search-result-excerpt'); highlighted(excerpt, row.text); body.append(excerpt); }
                         if (row.kind === 'annotation' && row.text && row.comment) { const comment = node('div', 'fokus-search-result-comment'); highlighted(comment, 'Comment: ' + row.comment); body.append(comment); }
                         element.append(body);
                         if (row.kind === 'annotation' && /^#[a-f0-9]{6}$/i.test(row.color || '')) { element.style.setProperty('--annotation-color', row.color); element.classList.add('has-annotation-color'); }
@@ -251,7 +265,7 @@
             results.scrollTop = scroll;
             const busy = visibleProviders().some(provider => (states.get(provider.id) || {}).loading);
             results.setAttribute('aria-busy', String(busy));
-            const count = Array.from(states.values()).reduce((total, state) => total + (state.total || 0), 0);
+            const count = Array.from(providers.values()).filter(provider => provider.includeInAll !== false).reduce((total, provider) => total + (states.get(provider.id)?.total || 0), 0);
             const visibleCount = visibleProviders().reduce((total, provider) => total + ((states.get(provider.id) || {}).total || 0), 0);
             status.textContent = !query ? '' : busy ? 'Searching…' : visibleCount + (visibleCount === 1 ? ' match' : ' matches');
             dialog.querySelectorAll('[data-search-filter]').forEach(button => {
@@ -285,6 +299,9 @@
             } catch (_) { return null; }
         }
         function openURL(row) {
+            if (row.kind === 'wikipedia') {
+                try { format.reference(row); return row.openUrl; } catch (_) { return null; }
+            }
             if (row.kind !== 'document' || !chosenPDF) return safeURL(row.openUrl || row.selectUrl, row.kind === 'wiki');
             const pdf = row.attachments.find(item => item.key === chosenPDF);
             return pdf ? safeURL(pdf.openUrl, false) : null;
@@ -293,7 +310,7 @@
             preview.replaceChildren();
             actions.replaceChildren();
             if (!row) { preview.append(node('p', 'fokus-search-preview-empty', 'Select a result to see its details and actions.')); return; }
-            const eyebrow = node('div', 'fokus-search-preview-kind', row.kind === 'wiki' ? 'WIKI PAGE' : row.kind === 'document' ? 'ZOTERO DOCUMENT' : 'ZOTERO ANNOTATION');
+            const eyebrow = node('div', 'fokus-search-preview-kind', row.kind === 'wikipedia' ? 'WIKIPEDIA' : row.kind === 'wiki' ? 'WIKI PAGE' : row.kind === 'document' ? 'ZOTERO DOCUMENT' : 'ZOTERO ANNOTATION');
             preview.append(eyebrow, node('h3', 'fokus-search-preview-title', row.title));
             if (row.kind === 'wiki') preview.append(node('p', 'fokus-search-path', row.path));
             else {
@@ -359,9 +376,9 @@
                 if (row.kind === 'annotation') actions.append(button('Insert link only', () => insertResult(row, false)));
             }
             if (url) {
-                const open = node('a', !editor ? 'fokus-search-primary' : '', row.kind === 'wiki' ? 'Open page' : row.kind === 'document' && !row.openUrl && !chosenPDF ? 'Open item in Zotero' : 'Open in Zotero');
+                const open = node('a', !editor ? 'fokus-search-primary' : '', ['wiki', 'wikipedia'].includes(row.kind) ? 'Open page' : row.kind === 'document' && !row.openUrl && !chosenPDF ? 'Open item in Zotero' : 'Open in Zotero');
                 open.href = url;
-                if (row.kind === 'wiki') open.addEventListener('click', event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey) { event.preventDefault(); activate(row, false); } });
+                if (['wiki', 'wikipedia'].includes(row.kind)) open.addEventListener('click', event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey) { event.preventDefault(); activate(row, false); } });
                 actions.append(open);
             }
             const copyLink = button('Copy wiki link', () => copyText(format.reference(row, chosenPDF), 'Wiki link copied.'));
@@ -417,9 +434,9 @@
             if (insert && editor) { insertResult(row, row.kind === 'annotation'); return; }
             const url = openURL(row);
             if (!url) { hint('Choose a PDF attachment first.'); preview.querySelector('select')?.focus(); return; }
-            if (row.kind === 'wiki') {
+            if (row.kind === 'wiki' || row.kind === 'wikipedia') {
                 closeSearch();
-                if (typeof window.infinitepanelsOpenPage === 'function') window.infinitepanelsOpenPage(url, true, row.key);
+                if (typeof window.infinitepanelsOpenPage === 'function') window.infinitepanelsOpenPage(url, true, row.kind === 'wiki' ? row.key : undefined);
                 else location.assign(url);
             } else {
                 const link = document.createElement('a'); link.href = url; link.click();
@@ -456,9 +473,7 @@
         dialog.querySelectorAll('[data-search-filter]').forEach(button => button.addEventListener('click', () => {
             filter = button.dataset.searchFilter;
             results.scrollTop = 0;
-            render(); input.focus();
-            const state = states.get(filter);
-            if (state && state.hasMore && !state.loading && state.rows.length < 20) load(providers.get(filter), revision, input.value.trim(), true);
+            search(false); input.focus();
         }));
         dialog.querySelectorAll('[data-search-mode]').forEach(button => button.addEventListener('click', () => {
             if (matchMode === button.dataset.searchMode) return;
@@ -475,7 +490,7 @@
         document.addEventListener('keydown', function (event) {
             if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'f') { event.preventDefault(); openSearch(); return; }
             if (!dialog.open) return;
-            if (event.altKey && /^[1-4]$/.test(event.key)) { const filters = Array.from(dialog.querySelectorAll('[data-search-filter]')); const button = filters[Number(event.key) - 1]; if (button) { event.preventDefault(); button.click(); } return; }
+            if (event.altKey && /^[1-5]$/.test(event.key)) { const filters = Array.from(dialog.querySelectorAll('[data-search-filter]')); const button = filters[Number(event.key) - 1]; if (button) { event.preventDefault(); button.click(); } return; }
             if (document.activeElement !== input) return;
             if (event.key === 'Tab' && !event.shiftKey) { const action = actions.querySelector('button:not(:disabled), a[href]'); if (action) { event.preventDefault(); action.focus(); } return; }
             if (event.key === 'Enter' && event.shiftKey) { event.preventDefault(); fulltext.click(); return; }

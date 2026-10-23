@@ -153,7 +153,7 @@ html[data-theme="dark"] button {
 
 html[data-theme="dark"] .dokuwiki th,
 html[data-theme="dark"] .dokuwiki tr:nth-child(even) td {
-    background-color: var(--fokus-diff-removed-background);
+    background-color: var(--fokus-surface-soft);
 }
 
 html[data-theme="dark"] .dokuwiki .admonition,
@@ -432,7 +432,7 @@ html[data-theme="dark"] #confmanager .hoverFeedback:hover {
 }
 
 html[data-theme="dark"] #confmanager .noscript {
-    background: var(--fokus-diff-removed-background);
+    background: var(--fokus-surface-soft);
     color: var(--fokus-notice-text);
     border-color: var(--fokus-notice-border);
 }
@@ -603,6 +603,6 @@ html[data-theme="dark"] .qq-upload-drop-area-active {
 }
 
 html[data-theme="dark"] .qq-uploader .error {
-    background-color: var(--fokus-diff-removed-background);
+    background-color: var(--fokus-surface-soft);
     color: var(--fokus-notice-text);
 }

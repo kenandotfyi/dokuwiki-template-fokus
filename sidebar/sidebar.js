@@ -49,13 +49,10 @@ function initializeSidebar() {
     let actionVersion = 0;
     let actionResult = null;
     let actionOrigin = null;
-    const count = document.getElementById('fokus-sidebar-count');
-    const healthCount = document.getElementById('fokus-sidebar-health');
     let pageHealth = new Map();
     let recentPages = [];
     let recentWriteVersion = 0;
     let recentWriteQueue = Promise.resolve();
-    let matchingPages = [];
     const toggle = document.querySelector('.fokus-sidebar-toggle');
     const resizer = sidebar.querySelector('.fokus-sidebar-resizer');
     const narrow = window.matchMedia('(max-width: 800px)');
@@ -124,19 +121,15 @@ function initializeSidebar() {
         }
         return response.json();
     }
-    function showCount() {
-        count.textContent = view === 'files' ? filter.value.trim() ? `${matchingCount} of ${fileCount} pages` : `${fileCount} pages` : `${tagCount} tags`;
-        healthCount.hidden = view !== 'files' || !config.pageHealthAvailable || !filesLoaded;
-        if (healthCount.hidden) return;
-        let healthy = 0;
-        let empty = 0;
-        for (const page of matchingPages) {
-            if (pageHealth.get(page.id) === true) empty++;
-            else if (pageHealth.get(page.id) === false) healthy++;
-        }
-        const unknown = matchingPages.length - healthy - empty;
-        healthCount.textContent = `${healthy} healthy · ${empty} no content${unknown ? ` · ${unknown} unchecked` : ''}`;
-        healthCount.title = 'Page Health for the explorer’s visible page set and current filter, including pages represented by namespace rows.';
+    function publishWikiStatus() {
+        if (!filesLoaded) return;
+        const pages = [...pagesById.values()];
+        const healthy = pages.filter(page => pageHealth.get(page.id) === false).length;
+        const empty = pages.filter(page => pageHealth.get(page.id) === true).length;
+        document.dispatchEvent(new CustomEvent('fokus:explorer-status', { detail: {
+            pages: pages.length,
+            health: config.pageHealthAvailable ? { healthy, noContent: empty, unknown: pages.length - healthy - empty } : null
+        } }));
     }
     async function loadPageHealth(pages) {
         const states = new Map();
@@ -521,7 +514,6 @@ function initializeSidebar() {
             [page.path, page.title, ...ancestors(page.path).map(parent => labelsByPath.get(parent))]
                 .join(' ').toLocaleLowerCase().includes(query));
         const paths = [...new Set(matches.map(page => mergedPaths.get(page.path) || page.path))];
-        matchingPages = matches;
         const expanded = query ? [...new Set(paths.flatMap(ancestors))] : filterExpansion ?? [...directories].filter(path => tree.getItem(path)?.isExpanded());
         // Use the public data API so this external filter leaves the library's
         // separate search-field keyboard and click behavior inactive.
@@ -533,7 +525,7 @@ function initializeSidebar() {
         if (!query) filterExpansion = null;
         if (filesLoaded) status(panels.files, !fileCount ? 'No pages to display.' : query && !matchingCount ? 'No matching files.' : '');
         syncNamespaceToggle();
-        showCount();
+        publishWikiStatus();
     }
     function syncNamespaceToggle() {
         const filtering = Boolean(filter.value.trim());
@@ -757,7 +749,7 @@ function initializeSidebar() {
             renderRecents();
             applyFilter();
             syncNamespaceToggle();
-            showCount();
+            publishWikiStatus();
         } catch (error) {
             if (version !== fileRequest) return;
             status(panels.files, 'Could not load pages. Use refresh to try again.');
@@ -841,7 +833,7 @@ function initializeSidebar() {
                 tagList.append(group);
             }
             status(panels.tags, !data.available ? 'Enable the Tag plugin to browse tags.' : tagCount ? '' : 'No tags found.');
-            showCount();
+            publishWikiStatus();
         } catch (error) {
             if (version !== tagRequest) return;
             status(panels.tags, 'Could not load tags. Use refresh to try again.');
@@ -874,7 +866,7 @@ function initializeSidebar() {
         });
         Object.entries(panels).forEach(([name, panel]) => { panel.hidden = name !== view; });
         if (view === 'tags' && !tagsLoaded) loadTags();
-        showCount();
+        publishWikiStatus();
         saveState();
     }
 

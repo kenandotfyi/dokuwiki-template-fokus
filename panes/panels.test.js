@@ -12,6 +12,97 @@ function loadFunctions(context, names) {
     }
 }
 
+function layoutHarness(ids) {
+    function classes() {
+        const names = new Set();
+        return {
+            contains: name => names.has(name), add: (...values) => values.forEach(value => names.add(value)),
+            remove: (...values) => values.forEach(value => names.delete(value)),
+            toggle(name, on) { if (on) names.add(name); else names.delete(name); }
+        };
+    }
+    const paneElements = ids.map(pageId => ({ dataset: { pageId }, classList: classes() }));
+    const context = vm.createContext({
+        paneElements, workspaceZoomPane: null, focusedPaneIndex: 0, focusedPaneIndexes: new Set(),
+        panes: { dataset: {} }, viewport: { scrollLeft: 100 },
+        document: { body: { classList: classes() }, dispatchEvent() {} },
+        CustomEvent: class {}, setZoomButtonState(pane, on) { pane.zoomed = on; },
+        updateMinimizedShelf() {}, updateFocusControls() {}, updatePaneOverflow() {}, saveUrlState() {}
+    });
+    loadFunctions(context, ['visibleWorkspacePanes', 'updatePaneLayout', 'updateFocusedLayout', 'setWorkspaceZoom', 'leaveZoomForCompanion']);
+    return context;
+}
+
+Deno.test('One/two visible panes fit; three slide; hidden hosts and minimized panes do not take columns', () => {
+    const c = layoutHarness(['start', 'wp.en.Earth', 'article', 'third']);
+    c.paneElements[0].classList.add('infinitepanels-wikipedia-only-host');
+    c.updateFocusedLayout();
+    assert.equal(c.panes.dataset.layout, 'slide');
+    c.paneElements[3].classList.add('infinitepanels-pane-minimized');
+    c.updateFocusedLayout();
+    assert.equal(c.panes.dataset.layout, 'fit');
+    assert.equal(c.visibleWorkspacePanes().length, 2);
+    assert.equal(c.viewport.scrollLeft, 0);
+    c.paneElements[2].classList.add('infinitepanels-pane-minimized');
+    c.updateFocusedLayout();
+    assert.equal(c.visibleWorkspacePanes().length, 1);
+});
+
+Deno.test('Workspace zoom preserves pane order, focus membership and minimized state on restore', () => {
+    const c = layoutHarness(['article', 'second', 'third']);
+    const order = [...c.paneElements];
+    c.paneElements[2].classList.add('infinitepanels-pane-minimized');
+    c.document.body.classList.add('infinitepanels-focused');
+    c.focusedPaneIndexes.add(0); c.focusedPaneIndexes.add(1);
+    c.setWorkspaceZoom(c.paneElements[1]);
+    assert.equal(c.visibleWorkspacePanes().length, 1);
+    assert.equal(c.panes.dataset.layout, 'fit');
+    assert.equal(c.paneElements[1].zoomed, true);
+    assert.equal(c.paneElements[0].classList.contains('infinitepanels-zoom-hidden'), true);
+    c.setWorkspaceZoom(null);
+    assert.deepEqual([...c.paneElements], order);
+    assert.deepEqual([...c.focusedPaneIndexes], [0, 1]);
+    assert.equal(c.paneElements[2].classList.contains('infinitepanels-pane-minimized'), true);
+    assert.equal(c.visibleWorkspacePanes().length, 2);
+    assert.equal(c.paneElements[1].zoomed, false);
+});
+
+Deno.test('Zoom ends safely when its pane is removed', () => {
+    const c = layoutHarness(['article', 'second', 'third']);
+    c.setWorkspaceZoom(c.paneElements[1]);
+    c.paneElements.splice(1, 1);
+    c.updateFocusedLayout();
+    assert.equal(c.workspaceZoomPane, null);
+    assert.equal(c.visibleWorkspacePanes().length, 2);
+});
+
+Deno.test('Restoring a companion from zoom creates a fitted pair and leaves other panes minimized', () => {
+    const c = layoutHarness(['article', 'second', 'third']);
+    c.setWorkspaceZoom(c.paneElements[0]);
+    c.leaveZoomForCompanion(c.paneElements[1]);
+    c.updateFocusedLayout();
+    assert.equal(c.workspaceZoomPane, null);
+    assert.equal(c.visibleWorkspacePanes().length, 2);
+    assert.equal(c.paneElements[2].classList.contains('infinitepanels-pane-minimized'), true);
+    assert.equal(c.panes.dataset.layout, 'fit');
+});
+
+Deno.test('Workspace zoom restores from a readable pane ID without changing minimized state', async () => {
+    const c = restorationHarness('article', '?p=second&m=third&z=second');
+    await c.restorePanesFromUrl();
+    assert.equal(c.workspaceZoomPane, c.paneElements[1]);
+    assert.equal(c.paneElements[2].classList.contains('infinitepanels-pane-minimized'), true);
+});
+
+Deno.test('Replacing a zoomed root preserves zoom on its new destination', () => {
+    const { context } = replacementHarness(['article', 'second']);
+    context.window.location.href = 'https://wiki.example/article?p=second&z=article';
+    context.replacePaneAt(0, 'https://wiki.example/next', 'next');
+    const url = new URL(context.window.location.href);
+    assert.equal(url.searchParams.get('z'), 'next');
+    assert.deepEqual(url.searchParams.getAll('p'), ['second']);
+});
+
 // Exercise the real popup and loader together without booting the wiki layout.
 function harness() {
     const requests = [];
@@ -90,7 +181,11 @@ Deno.test('Saving an edit refreshes the pane with its own load token', async () 
         editComplete: null, editDirty: false
     });
     context.infinitePanelsUrlFromId = () => 'https://wiki.example/article';
+    const events = [];
+    context.CustomEvent = class { constructor(type) { this.type = type; } };
+    context.document.dispatchEvent = event => events.push(event.type);
     assert.equal(context.closeNativeEdit(true), true);
+    assert.deepEqual(events, ['fokus:statuschange']);
     respond(0);
     await new Promise(resolve => setTimeout(resolve, 0));
     assert.equal(target.innerHTML, 'Revision history');
@@ -102,7 +197,7 @@ function navigationHarness(ids = ['start']) {
     const context = vm.createContext({
         URL, startPageId: 'start',
         paneElements: ids.map(id => ({ dataset: { pageId: id } })),
-        navigationVersion: 0,
+        navigationVersion: 0, workspaceZoomPane: null,
         window: {
             location: { href: 'https://wiki.example/start', origin: 'https://wiki.example' },
             FokusPaneProviders: { forId: id => ({ name: id.startsWith('wp.') || id.startsWith('wpsearch.') ? 'wikipedia'

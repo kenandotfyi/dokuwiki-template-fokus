@@ -13,6 +13,8 @@ require_once __DIR__ . '/dependencies.php';
 if ($INPUT->get->str('fokus_search') === '1') require __DIR__ . '/search/data.php';
 
 require __DIR__ . '/search/config.php';
+$statusbarEnabled = $INPUT->get->str('fokus_moai_popup') !== '1';
+if ($statusbarEnabled && $INPUT->get->str('fokus_status') === '1') require __DIR__ . '/statusbar/data.php';
 
 $sidebarEnabled = (bool) tpl_getConf('sidebar_enabled', 1)
     && $INPUT->get->str('fokus_moai_popup') !== '1';
@@ -45,11 +47,16 @@ $paneAdapters = ['annotations', 'katex'];
     <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/selection-search.css">
     <script src="<?php echo tpl_basedir(); ?>selection-search.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/selection-search.js'), 0, 12); ?>" defer></script>
     <?php tpl_metaheaders() ?>
+    <?php if ($statusbarEnabled) : ?>
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>statusbar/statusbar.css?v=<?php echo substr(hash_file('sha256', __DIR__ . '/statusbar/statusbar.css'), 0, 12); ?>">
+    <script src="<?php echo tpl_basedir(); ?>statusbar/statusbar.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/statusbar/statusbar.js'), 0, 12); ?>" defer></script>
+    <?php endif; ?>
     <style>
         :root{--infinitepanels-panel-width:<?php echo hsc($paneWidth); ?>rem;--infinitepanels-zoom-width:<?php echo hsc($zoomPaneWidth); ?>rem;}
     </style>
     <?php require_once __DIR__ . '/appearance.php'; fokus_appearance_styles(); ?>
     <?php if ($panesEnabled) : ?>
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>panes/layout.css?v=<?php echo substr(hash_file('sha256', __DIR__ . '/panes/layout.css'), 0, 12); ?>">
     <script>window.InfinitePanelsConfig = <?php echo json_encode([
         'pageId' => $ID,
         'startPageId' => $conf['start'],
@@ -67,7 +74,7 @@ $paneAdapters = ['annotations', 'katex'];
     <?php tpl_includeFile('meta.html') ?>
 </head>
 
-<body<?php if ($sidebarEnabled) echo ' class="fokus-has-sidebar"'; ?>>
+<body class="<?php echo $sidebarEnabled ? 'fokus-has-sidebar ' : ''; echo $statusbarEnabled ? 'fokus-has-statusbar' : ''; ?>">
     <?php require __DIR__ . '/search/dialog.php'; ?>
     <?php if ($sidebarEnabled) include __DIR__ . '/sidebar/sidebar.php'; ?>
     <div id="dokuwiki__site"><div id="dokuwiki__top" class="site <?php echo tpl_classes(); ?>">
@@ -118,6 +125,7 @@ $paneAdapters = ['annotations', 'katex'];
         </div><!-- /wrapper -->
 
     </div></div><!-- /site -->
+    <?php if ($statusbarEnabled) include __DIR__ . '/statusbar/bar.php'; ?>
 
     <div class="no"><?php tpl_indexerWebBug() /* provide DokuWiki housekeeping, required in all templates */ ?></div>
     <div id="screen__mode" class="no"></div><?php /* helper to detect CSS media query in script.js */ ?>

@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let zoomPlaceholder = null;
     let zoomTrigger = null;
     let zoomTemporaryPane = false;
+    let workspaceZoomPane = null;
     let editBackdrop = null;
     let editPane = null;
     let editTrigger = null;
@@ -160,7 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePaneHeight() {
         const header = document.getElementById('dokuwiki__header');
         const headerBottom = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
-        const availableHeight = Math.max(240, window.innerHeight - headerBottom);
+        const statusbarHeight = document.getElementById('fokus-statusbar')?.getBoundingClientRect().height || 0;
+        const availableHeight = Math.max(240, window.innerHeight - headerBottom - statusbarHeight);
         document.documentElement.style.setProperty('--infinitepanels-viewport-height', `${availableHeight}px`);
     }
 
@@ -194,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function focusOpenPage(index, url, companionIndex = -1, persistUrl = true) {
         const pane = paneElements[index];
         if (!pane) return;
+        if (workspaceZoomPane) workspaceZoomPane = pane;
         if (!pane.dataset.provider || pane.dataset.provider === 'wiki') window.fokusRegisterRecentPage?.(pane.dataset.pageId);
         else {
             pane.dataset.pageId = pageIdForUrl(url);
@@ -247,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveUrlState() {
         const focused = document.body.classList.contains('infinitepanels-focused');
         const url = new URL(window.location.href);
-        ['p', 'm', 'f'].forEach((parameter) => url.searchParams.delete(parameter));
+        ['p', 'm', 'f', 'z'].forEach((parameter) => url.searchParams.delete(parameter));
         const repeatedRoot = paneElements.slice(1).some(pane => pane.dataset.pageId === paneElements[0]?.dataset.pageId);
         paneElements.forEach((pane, index) => {
             const id = pane.dataset.pageId;
@@ -255,14 +258,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const isFocusAnchor = focused && index === focusedPaneIndex;
             const isMinimized = pane.classList.contains('infinitepanels-pane-minimized')
                 || (focused && !focusedPaneIndexes.has(index));
-            const state = isFocusAnchor ? 'f' : (isMinimized ? 'm' : (index > 0 || repeatedRoot ? 'p' : ''));
+            const state = pane === workspaceZoomPane && index > 0 ? 'z'
+                : (isFocusAnchor ? 'f' : (isMinimized ? 'm' : (index > 0 || repeatedRoot ? 'p' : '')));
             if (state) url.searchParams.append(state, id);
         });
 
         // URLSearchParams escapes namespace separators. Keep DokuWiki's
         // readable colon notation in pane values while preserving all other
         // query parameter encoding.
-        const query = url.searchParams.toString().replace(/(^|&)([pmf])=([^&]*)/g, (_match, prefix, parameter, value) => {
+        const query = url.searchParams.toString().replace(/(^|&)([pmfz])=([^&]*)/g, (_match, prefix, parameter, value) => {
             return `${prefix}${parameter}=${value.replace(/%3A/gi, ':')}`;
         });
         const readableUrl = `${url.origin}${url.pathname}${query ? `?${query}` : ''}${url.hash}`;
@@ -318,18 +322,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function visibleWorkspacePanes() {
+        if (workspaceZoomPane && paneElements.includes(workspaceZoomPane)) return [workspaceZoomPane];
+        const focused = document.body.classList.contains('infinitepanels-focused');
+        return paneElements.filter((pane, index) => !pane.classList.contains('infinitepanels-wikipedia-only-host')
+            && !pane.classList.contains('infinitepanels-pane-minimized')
+            && (!focused || focusedPaneIndexes.has(index)));
+    }
+
+    function updatePaneLayout() {
+        if (!panes) return;
+        if (workspaceZoomPane && !paneElements.includes(workspaceZoomPane)) workspaceZoomPane = null;
+        const visible = visibleWorkspacePanes();
+        const fitted = visible.length <= 2;
+        panes.dataset.layout = fitted ? 'fit' : 'slide';
+        document.body.classList.toggle('infinitepanels-fitted', fitted);
+        paneElements.forEach(pane => {
+            pane.classList.toggle('infinitepanels-workspace-zoomed', pane === workspaceZoomPane);
+            pane.classList.toggle('infinitepanels-zoom-hidden', !!workspaceZoomPane && pane !== workspaceZoomPane);
+            setZoomButtonState(pane, pane === workspaceZoomPane);
+        });
+        if (fitted && viewport) {
+            document.body.classList.remove('infinitepanels-overflowing', 'infinitepanels-scrolled');
+            viewport.scrollLeft = 0;
+        }
+        updatePaneOverflow();
+    }
+
+    function setWorkspaceZoom(pane, persistUrl = true) {
+        workspaceZoomPane = pane;
+        updateFocusedLayout();
+        if (persistUrl) saveUrlState();
+    }
+
+    function leaveZoomForCompanion(companion = null) {
+        if (!workspaceZoomPane) return;
+        paneElements.forEach((pane, index) => {
+            if (pane !== workspaceZoomPane && pane !== companion) pane.classList.add('infinitepanels-pane-minimized');
+            if (pane === workspaceZoomPane && document.body.classList.contains('infinitepanels-focused')) focusedPaneIndexes.add(index);
+        });
+        workspaceZoomPane = null;
+    }
+
     function updateFocusedLayout() {
+        if (workspaceZoomPane && !paneElements.includes(workspaceZoomPane)) workspaceZoomPane = null;
         const focused = document.body.classList.contains('infinitepanels-focused');
         paneElements.forEach((pane, index) => {
-            pane.classList.toggle('infinitepanels-pane-current', index === focusedPaneIndex);
+            pane.classList.toggle('infinitepanels-pane-current', workspaceZoomPane ? pane === workspaceZoomPane : index === focusedPaneIndex);
             pane.classList.toggle(
                 'infinitepanels-focused-active',
-                focused && focusedPaneIndexes.has(index)
+                focused && (focusedPaneIndexes.has(index) || pane === workspaceZoomPane)
             );
         });
+        updatePaneLayout();
         updateMinimizedShelf();
         updateFocusControls();
-        const activePageId = paneElements[focusedPaneIndex]?.dataset.pageId;
+        const activePageId = (workspaceZoomPane || paneElements[focusedPaneIndex])?.dataset.pageId;
         if (activePageId) document.dispatchEvent(new CustomEvent('fokus:pagechange', { detail: { pageId: activePageId } }));
     }
 
@@ -341,11 +389,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     .find((button) => button._infinitePanelsPane === pane);
             if (!spine) return;
             spine.hidden = pane.classList.contains('infinitepanels-wikipedia-only-host');
-            const minimized = pane.classList.contains('infinitepanels-pane-minimized')
+            const minimized = workspaceZoomPane ? pane !== workspaceZoomPane : pane.classList.contains('infinitepanels-pane-minimized')
                 || (document.body.classList.contains('infinitepanels-focused') && !focusedPaneIndexes.has(index));
             spine.dataset.paneIndex = String(index + 1);
             spine.dataset.state = minimized ? 'minimized' : 'open';
-            spine.dataset.current = String(index === focusedPaneIndex);
+            spine.dataset.current = String(workspaceZoomPane ? pane === workspaceZoomPane : index === focusedPaneIndex);
             const paneTitle = spine.querySelector('.infinitepanels-spine-label')?.textContent || pane.dataset.pageId || '';
             spine.title = `${paneTitle} · ${minimized ? 'Minimized' : 'Open'}`;
             spine.setAttribute('aria-label', `${minimized ? 'Restore' : 'Show'} ${paneTitle} (${minimized ? 'minimized' : 'open'})`);
@@ -358,6 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleFocusedView(index) {
+        workspaceZoomPane = null;
         const wasFocused = document.body.classList.contains('infinitepanels-focused');
         const isShowingAll = wasFocused && index === focusedPaneIndex;
         if (isShowingAll) {
@@ -389,6 +438,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function focusPaneFromSpine(index) {
         if (index < 0 || index >= paneElements.length) return;
         const pane = paneElements[index];
+        if (workspaceZoomPane === pane) workspaceZoomPane = null;
+        else leaveZoomForCompanion(pane);
         focusedPaneIndex = index;
         pane.classList.remove('infinitepanels-pane-minimized');
         if (document.body.classList.contains('infinitepanels-focused')) {
@@ -406,6 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function togglePaneMinimized(index) {
         const pane = paneElements[index];
         if (!pane) return;
+        workspaceZoomPane = null;
         const minimized = pane.classList.toggle('infinitepanels-pane-minimized');
         if (document.body.classList.contains('infinitepanels-focused')) {
             if (minimized) {
@@ -465,6 +517,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleZoomPane(pane, trigger, temporary = false) {
+        if (!temporary && paneElements.includes(pane)) {
+            setWorkspaceZoom(workspaceZoomPane === pane ? null : pane);
+            return;
+        }
         if (zoomPane === pane) {
             closeZoomPane();
             return;
@@ -508,6 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editTrigger = null;
         editDirty = false;
         editComplete = null;
+        if (refreshPane) document.dispatchEvent(new CustomEvent('fokus:statuschange'));
         if (refreshPane && onComplete) {
             Promise.resolve().then(onComplete).catch(error => console.error('Fokus: could not open created page', error));
         }
@@ -987,9 +1044,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!resolvedPageId) return;
         const existingPageIndex = reuseExisting ? findOpenPageIndex(resolvedPageId) : -1;
         if (existingPageIndex >= 0) {
+            if (workspaceZoomPane && workspaceZoomPane !== paneElements[existingPageIndex]) leaveZoomForCompanion(paneElements[existingPageIndex]);
             focusOpenPage(existingPageIndex, url, parentIndex, persistUrl);
             return;
         }
+        if (!replaceCurrent) leaveZoomForCompanion();
         // Open or update the slot immediately after parentIndex. Callers pass
         // the last pane when they want to append; panes farther right stay put.
         const targetIndex = parentIndex + 1;
@@ -1145,15 +1204,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = new URL(window.location.href);
         if (paneElements[1].dataset.provider && paneElements[1].dataset.provider !== 'wiki') {
             const landing = new URL(infinitePanelsUrlFromId(startPageId || currentPageId), location.origin);
+            const zoomId = url.searchParams.get('z');
             paneElements.slice(1).forEach(pane => landing.searchParams.append(
-                pane.classList.contains('infinitepanels-pane-minimized') ? 'm' : 'p', pane.dataset.pageId));
+                pane.dataset.pageId === zoomId ? 'z'
+                    : pane.classList.contains('infinitepanels-pane-minimized') ? 'm' : 'p', pane.dataset.pageId));
             window.location.href = landing.href;
             return;
         }
         const rootUrl = new URL(infinitePanelsUrlFromId(paneElements[1].dataset.pageId), window.location.origin);
         url.pathname = rootUrl.pathname;
         url.searchParams.delete('id');
-        ['p', 'm', 'f'].forEach((parameter) => url.searchParams.delete(parameter));
+        ['p', 'm', 'f', 'z'].forEach((parameter) => url.searchParams.delete(parameter));
         url.hash = '';
 
         const repeatedRoot = paneElements.slice(2).some(pane => pane.dataset.pageId === paneElements[1].dataset.pageId);
@@ -1162,11 +1223,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const isFocusAnchor = wasFocused && index === nextFocusedIndex;
             const isMinimized = pane.classList.contains('infinitepanels-pane-minimized')
                 || (wasFocused && !focusedPaneIndexes.has(oldIndex + 1));
-            const state = isFocusAnchor ? 'f' : (isMinimized ? 'm' : (index > 0 || repeatedRoot ? 'p' : ''));
+            const zoomId = new URL(window.location.href).searchParams.get('z');
+            const state = pane.dataset.pageId === zoomId && index > 0 ? 'z'
+                : (isFocusAnchor ? 'f' : (isMinimized ? 'm' : (index > 0 || repeatedRoot ? 'p' : '')));
             if (state) url.searchParams.append(state, pane.dataset.pageId);
         });
 
-        const query = url.searchParams.toString().replace(/(^|&)([pmf])=([^&]*)/g, (_match, prefix, parameter, value) => {
+        const query = url.searchParams.toString().replace(/(^|&)([pmfz])=([^&]*)/g, (_match, prefix, parameter, value) => {
             return `${prefix}${parameter}=${value.replace(/%3A/gi, ':')}`;
         });
         window.location.href = `${url.origin}${url.pathname}${query ? `?${query}` : ''}`;
@@ -1175,12 +1238,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function paneStateFromUrl() {
         const params = new URL(window.location.href).searchParams;
         const rootId = normalizePageId(currentPageId);
+        const zoomId = normalizePageId(params.get('z') || '');
         const paneStates = [];
         let rootState = '';
+        let legacyZoomPathConsumed = false;
         Array.from(params.entries()).forEach(([state, rawPageId]) => {
-            if (!['p', 'm', 'f'].includes(state)) return;
+            if (!['p', 'm', 'f', 'z'].includes(state)) return;
             const pageId = normalizePageId(rawPageId);
             if (!pageId) return;
+            // Earlier URLs stored a zoomed secondary pane in both p and z.
+            // Treat that pair as one pane while continuing to allow duplicate IDs.
+            if (state === 'p' && zoomId && zoomId !== rootId && pageId === zoomId && !legacyZoomPathConsumed) {
+                legacyZoomPathConsumed = true;
+                return;
+            }
             // The root is omitted unless minimized/focused. Keep every later
             // occurrence: Shift-click may deliberately open the same page twice.
             if (!rootState && !paneStates.length && pageId === rootId) rootState = state;
@@ -1197,6 +1268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function restorePanesFromUrl() {
+        workspaceZoomPane = null;
         const expectedVersion = ++navigationVersion;
         const state = paneStateFromUrl();
         const { ids } = state;
@@ -1242,6 +1314,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             focusedPaneIndex = 0;
         }
+        const zoomId = url.searchParams.get('z');
+        if (zoomId) workspaceZoomPane = paneElements.find(pane => pane.dataset.pageId === zoomId
+            && !pane.classList.contains('infinitepanels-wikipedia-only-host')) || null;
         updateFocusedLayout();
         if (focusIndex >= 0) ensurePaneVisible(paneElements[focusIndex]);
         else if (viewport) viewport.scrollTo({ left: 0, behavior: 'smooth' });
@@ -1403,23 +1478,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function replacementRootUrl(index, targetUrl, pageId) {
         const focused = document.body.classList.contains('infinitepanels-focused');
+        const zoomId = new URL(window.location.href).searchParams.get('z');
         const entries = paneElements.flatMap((pane, paneIndex) => {
             if (pane.classList.contains('infinitepanels-wikipedia-only-host')) return [];
             return [{
                 id: paneIndex === index ? pageId : pane.dataset.pageId,
                 url: paneIndex === index ? targetUrl : (pane.dataset.pageUrl || infinitePanelsUrlFromId(pane.dataset.pageId)),
-                state: focused && paneIndex === focusedPaneIndex ? 'f'
+                state: pane.dataset.pageId === zoomId && paneIndex > 0 ? 'z'
+                    : focused && paneIndex === focusedPaneIndex ? 'f'
                     : pane.classList.contains('infinitepanels-pane-minimized') || (focused && !focusedPaneIndexes.has(paneIndex)) ? 'm' : 'p'
             }];
         });
         const wikiRoot = window.FokusPaneProviders.forId(entries[0].id)?.name === 'wiki';
         const url = new URL(wikiRoot ? entries[0].url : infinitePanelsUrlFromId(startPageId || currentPageId), location.origin);
-        ['p', 'm', 'f'].forEach(key => url.searchParams.delete(key));
+        ['p', 'm', 'f', 'z'].forEach(key => url.searchParams.delete(key));
         const repeatedRoot = entries.slice(1).some(entry => entry.id === entries[0].id);
         entries.forEach((entry, entryIndex) => {
+            if (entryIndex === 0 && wikiRoot && entry.state === 'z') return;
             if (!wikiRoot || entryIndex > 0 || entry.state !== 'p' || repeatedRoot) url.searchParams.append(entry.state, entry.id);
         });
-        const query = url.searchParams.toString().replace(/(^|&)([pmf])=([^&]*)/g, (_match, prefix, parameter, value) => {
+        const query = url.searchParams.toString().replace(/(^|&)([pmfz])=([^&]*)/g, (_match, prefix, parameter, value) => {
             return `${prefix}${parameter}=${value.replace(/%3A/gi, ':')}`;
         });
         return `${url.origin}${url.pathname}${query ? `?${query}` : ''}${url.hash}`;

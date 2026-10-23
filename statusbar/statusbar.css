@@ -1,0 +1,51 @@
+body.fokus-has-statusbar { --fokus-statusbar-height: 24px; padding-bottom: var(--fokus-statusbar-height); }
+body.fokus-has-statusbar #fokus-sidebar { height: calc(100dvh - var(--fokus-statusbar-height)); bottom: var(--fokus-statusbar-height); }
+#fokus-statusbar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 1250;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--fokus-statusbar-height);
+    padding: 0 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    white-space: nowrap;
+    border-top: 1px solid var(--fokus-border);
+    background: var(--fokus-surface-soft);
+    color: var(--fokus-muted);
+    font: 12px/1 var(--fokus-body-font, sans-serif);
+    font-variant-numeric: tabular-nums;
+}
+#fokus-statusbar::-webkit-scrollbar { display: none; }
+#fokus-statusbar [hidden] { display: none !important; }
+#fokus-statusbar .fokus-status-item { display: inline-flex; align-items: center; flex: 0 0 auto; gap: 5px; height: 100%; }
+#fokus-statusbar img { width: 14px; height: 14px; opacity: .7; }
+html[data-theme="dark"] #fokus-statusbar img { filter: invert(1); }
+#fokus-status-zotero { margin-inline-start: auto; }
+#fokus-statusbar [data-state="error"] { color: #b45309; }
+html[data-theme="dark"] #fokus-statusbar [data-state="error"] { color: #f0b778; }
+#fokus-statusbar svg { width: 16px; height: 16px; flex: 0 0 auto; }
+#fokus-status-zotero > [data-zotero-icon] { display: none; }
+#fokus-status-zotero[data-state="synced"] > [data-zotero-icon="synced"],
+#fokus-status-zotero[data-state=""] > [data-zotero-icon="error"] { display: block; }
+#fokus-statusbar #fokus-status-zotero[data-state="error"] { color: var(--fokus-muted); }
+#fokus-status-zotero[data-state="error"] > [data-zotero-icon="error"] { display: block; color: #ad5a61; }
+#fokus-status-zotero[data-state="synced"] > [data-zotero-icon="synced"] { color: #54856a; }
+html[data-theme="dark"] #fokus-status-zotero[data-state="error"] > [data-zotero-icon="error"] { color: #cf8a91; }
+html[data-theme="dark"] #fokus-status-zotero[data-state="synced"] > [data-zotero-icon="synced"] { color: #86b399; }
+#fokus-status-zotero[data-state="syncing"] > [data-zotero-icon="syncing"] { display: block; animation: fokus-status-sync-spin 1.2s linear infinite; }
+#fokus-statusbar #fokus-status-sync {
+    display: inline-flex; align-items: center; justify-content: center;
+    box-sizing: border-box; width: 22px; height: 22px; padding: 2px; margin: 0;
+    border: 0; border-radius: var(--fokus-control-radius); background: transparent;
+    color: var(--fokus-muted); box-shadow: none; cursor: pointer;
+}
+#fokus-statusbar #fokus-status-sync:hover { background: var(--fokus-accent-soft); color: var(--fokus-text); }
+#fokus-statusbar #fokus-status-sync:focus-visible { outline: 1px solid var(--fokus-accent); outline-offset: -1px; }
+#fokus-statusbar #fokus-status-sync:disabled { opacity: .4; cursor: wait; }
+@keyframes fokus-status-sync-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #fokus-status-zotero[data-state="syncing"] > [data-zotero-icon="syncing"] { animation: none; } }
+@media print { #fokus-statusbar { display: none; } body.fokus-has-statusbar { padding-bottom: 0; } }

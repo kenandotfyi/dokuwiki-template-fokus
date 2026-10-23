@@ -44,6 +44,15 @@
 .fokus-search-result.has-annotation-color { border-left-color: var(--annotation-color); }
 .fokus-search-result[aria-selected="true"] { color: var(--fokus-text); background: var(--fokus-accent-soft); border-top-color: var(--fokus-border); border-right-color: var(--fokus-border); border-bottom-color: var(--fokus-border); }
 .fokus-search-result:not(.has-annotation-color)[aria-selected="true"] { border-left-color: var(--fokus-accent); }
+.fokus-search-result[data-provider="wikipedia"][aria-selected="true"] {
+    background: transparent;
+}
+.fokus-search-result[data-provider="wikipedia"]:hover {
+    background: color-mix(in srgb, var(--fokus-surface-soft, #f6f7f8) 75%, #7895ad);
+}
+.fokus-search-result[data-provider="wikipedia"] .fokus-search-result-title {
+    color: #3366cc;
+}
 .fokus-search-result-icon { width: 21px; height: 21px; flex: 0 0 21px; margin-top: 1px; opacity: .75; }
 .fokus-search-result-image-annotation .fokus-search-result-icon { opacity: 1; }
 .fokus-search-result-body { min-width: 0; flex: 1; }
@@ -111,3 +120,4 @@ html[data-theme="dark"] #fokus-search-dialog img, html[data-theme="dark"] .fokus
     .fokus-search-status { display: none; }
     .fokus-search-sync { display: none; }
 }
+.fokus-search-match-mode[hidden] { display: none; }

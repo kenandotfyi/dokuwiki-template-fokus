@@ -8,6 +8,13 @@
         return '<nowiki>' + String(value).replace(/<\/nowiki>/gi, match => '</nowiki><nowiki><</nowiki><nowiki>' + match.slice(1) + '</nowiki><nowiki>') + '</nowiki>';
     }
     function reference(row, attachment) {
+        if (row.kind === 'wikipedia') {
+            const url = new URL(row.openUrl);
+            if (url.origin !== 'https://en.wikipedia.org' || !url.pathname.startsWith('/wiki/') || url.search || url.hash) throw new Error('Invalid Wikipedia reference.');
+            const title = decodeURIComponent(url.pathname.slice(6));
+            if (!title || /[\x00-\x20\x7f\[\]{}|<>?#]/u.test(title)) throw new Error('Invalid Wikipedia reference.');
+            return '[[wp>' + title + '|' + label(row.title) + ']]';
+        }
         if (row.kind === 'wiki') {
             if (!row.key || /[\s\[\]{}|<>?#]/u.test(row.key)) throw new Error('Invalid wiki page reference.');
             return '[[' + row.key + '|' + label(row.title) + ']]';

@@ -286,7 +286,6 @@ html[data-theme="dark"] #fokus-file-tree { color-scheme: dark; }
 .fokus-tag-pages { margin: 3px 0 8px 17px; padding-left: 8px; border-left: 1px solid var(--fokus-border); }
 #fokus-sidebar .fokus-tag-pages a { display: block; padding: 5px 8px; color: var(--fokus-text); overflow-wrap: anywhere; text-decoration: none; }
 #fokus-sidebar .fokus-tag-pages p { margin: 5px 8px; color: var(--fokus-muted); }
-.fokus-sidebar-footer { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; min-height: 40px; padding: 4px 12px 4px 16px; border-top: 1px solid var(--fokus-border); color: var(--fokus-muted); font-size: 12px; }
 .fokus-pinned-row .fokus-pagehealth-empty {
     color: var(--pagehealth-empty-color, #89919b);
     opacity: var(--pagehealth-empty-opacity, 1);

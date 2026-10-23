@@ -1,0 +1,40 @@
+/* One/two visible panes fit the workspace; larger workspaces retain sliding widths. */
+body.infinitepanels-active.infinitepanels-fitted #dokuwiki__content {
+    width: 100%;
+    margin-left: 0;
+}
+body.infinitepanels-active .infinitepanels-panes[data-layout="fit"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+}
+body.infinitepanels-active .infinitepanels-panes[data-layout="fit"] > .infinitepanels-pane {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+}
+body.infinitepanels-active .infinitepanels-pane.infinitepanels-zoom-hidden { display: none !important; }
+body.infinitepanels-active .infinitepanels-pane.infinitepanels-workspace-zoomed { display: block !important; }
+/* Measure the reading width once on the page so headings and body align.
+   The extra space stays inside the full-width card as horizontal padding. */
+body.infinitepanels-active.infinitepanels-fitted .infinitepanels-pane .page.group {
+    width: 100%;
+    max-width: none !important;
+    padding-left: max(var(--fokus-pane-padding), calc((100% - 120ch) / 2));
+    padding-right: max(var(--fokus-pane-padding), calc((100% - 120ch) / 2));
+}
+/* Fitted panes also fill shorter/narrower desktop windows without covering the header/footer. */
+@media screen {
+    html:has(body.infinitepanels-active.infinitepanels-fitted) { overflow: clip; }
+    body.infinitepanels-active.infinitepanels-fitted { height: 100dvh; overflow: clip; }
+    body.infinitepanels-active.infinitepanels-fitted .infinitepanels-viewport { height: var(--infinitepanels-viewport-height); }
+    body.infinitepanels-active.infinitepanels-fitted .infinitepanels-panes { height: 100%; }
+    body.infinitepanels-active.infinitepanels-fitted .infinitepanels-panes > .infinitepanels-pane {
+        height: 100%; max-height: 100%; overflow-y: auto; overflow-x: hidden;
+        overscroll-behavior: contain; scrollbar-width: none;
+        /* The page and header own the visible corners. Keep the scrollport
+           rectangular to avoid a second rounded clip around their borders. */
+        border-radius: 0;
+    }
+    body.infinitepanels-active.infinitepanels-fitted .infinitepanels-pane::-webkit-scrollbar { display: none; }
+}

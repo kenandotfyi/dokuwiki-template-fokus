@@ -16,6 +16,9 @@
         <button type="button" data-search-filter="document" aria-pressed="false">Documents <span></span></button>
         <button type="button" data-search-filter="annotation" aria-pressed="false">Annotations <span></span></button>
         <?php endif; ?>
+        <?php if ($wikipediaSearchAvailable) : ?>
+        <button type="button" data-search-filter="wikipedia" aria-pressed="false">Wikipedia <span></span></button>
+        <?php endif; ?>
         <button type="button" class="fokus-search-preview-toggle" aria-pressed="false">Details</button>
         <span class="fokus-search-status" role="status"></span>
     </div>

@@ -57,12 +57,12 @@
 }
 .dokuwiki table.diff .diff-addedline {
     background-color: var(--fokus-diff-added-background);
-    color: black;
+    color: var(--fokus-diff-added-text);
     width: ~"calc(50% - .7em)";
 }
 .dokuwiki table.diff .diff-deletedline {
     background-color: var(--fokus-diff-removed-background);
-    color: black;
+    color: var(--fokus-diff-removed-text);
     width: ~"calc(50% - .7em)";
 }
 .dokuwiki table.diff td.diff-context {
@@ -72,9 +72,15 @@
 }
 .dokuwiki table.diff td.diff-addedline strong,
 .dokuwiki table.diff td.diff-deletedline strong {
-    color: var(--fokus-support-text);
-    background-color: inherit;
     font-weight: bold;
+}
+.dokuwiki table.diff td.diff-addedline strong {
+    color: var(--fokus-diff-added-text);
+    background-color: var(--fokus-diff-added-highlight);
+}
+.dokuwiki table.diff td.diff-deletedline strong {
+    color: var(--fokus-diff-removed-text);
+    background-color: var(--fokus-diff-removed-highlight);
 }
 
 /* diff options */

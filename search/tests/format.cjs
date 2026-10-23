@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
-const context = { window: {} };
+const context = { window: {}, URL };
 vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../format.js'), 'utf8'), context);
 const f = context.window.FokusSearchFormat;
 const annotation = { kind:'annotation', key:'ANN00001', attachmentKey:'PDF00001', title:'Gate drive guide', page:6, pageLabel:'iv', color:'#ffd400', text:'VGS<6V; VDS>400V\n**Keep literal**', comment:'Check prototype' };
@@ -12,6 +12,10 @@ assert.ok(f.annotation(annotation, false).includes('</color> -> [[zotero>PDF0000
 assert.ok(!f.annotation(annotation, false).includes('Check prototype'));
 assert.ok(f.annotation(annotation, true).includes('Comment:\n<nowiki>Check prototype</nowiki>'));
 assert.equal(f.reference({kind:'wiki',key:'power:gate_drive',title:'Gate drivers'}), '[[power:gate_drive|Gate drivers]]');
+assert.equal(f.reference({kind:'wikipedia',openUrl:'https://en.wikipedia.org/wiki/Fermi_level',title:'Fermi level'}), '[[wp>Fermi_level|Fermi level]]');
+assert.equal(f.reference({kind:'wikipedia',openUrl:'https://en.wikipedia.org/wiki/Schr%C3%B6dinger_equation',title:'Schrödinger equation'}), '[[wp>Schrödinger_equation|Schrödinger equation]]');
+assert.throws(()=>f.reference({kind:'wikipedia',openUrl:'https://en.wikipedia.org.evil.test/wiki/Fermi_level',title:'Bad'}), /Invalid Wikipedia/);
+assert.throws(()=>f.reference({kind:'wikipedia',openUrl:'https://en.wikipedia.org/wiki/Bad%5D%5D',title:'Bad'}), /Invalid Wikipedia/);
 assert.equal(f.reference({kind:'document',title:'App note',attachments:[{key:'PDF00001'}]}), '[[zotero>PDF00001|App note]]');
 assert.throws(()=>f.reference({kind:'document',title:'Multiple PDFs',attachments:[{key:'PDF00001'},{key:'PDF00002'}]}), /Choose a PDF/);
 assert.throws(()=>f.reference({kind:'wiki',title:'Injection',key:'page]] ~~TODOS~~'}), /Invalid wiki/);
@@ -21,4 +25,4 @@ if (process.argv[2]) fs.writeFileSync(process.argv[2], JSON.stringify(fixtures))
 assert.equal(f.blockAtSelection('QUOTE','Before. After.',8,8), '\n\nQUOTE\n\n');
 assert.equal(f.blockAtSelection('QUOTE','====== Heading ======',0,0), 'QUOTE\n\n');
 assert.equal(f.blockAtSelection('QUOTE','Before.\n\nAfter.',9,9), 'QUOTE\n\n');
-console.log('Passed 11 reference formatting checks.');
+console.log('PASS: wiki, Wikipedia and Zotero reference formatting and annotation escaping.');

@@ -19,7 +19,8 @@ function fokus_appearance_styles() {
         foreach (fokus_component_colors() as $name => $role) {
             $key = 'color_' . $theme . '_' . $role[2];
             $source = $schema[$key]['variable'];
-            $customized = strcasecmp($values[$key], $schema[$key]['default']) !== 0;
+            // Diff colors keep their meaning even when general surfaces are customized.
+            $customized = strpos($name, 'diff-') !== 0 && strcasecmp($values[$key], $schema[$key]['default']) !== 0;
             $default = $role[$theme === 'light' ? 0 : 1];
             $declarations .= '--fokus-' . $name . ':' . ($customized || $default === null ? 'var(' . $source . ')' : $default) . ';';
         }
