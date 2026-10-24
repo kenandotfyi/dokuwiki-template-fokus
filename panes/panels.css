@@ -73,6 +73,11 @@
     display: flow-root;
     overflow-wrap: anywhere;
 }
+.infinitepanels-pane[data-provider="wikipedia"] .fokus-wikipedia-content img:not(.mwe-math-fallback-image-inline):not(.mwe-math-fallback-image-display) {
+    max-width: 480px;
+    height: auto;
+    margin-inline: auto;
+}
 .infinitepanels-pane[data-provider="wikipedia"] .fokus-page-heading { min-width: 0; }
 .infinitepanels-pane[data-provider="wikipedia"] .fokus-page-title {
     overflow: hidden;

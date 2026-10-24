@@ -44,6 +44,8 @@ $paneAdapters = ['annotations', 'katex'];
     <script src="<?php echo tpl_basedir(); ?>darkmode.js"></script>
     <?php endif; ?>
     <?php require __DIR__ . '/search/assets.php'; ?>
+    <script src="<?php echo tpl_basedir(); ?>references.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/references.js'), 0, 12); ?>" defer></script>
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/references.css?v=<?php echo substr(hash_file('sha256', __DIR__ . '/css/references.css'), 0, 12); ?>">
     <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/selection-search.css">
     <script src="<?php echo tpl_basedir(); ?>selection-search.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/selection-search.js'), 0, 12); ?>" defer></script>
     <?php tpl_metaheaders() ?>

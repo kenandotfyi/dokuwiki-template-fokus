@@ -1,0 +1,189 @@
+.dokuwiki .fokus-references-heading {
+    margin-top: 1.8em;
+}
+
+.dokuwiki .fokus-references-content > ul:has(> li a.fokus-reference-pill) {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 0.5em 0 1em;
+    padding: 0;
+    border-inline: 1px solid var(--fokus-border, #d2d2d2);
+    border-top: 1px solid var(--fokus-border, #d2d2d2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dokuwiki .fokus-references-content > ul > li {
+    display: flex;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--fokus-border, #d2d2d2);
+    list-style: none;
+}
+
+.dokuwiki .fokus-references-content > ul > li::before {
+    content: none;
+}
+
+.dokuwiki .fokus-references-content > ul > li > .li {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.dokuwiki .fokus-references-content > ul > li:has(a.fokus-reference-pill) > .li {
+    display: flex;
+}
+
+.dokuwiki .fokus-references-content > ul > li:not(:has(a.fokus-reference-pill)) > .li {
+    position: relative;
+    min-height: 30px;
+    padding: 4px 10px 4px 34px;
+    line-height: 1.3;
+    overflow-wrap: normal;
+}
+
+.dokuwiki .fokus-references-content > ul > li:not(:has(a.fokus-reference-pill)) > .li::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 29px;
+    width: 1px;
+    background-color: var(--fokus-border, #d2d2d2);
+    content: "";
+}
+
+.dokuwiki .fokus-references-content > p.fokus-reference-paragraph {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 0.5em 0 1em;
+    border-inline: 1px solid var(--fokus-border, #d2d2d2);
+    border-top: 1px solid var(--fokus-border, #d2d2d2);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.dokuwiki .fokus-references-content > p.fokus-reference-paragraph > a.fokus-reference-pill,
+.dokuwiki .fokus-references-content > p.fokus-reference-paragraph > .fokus-reference-plain-row {
+    flex: 1 1 auto;
+    width: 100%;
+    border-bottom: 1px solid var(--fokus-border, #d2d2d2);
+}
+
+.dokuwiki .fokus-references-content > p.fokus-reference-paragraph > .fokus-reference-plain-row {
+    box-sizing: border-box;
+    position: relative;
+    min-height: 30px;
+    padding: 4px 10px 4px 34px;
+    line-height: 1.3;
+    overflow-wrap: normal;
+}
+
+.dokuwiki .fokus-references-content > p.fokus-reference-paragraph > .fokus-reference-plain-row::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 29px;
+    width: 1px;
+    background-color: var(--fokus-border, #d2d2d2);
+    content: "";
+}
+
+.dokuwiki .fokus-references-content a.fokus-reference-pill {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 30px;
+    padding: 4px 10px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--fokus-text, #222);
+    font-size: 0.92em;
+    line-height: 1.3;
+    text-decoration: none !important;
+    overflow-wrap: anywhere;
+    transition: background-color 120ms ease;
+}
+
+.dokuwiki .fokus-references-content a.fokus-reference-pill:hover,
+.dokuwiki .fokus-references-content a.fokus-reference-pill:focus-visible {
+    background-color: var(--fokus-surface-soft, #ebebeb) !important;
+    text-decoration: none !important;
+}
+
+.dokuwiki .fokus-references-content a.fokus-reference-pill::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 29px;
+    width: 1px;
+    background-color: var(--fokus-border, #d2d2d2);
+    content: "";
+}
+
+.dokuwiki a.fokus-reference-pill::after {
+    display: none;
+}
+
+.dokuwiki a.fokus-reference-pill.urlextern {
+    background-image: none;
+}
+
+.dokuwiki a.fokus-reference-pill.interwiki {
+    background-position: 9px center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+}
+
+.dokuwiki a.fokus-reference-pill.interwiki.iw_wp {
+    background-color: color-mix(in srgb, currentColor 12%, var(--fokus-surface, #fff));
+}
+
+.dokuwiki a.fokus-reference-pill.interwiki.iw_zotero {
+    background-color: color-mix(in srgb, currentColor 5%, var(--fokus-surface, #fff));
+}
+
+.dokuwiki .fokus-references-content a.fokus-reference-pill .fokus-reference-label {
+    display: block;
+    min-width: 0;
+    margin-inline-start: 24px;
+}
+
+.dokuwiki .fokus-references-content a.fokus-reference-pill .fokus-reference-favicon {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 9px;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    object-fit: contain;
+}
+
+.dokuwiki .fokus-references-content a.fokus-reference-pill .fokus-reference-page-icon {
+    position: absolute;
+    top: 50%;
+    left: 9px;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    background-color: var(--fokus-muted, #6b6b6b);
+    -webkit-mask: url("../sidebar/icons/file-text-duotone.svg") center / contain no-repeat;
+    mask: url("../sidebar/icons/file-text-duotone.svg") center / contain no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dokuwiki .fokus-references-content a.fokus-reference-pill {
+        transition: none;
+    }
+}
