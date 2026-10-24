@@ -25,7 +25,7 @@ Fokus has many additional stuff built-in like:
 - Folding for foldable section creation
 - Page Health for styling no-content pages differently and showing a status in the sidebar
 - Snips for snippet support. 
-- Todoist Companion for synchronizing tasks (currently one way DokuWiki -> Todoist) with Todoist.
+- Todoist Companion for creating and completing linked tasks, with the current Todoist Wiki project displayed through `~~TODOS~~`.
 - NoteGraph for creating local graphs with max. 3 deptsh for current page.
 
 it also has adapters for existing plugins, since many of them would not work with multiple pane methodology otherwise:
@@ -154,7 +154,7 @@ The standalone fokussettings, fokusfold, pagehealth, imagepop, notegraph, snips,
 
 ## Workspace status
 
-The full-width workspace status bar stays fixed at the bottom in a single 24 px row. It shows readable page totals, cached Page Health coverage, combined task totals/open tasks from readable wiki pages and the connected Todoist project, deduplicated by Todoist ID, and local Zotero sync status when the corresponding modules and permissions are available. Hover an item for details, including completed tasks and Zotero's last successful check and index counts. Totals do not follow sidebar filters. The bar refreshes every minute, reusing Todoist’s cached project/completion refresh and reading local Zotero state (every five seconds during an active Zotero job), pauses polling in background tabs, and refreshes after pane saves and task completion; automatic polling never starts a Zotero sync or a Page Health scan. The arrows-clockwise button starts an incremental Zotero sync and shows “Syncing…” with progress while running. A subtle green cloud-check marks success and a subtle red cloud-slash marks failure; the last successful sync time stays visible, and the button becomes available again after the run. Editor popup frames omit the bar. Its PHP/JS checks are in `statusbar/tests/`.
+The full-width workspace status bar stays fixed at the bottom in a single 24 px row. It shows readable page totals, cached Page Health coverage, task totals/open tasks from the same confirmed Todoist project snapshot used by `~~TODOS~~`, and local Zotero sync status when the corresponding modules and permissions are available. Hover an item for details, including completed tasks and Zotero's last successful check and index counts. Totals do not follow sidebar filters. Obsolete wiki task syntax never inflates the Todoist count; failed active-task refreshes label counts as cached, and an unavailable first snapshot displays “Todoist unavailable.” The bar refreshes every minute, reusing Todoist’s shared project snapshot and reading local Zotero state (every five seconds during an active Zotero job), pauses polling in background tabs, and refreshes after pane saves and task completion; automatic polling never starts a Zotero sync or a Page Health scan. The arrows-clockwise button starts an incremental Zotero sync and shows “Syncing…” with progress while running. A subtle green cloud-check marks success and a subtle red cloud-slash marks failure; the last successful sync time stays visible, and the button becomes available again after the run. Editor popup frames omit the bar. Its PHP/JS checks are in `statusbar/tests/`.
 
 ## Unified search
 

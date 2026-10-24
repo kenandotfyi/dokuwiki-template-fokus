@@ -79,3 +79,10 @@ assert.equal(items.get('zotero').label.textContent, 'Zotero sync failed');
     assert.equal(items.get('zotero').dataset.state, 'error');
     console.log('PASS: status labels, optional modules, sync lifecycle, duplicate-click guard, and failure recovery.');
 })().catch(error => { console.error(error); process.exitCode = 1; });
+
+context.wiki({tasks:{total:2,open:1,completed:1,stale:true,error:'Fixture offline'}});
+assert.equal(items.get('tasks').label.textContent, '1 open task · cached');
+assert.match(items.get('tasks').title, /Fixture offline/);
+context.wiki({tasks:{unavailable:true}});
+assert.equal(items.get('tasks').label.textContent, 'Todoist unavailable');
+assert.equal(items.get('tasks').dataset.state, 'error');

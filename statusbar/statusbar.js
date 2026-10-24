@@ -54,7 +54,8 @@
         set('health', h ? `${h.healthy} healthy · ${h.noContent} no content${h.unknown ? ` · ${h.unknown} unchecked` : ''}` : null, 'Page Health across readable wiki pages. Unchecked pages await classification.');
         if (data.tasks !== undefined) {
             const t = data.tasks;
-            set('tasks', t ? `${t.open} open ${t.open === 1 ? 'task' : 'tasks'}` : null, t ? `${t.total} total · ${t.completed} completed.${t.stale ? ' Last Todoist refresh failed; showing cached counts.' : ''}` : '');
+            set('tasks', t ? (t.unavailable ? 'Todoist unavailable' : `${t.open} open ${t.open === 1 ? 'task' : 'tasks'}${t.stale ? ' · cached' : ''}`) : null,
+                t ? (t.unavailable ? 'No confirmed Todoist project snapshot is available.' : `${t.total} total · ${t.completed} completed in the Todoist project.${t.error ? ' ' + t.error : ''}${t.stale ? ' Showing cached counts.' : ''}`) : '', t?.unavailable || t?.stale ? 'error' : '');
         }
     }
     async function json(url, timeout = 15000) {

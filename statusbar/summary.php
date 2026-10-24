@@ -33,20 +33,19 @@ function fokus_statusbar_summary() {
     if ($butler && $butler->moduleEnabled('todoist')) {
         $todoist = plugin_load('action', 'fokusbutler_todoist');
         if ($todoist) {
-            $project = ['tasks' => [], 'error' => ''];
+            $project = null;
             foreach (array_merge(['fokusbutler:admin'], array_keys($ids)) as $page) {
                 if (!$todoist->canReadImportedTasks($page)) continue;
                 $project = $todoist->getProjectTasks($page);
                 break;
             }
-            $byId = [];
-            // Read wiki state after the project refresh has updated completion records.
-            foreach ($todoist->getAllWikiTasks() as $task) {
-                if (!isset($ids[$task['page']])) continue;
-                $id = (string)($task['todoist_id'] ?? '');
-                $key = $id !== '' ? 'todoist:' . $id : 'wiki:' . $task['page'] . ':' . $task['key'];
-                $byId[$key] = ['completed' => !empty($task['completed'])];
+            if ($project === null) return $result;
+            if (empty($project['available'])) {
+                $result['tasks'] = ['unavailable' => true];
+                return $result;
             }
+            $byId = [];
+            // Count the same confirmed project snapshot displayed by ~~TODOS~~.
             foreach ($project['tasks'] as $task) {
                 $id = (string)($task['id'] ?? '');
                 if ($id !== '') $byId['todoist:' . $id] = ['completed' => !empty($task['is_completed'])];
@@ -54,7 +53,8 @@ function fokus_statusbar_summary() {
             $tasks = array_values($byId);
             $open = count(array_filter($tasks, static function ($task) { return empty($task['completed']); }));
             $result['tasks'] = ['total' => count($tasks), 'open' => $open, 'completed' => count($tasks) - $open];
-            if (!empty($project['error'])) $result['tasks']['stale'] = true;
+            if (!empty($project['stale'])) $result['tasks']['stale'] = true;
+            if (!empty($project['error'])) $result['tasks']['error'] = $project['error'];
         }
     }
     return $result;
