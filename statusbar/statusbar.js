@@ -14,8 +14,42 @@
         item.title = title || '';
         item.dataset.state = state;
     }
+    function memos(data) {
+        if (!data) { set('memos-sync', null, ''); return; }
+        if (data.unavailable) { set('memos-sync', 'Memos unavailable', 'Could not read local Memos sync status.', 'error'); return; }
+        const active = !!data.syncing && !data.stale;
+        const failed = !active && !!data.stale;
+        const syncTime = data.syncedAt ? new Date(data.syncedAt * 1000).toLocaleString(undefined, {dateStyle: 'short', timeStyle: 'short'}) : '';
+        const checked = data.syncedAt ? new Date(data.syncedAt * 1000).toLocaleString() : 'Never';
+        const text = active ? 'Memos syncing…' : failed ? 'Memos sync failed' : data.syncedAt ? 'Memos synced' : 'Memos not synced';
+        const timestamp = syncTime ? (active || failed ? ` · last synced ${syncTime}` : ` ${syncTime}`) : '';
+        set('memos-sync', text + timestamp, `Last successful Memos sync: ${checked}.` + (failed ? ' Showing the last saved local mirror.' : ''),
+            active ? 'syncing' : failed ? 'error' : data.syncedAt ? 'synced' : '');
+    }
+    function jots(data) {
+        memos(data);
+        if (!data) { set('jots', null, ''); return; }
+        if (data.unavailable) { set('jots', 'Jots unavailable', 'Could not read the local Jots mirror.', 'error'); return; }
+        const text = data.total === null ? 'Jots not synced' : `${data.total} ${data.total === 1 ? 'jot' : 'jots'}`;
+        const synced = data.syncedAt ? ` Last synced ${new Date(data.syncedAt * 1000).toLocaleString()}.` : '';
+        set('jots', text, 'Total saved jots, including archived notes, in your local Memos mirror.' + synced +
+            (data.syncing ? ' Sync in progress.' : '') + (data.stale ? ' Last sync failed; showing cached totals.' : ''));
+    }
     function wiki(data) {
         set('pages', `${data.pages} ${data.pages === 1 ? 'page' : 'pages'}`, 'Pages you can read in this wiki, independent of sidebar filters.');
+        if (data.media !== undefined) {
+            const m = data.media;
+            if (!m) set('media', null, '');
+            else if (m.unavailable) set('media', 'Media unavailable', 'Could not count readable media files.', 'error');
+            else {
+                const parts = [`${m.images} ${m.images === 1 ? 'image' : 'images'}`, `${m.pdfs} ${m.pdfs === 1 ? 'PDF' : 'PDFs'}`];
+                for (const [key, label] of [['audio', 'audio'], ['video', 'video'], ['other', 'other']]) {
+                    if (m[key]) parts.push(`${m[key]} ${label} ${m[key] === 1 ? 'file' : 'files'}`);
+                }
+                set('media', parts.join(' · '), `${m.total} media ${m.total === 1 ? 'file' : 'files'} you can read. All image formats are grouped together; PDFs are counted separately.`);
+            }
+        }
+        if (data.jots !== undefined) jots(data.jots);
         const h = data.health;
         set('health', h ? `${h.healthy} healthy · ${h.noContent} no content${h.unknown ? ` · ${h.unknown} unchecked` : ''}` : null, 'Page Health across readable wiki pages. Unchecked pages await classification.');
         if (data.tasks !== undefined) {
@@ -93,6 +127,7 @@
     }
     document.addEventListener('fokus:explorer-status', event => wiki(event.detail));
     document.addEventListener('fokus:statuschange', refresh);
+    document.addEventListener('fokus:jots-status', event => jots(event.detail));
     document.addEventListener('visibilitychange', () => { if (document.hidden) window.clearTimeout(timer); else refresh(); });
     window.addEventListener('pageshow', refresh);
     if (syncButton) syncButton.addEventListener('click', syncNow);

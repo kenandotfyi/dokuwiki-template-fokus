@@ -11,8 +11,17 @@ function fokus_statusbar_summary() {
         $id = $page['id'];
         if (auth_quickaclcheck($id) >= AUTH_READ && !isHiddenPage($id)) $ids[$id] = true;
     }
-    $result = ['pages' => count($ids), 'health' => null, 'tasks' => null];
+    $result = ['pages' => count($ids), 'health' => null, 'tasks' => null, 'media' => null, 'jots' => null];
     $butler = plugin_load('helper', 'fokusbutler');
+    foreach (['media' => 'media', 'jots' => 'memos'] as $key => $module) {
+        if (!$butler || !$butler->moduleEnabled($module)) continue;
+        try {
+            $service = plugin_load('action', 'fokusbutler_' . $module);
+            if ($service && method_exists($service, 'getSummaryStats')) $result[$key] = $service->getSummaryStats();
+        } catch (Throwable $error) {
+            $result[$key] = ['unavailable' => true];
+        }
+    }
     if ($butler && $butler->moduleEnabled('pagehealth')) {
         $health = plugin_load('action', 'fokusbutler_pagehealth');
         if ($health) {

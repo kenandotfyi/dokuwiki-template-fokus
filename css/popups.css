@@ -1,0 +1,11 @@
+/* Popup chrome follows the pane toolbar; module bodies retain their own layout. */
+:where(.fokus-media, .fokus-jots-dialog, #fokus-search-dialog) { border-radius: var(--fokus-radius, 4px); box-shadow: 0 12px 40px rgb(0 0 0 / 18%); }
+.fokus-popup-header { display: flex; align-items: center; gap: 8px; flex: none; margin: 0; padding: .5rem .75rem; border-bottom: 1px solid var(--fokus-border); background: var(--fokus-surface-soft); color: var(--fokus-text); }
+.fokus-popup-header h2, #fokus-search-dialog .fokus-popup-header h2 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; padding: 0; border: 0; color: inherit; font: 600 14px/1.5 var(--fokus-body-font, sans-serif); }
+.fokus-popup-header > img { width: 18px; height: 18px; flex: none; }
+.fokus-popup-header .fokus-popup-close, .fokus-media .fokus-popup-header .fokus-popup-close { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; flex: none; margin: 0; padding: 4px; border: 0; border-radius: var(--fokus-control-radius); background: transparent; color: inherit; cursor: pointer; }
+.fokus-popup-close img { display: block; width: 16px; height: 16px; }
+.fokus-popup-header .fokus-popup-close:hover { background: var(--fokus-accent-soft); }
+.fokus-popup-header button:focus-visible { outline: 2px solid var(--fokus-focus-border, currentColor); outline-offset: 2px; }
+
+html[data-theme="dark"] .fokus-popup-header img { filter: invert(.85); }

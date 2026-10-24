@@ -36,6 +36,16 @@
         fulltext.before(syncBadge);
         const config = window.FokusSearchConfig;
         const format = window.FokusSearchFormat;
+        if (config.jots) providers.set('jots', {
+            id: 'jots', label: 'Jots',
+            async search(query, options) {
+                const url = new URL(DOKU_BASE + 'doku.php', location.origin);
+                url.search = new URLSearchParams({fokus_search:'1', provider:'jots', q:query, offset:options.offset, limit:options.limit, match:options.matchMode || 'words'});
+                const response = await fetch(url, {credentials:'same-origin', signal:options.signal});
+                if (!response.ok) throw new Error('Jots search is unavailable for this account.');
+                return response.json();
+            }
+        });
         if (config.wikipedia) providers.set('wikipedia', {
             id: 'wikipedia', label: 'Wikipedia', includeInAll: false,
             async search(query, options) {
@@ -91,7 +101,7 @@
             const image = node('img', 'fokus-search-result-icon');
             const isImageAnnotation = kind === 'annotation' && row && row.annotationType === 'image';
             image.alt = isImageAnnotation ? 'Image annotation' : '';
-            image.src = kind === 'wikipedia' ? DOKU_BASE + 'lib/images/interwiki/wp.svg' : config.templateBase + (kind === 'wiki' ? 'sidebar/icons/file-text-duotone.svg' : 'search/icons/' + (kind === 'document' ? 'books' : isImageAnnotation ? 'image' : 'quotes') + '-duotone.svg');
+            image.src = kind === 'jots' ? config.templateBase + 'statusbar/icons/memos.webp' : kind === 'wikipedia' ? DOKU_BASE + 'lib/images/interwiki/wp.svg' : config.templateBase + (kind === 'wiki' ? 'sidebar/icons/file-text-duotone.svg' : 'search/icons/' + (kind === 'document' ? 'books' : isImageAnnotation ? 'image' : 'quotes') + '-duotone.svg');
             return image;
         }
         function hint(message) {
@@ -146,6 +156,7 @@
             if (returnFocus && returnFocus.isConnected) returnFocus.focus({ preventScroll: true });
         }
         function closeSearch() { if (dialog.open) dialog.close(); }
+        dialog.querySelector('.fokus-popup-close')?.addEventListener('click', closeSearch);
         dialog.addEventListener('close', closed);
         dialog.addEventListener('cancel', function (event) { event.preventDefault(); closeSearch(); });
         dialog.addEventListener('click', event => { if (event.target === dialog) closeSearch(); });
@@ -205,7 +216,7 @@
             const query = input.value.trim();
             if (!query) {
                 const welcome = node('div', 'fokus-search-welcome');
-                welcome.append(icon('wiki'), node('h3', '', 'Find a page or a passage'), node('p', '', config.zotero ? 'Search wiki content, document details, highlights, and your annotation comments.' : 'Search page titles, paths, and full wiki content.'));
+                welcome.append(icon('wiki'), node('h3', '', 'Find a page or a passage'), node('p', '', (config.zotero ? 'Search wiki content, document details, highlights, and your annotation comments.' : 'Search page titles, paths, and full wiki content.') + (config.jots ? ' Search your active and archived jots too.' : '')));
                 results.append(welcome);
             } else {
                 visibleProviders().forEach(provider => {
@@ -247,14 +258,14 @@
                         } else {
                             body.append(title);
                             const documentType = (row.itemType || '').replace(/([a-z])([A-Z])/g, '$1 $2');
-                            const metadata = row.kind === 'annotation'
+                            const metadata = row.kind === 'jots' ? [row.state === 'ARCHIVED' ? 'Archived' : 'Active', ...(row.tags || []).map(tag => '#' + tag)].join(' · ') : row.kind === 'annotation'
                                 ? row.title + (row.pageLabel ? ' · p. ' + row.pageLabel : '')
                                 : [row.collections && row.collections.join(', '), documentType].filter(Boolean).join(' · ');
                             const meta = node('div', 'fokus-search-result-meta');
                             highlighted(meta, metadata);
                             body.append(meta);
                         }
-                        if (['wiki', 'wikipedia'].includes(row.kind) && row.text) { const excerpt = node('div', 'fokus-search-result-excerpt'); highlighted(excerpt, row.text); body.append(excerpt); }
+                        if (['wiki', 'wikipedia', 'jots'].includes(row.kind) && row.text) { const excerpt = node('div', 'fokus-search-result-excerpt'); highlighted(excerpt, row.text); body.append(excerpt); }
                         if (row.kind === 'annotation' && row.text && row.comment) { const comment = node('div', 'fokus-search-result-comment'); highlighted(comment, 'Comment: ' + row.comment); body.append(comment); }
                         element.append(body);
                         if (row.kind === 'annotation' && /^#[a-f0-9]{6}$/i.test(row.color || '')) { element.style.setProperty('--annotation-color', row.color); element.classList.add('has-annotation-color'); }
@@ -299,6 +310,9 @@
             } catch (_) { return null; }
         }
         function openURL(row) {
+            if (row.kind === 'jots') {
+                try { format.reference(row); return safeURL(row.openUrl, true); } catch (_) { return null; }
+            }
             if (row.kind === 'wikipedia') {
                 try { format.reference(row); return row.openUrl; } catch (_) { return null; }
             }
@@ -310,10 +324,14 @@
             preview.replaceChildren();
             actions.replaceChildren();
             if (!row) { preview.append(node('p', 'fokus-search-preview-empty', 'Select a result to see its details and actions.')); return; }
-            const eyebrow = node('div', 'fokus-search-preview-kind', row.kind === 'wikipedia' ? 'WIKIPEDIA' : row.kind === 'wiki' ? 'WIKI PAGE' : row.kind === 'document' ? 'ZOTERO DOCUMENT' : 'ZOTERO ANNOTATION');
+            const eyebrow = node('div', 'fokus-search-preview-kind', row.kind === 'jots' ? 'JOT' : row.kind === 'wikipedia' ? 'WIKIPEDIA' : row.kind === 'wiki' ? 'WIKI PAGE' : row.kind === 'document' ? 'ZOTERO DOCUMENT' : 'ZOTERO ANNOTATION');
             preview.append(eyebrow, node('h3', 'fokus-search-preview-title', row.title));
+            if (row.kind === 'jots') {
+                const created = Date.parse(row.date || '');
+                preview.append(node('p', 'fokus-search-path', [row.state === 'ARCHIVED' ? 'Archived' : 'Active', Number.isFinite(created) ? new Date(created).toLocaleString() : ''].filter(Boolean).join(' · ')));
+            }
             if (row.kind === 'wiki') preview.append(node('p', 'fokus-search-path', row.path));
-            else {
+            else if (row.kind !== 'jots') {
                 const info = [row.creators && row.creators.join(', '), row.date, (row.itemType || '').replace(/([a-z])([A-Z])/g, '$1 $2')].filter(Boolean).join(' · ');
                 if (info) preview.append(node('p', 'fokus-search-path', info));
             }
@@ -363,7 +381,9 @@
         }
         function button(text, handler, primary) {
             const element = node('button', primary ? 'fokus-search-primary' : '', text);
-            element.type = 'button'; element.addEventListener('click', handler); return element;
+            element.type = 'button'; element.addEventListener('click', handler);
+            const image = node('img', 'fokus-search-action-icon'); image.alt = ''; image.src = config.templateBase + 'sidebar/icons/' + (text.startsWith('Insert') ? 'file-plus' : 'file-text') + '-duotone.svg'; element.prepend(image);
+            return element;
         }
         function renderActions(row) {
             actions.replaceChildren();
@@ -376,12 +396,13 @@
                 if (row.kind === 'annotation') actions.append(button('Insert link only', () => insertResult(row, false)));
             }
             if (url) {
-                const open = node('a', !editor ? 'fokus-search-primary' : '', ['wiki', 'wikipedia'].includes(row.kind) ? 'Open page' : row.kind === 'document' && !row.openUrl && !chosenPDF ? 'Open item in Zotero' : 'Open in Zotero');
+                const open = node('a', !editor ? 'fokus-search-primary' : '', row.kind === 'jots' ? 'Open jot' : ['wiki', 'wikipedia'].includes(row.kind) ? 'Open page' : row.kind === 'document' && !row.openUrl && !chosenPDF ? 'Open item in Zotero' : 'Open in Zotero');
                 open.href = url;
-                if (['wiki', 'wikipedia'].includes(row.kind)) open.addEventListener('click', event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey) { event.preventDefault(); activate(row, false); } });
+                if (['wiki', 'wikipedia', 'jots'].includes(row.kind)) open.addEventListener('click', event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey) { event.preventDefault(); activate(row, false); } });
+                const image = node('img', 'fokus-search-action-icon'); image.alt = ''; image.src = config.templateBase + 'search/icons/arrow-square-out-duotone.svg'; open.prepend(image);
                 actions.append(open);
             }
-            const copyLink = button('Copy wiki link', () => copyText(format.reference(row, chosenPDF), 'Wiki link copied.'));
+            const copyLink = button(row.kind === 'jots' ? 'Copy jot link' : 'Copy wiki link', () => copyText(format.reference(row, chosenPDF), 'Wiki link copied.'));
             copyLink.disabled = !canReference; actions.append(copyLink);
             if (row.kind === 'annotation') actions.append(button('Copy annotation', () => copyText(format.annotation(row, includeComment), 'Annotation copied with its source link.')));
             preview.append(actions);
@@ -434,9 +455,13 @@
             if (insert && editor) { insertResult(row, row.kind === 'annotation'); return; }
             const url = openURL(row);
             if (!url) { hint('Choose a PDF attachment first.'); preview.querySelector('select')?.focus(); return; }
-            if (row.kind === 'wiki' || row.kind === 'wikipedia') {
+            if (row.kind === 'wiki' || row.kind === 'wikipedia' || row.kind === 'jots') {
                 closeSearch();
-                if (typeof window.infinitepanelsOpenPage === 'function') window.infinitepanelsOpenPage(url, true, row.kind === 'wiki' ? row.key : undefined);
+                let host = window;
+                if (row.kind === 'jots' && !host.infinitepanelsOpenPage) {
+                    try { if (window.parent?.infinitepanelsOpenPage) host = window.parent; } catch (_) { /* Standalone editor. */ }
+                }
+                if (typeof host.infinitepanelsOpenPage === 'function') host.infinitepanelsOpenPage(url, true, row.kind === 'wiki' ? row.key : row.kind === 'jots' ? row.paneId : undefined);
                 else location.assign(url);
             } else {
                 const link = document.createElement('a'); link.href = url; link.click();

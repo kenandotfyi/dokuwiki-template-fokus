@@ -8,8 +8,8 @@
     color: var(--fokus-text);
     background: var(--fokus-surface);
     border: 1px solid var(--fokus-border);
-    border-radius: 8px;
-    box-shadow: 0 18px 64px rgb(0 0 0 / 24%);
+    border-radius: var(--fokus-control-radius);
+    box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
     font: 14px/1.45 var(--fokus-body-font, sans-serif);
 }
 #fokus-search-dialog[open] { display: flex; flex-direction: column; }
@@ -17,7 +17,7 @@
 #fokus-search-dialog::backdrop { background: var(--fokus-dialog-backdrop, rgb(0 0 0 / 38%)); }
 #fokus-search-dialog button, #fokus-search-dialog input, #fokus-search-dialog select { font-family: inherit; }
 #fokus-search-dialog .fokus-search-filters .fokus-search-preview-toggle { display: none; }
-.fokus-search-form { display: flex; align-items: center; gap: 10px; margin: 12px 16px 10px; padding: 0 12px; flex: none; background: var(--fokus-control-background); border: 1px solid var(--fokus-border); border-radius: 8px; }
+.fokus-search-form { display: flex; align-items: center; gap: 10px; margin: 12px 16px 10px; padding: 0 12px; flex: none; background: var(--fokus-control-background); border: 1px solid var(--fokus-border); border-radius: var(--fokus-control-radius); }
 .fokus-search-form:focus-within { border-color: var(--fokus-accent); box-shadow: 0 0 0 1px var(--fokus-accent); }
 #fokus-search-dialog .fokus-search-form input[type="search"] { flex: 1; min-width: 0; height: 46px; padding: 0; color: var(--fokus-control-text); background: transparent; border: 0; border-radius: 0; outline: none; box-shadow: none; font-size: 15px; }
 .fokus-search-form input::placeholder { color: var(--fokus-muted); }
@@ -49,6 +49,9 @@
 }
 .fokus-search-result[data-provider="wikipedia"]:hover {
     background: color-mix(in srgb, var(--fokus-surface-soft, #f6f7f8) 75%, #7895ad);
+}
+.fokus-search-result[data-provider="wikipedia"] .fokus-search-result-title {
+    color: #3366cc;
 }
 .fokus-search-result-icon { width: 21px; height: 21px; flex: 0 0 21px; margin-top: 1px; opacity: .75; }
 .fokus-search-result-image-annotation .fokus-search-result-icon { opacity: 1; }
@@ -118,3 +121,8 @@ html[data-theme="dark"] #fokus-search-dialog img, html[data-theme="dark"] .fokus
     .fokus-search-sync { display: none; }
 }
 .fokus-search-match-mode[hidden] { display: none; }
+
+.fokus-search-action-icon { width: 16px; height: 16px; flex: none; margin-right: 6px; }
+html[data-theme="dark"] .fokus-search-action-icon { filter: invert(.85); }
+
+.fokus-search-result[data-provider="jots"] .fokus-search-result-icon { opacity: 1; filter: none; }

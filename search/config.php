@@ -8,3 +8,6 @@ if (is_dir(DOKU_PLUGIN . 'zoterobridge') && !plugin_isdisabled('zoterobridge')) 
     $zoteroSearchAvailable = $zoteroSearchHelper && $zoteroSearchHelper->canRead()
         && \ZoteroBridge\Credentials::valid($zoteroSearchHelper->credentials()['key']);
 }
+
+$jotsSearchAction = $searchButler && $searchButler->moduleEnabled('memos') ? plugin_load('action', 'fokusbutler_memos') : null;
+$jotsSearchAvailable = $jotsSearchAction && method_exists($jotsSearchAction, 'searchAvailable') && $jotsSearchAction->searchAvailable();

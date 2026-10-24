@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '../statusbar.js'), 'utf8');
-const items = new Map(['pages', 'health', 'tasks', 'zotero'].map(id => [id, { dataset: {}, querySelector: () => items.get(id).label, label: {} }]));
+const items = new Map(['pages', 'media', 'jots', 'memos-sync', 'health', 'tasks', 'zotero'].map(id => [id, { dataset: {}, querySelector: () => items.get(id).label, label: {} }]));
 const context = vm.createContext({
     document: { getElementById: id => items.get(id.replace('fokus-status-', '')) },
     syncRunning: false, lastZotero: null,
@@ -13,6 +13,29 @@ vm.runInContext(source.slice(source.indexOf('    function set('), source.indexOf
 vm.runInContext(source.slice(source.indexOf('    function syncActive('), source.indexOf('    async function refresh(')), context);
 context.wiki({ pages: 12, health: { healthy: 8, noContent: 3, unknown: 1 }, tasks: { total: 5, open: 2, completed: 3 } });
 assert.equal(items.get('pages').label.textContent, '12 pages');
+context.wiki({pages:12,health:null,media:{total:9,images:4,pdfs:2,audio:1,video:1,other:1},jots:{total:3,syncedAt:1}});
+assert.equal(items.get('media').label.textContent,'4 images · 2 PDFs · 1 audio file · 1 video file · 1 other file');
+assert.match(items.get('media').title,/9 media files/);
+assert.equal(items.get('jots').label.textContent,'3 jots');
+context.wiki({pages:12,health:{healthy:8,noContent:3,unknown:1}});
+assert.equal(items.get('media').hidden,false,'Sidebar-only updates preserve media totals');
+assert.equal(items.get('jots').label.textContent,'3 jots','Sidebar-only updates preserve Jots totals');
+const memosTime = new Date(1000).toLocaleString(undefined, {dateStyle:'short',timeStyle:'short'});
+assert.equal(items.get('memos-sync').label.textContent, 'Memos synced ' + memosTime);
+assert.equal(items.get('memos-sync').dataset.state,'synced');
+context.jots({total:3,syncedAt:1,syncing:true});
+assert.equal(items.get('memos-sync').label.textContent,'Memos syncing… · last synced ' + memosTime);
+assert.equal(items.get('memos-sync').dataset.state,'syncing');
+context.jots({total:3,syncedAt:1,syncing:true,stale:true});
+assert.equal(items.get('memos-sync').label.textContent,'Memos sync failed · last synced ' + memosTime,'A retained failed stage is not an active sync');
+assert.equal(items.get('memos-sync').dataset.state,'error');
+context.jots({total:0,syncedAt:1}); assert.equal(items.get('jots').label.textContent,'0 jots');
+context.jots({total:null,syncedAt:0}); assert.equal(items.get('jots').label.textContent,'Jots not synced'); assert.equal(items.get('memos-sync').label.textContent,'Memos not synced');
+context.jots({total:1,syncedAt:1,stale:true}); assert.equal(items.get('jots').label.textContent,'1 jot'); assert.match(items.get('jots').title,/cached totals/);
+context.wiki({pages:12,health:{healthy:8,noContent:3,unknown:1},media:null,jots:null});
+assert.equal(items.get('media').hidden,true);assert.equal(items.get('jots').hidden,true);assert.equal(items.get('memos-sync').hidden,true);
+context.wiki({pages:12,health:{healthy:8,noContent:3,unknown:1},media:{unavailable:true},jots:{unavailable:true}});
+assert.equal(items.get('media').dataset.state,'error');assert.equal(items.get('jots').dataset.state,'error');
 assert.match(items.get('health').label.textContent, /1 unchecked/);
 assert.equal(items.get('tasks').label.textContent, '2 open tasks');
 assert.match(items.get('tasks').title, /5 total · 3 completed/);

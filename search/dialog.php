@@ -1,9 +1,14 @@
 <?php if (!defined('DOKU_INC')) die(); ?>
 <dialog id="fokus-search-dialog" aria-label="Search your knowledge">
+    <header class="fokus-popup-header">
+        <img src="<?php echo tpl_basedir(); ?>sidebar/icons/magnifying-glass-duotone.svg" alt="">
+        <h2>Search</h2>
+        <button type="button" class="fokus-popup-close" aria-label="Close Search" title="Close Search"><img src="<?php echo tpl_basedir(); ?>sidebar/icons/x-square-duotone.svg" alt=""></button>
+    </header>
     <form class="fokus-search-form" role="search">
         <img src="<?php echo tpl_basedir(); ?>sidebar/icons/magnifying-glass-duotone.svg" alt="" class="fokus-search-loupe">
-        <label class="a11y" for="fokus-search-input">Search wiki pages, documents, and annotations</label>
-        <input id="fokus-search-input" type="search" autocomplete="off" maxlength="512" placeholder="Search pages, documents, annotations…" role="combobox" aria-autocomplete="list" aria-controls="fokus-search-results" aria-expanded="false">
+        <label class="a11y" for="fokus-search-input">Search wiki pages, jots, documents, and annotations</label>
+        <input id="fokus-search-input" type="search" autocomplete="off" maxlength="512" placeholder="Search pages, jots, documents, annotations…" role="combobox" aria-autocomplete="list" aria-controls="fokus-search-results" aria-expanded="false">
         <div class="fokus-search-match-mode" role="group" aria-label="Search matching mode">
             <button type="button" data-search-mode="words" aria-pressed="true">All words</button>
             <button type="button" data-search-mode="phrase" aria-pressed="false">Exact phrase</button>
@@ -12,6 +17,9 @@
     <div class="fokus-search-filters" role="group" aria-label="Search sources">
         <button type="button" data-search-filter="all" aria-pressed="true">All <span></span></button>
         <button type="button" data-search-filter="wiki" aria-pressed="false">Wiki <span></span></button>
+        <?php if ($jotsSearchAvailable) : ?>
+        <button type="button" data-search-filter="jots" aria-pressed="false">Jots <span></span></button>
+        <?php endif; ?>
         <?php if ($zoteroSearchAvailable) : ?>
         <button type="button" data-search-filter="document" aria-pressed="false">Documents <span></span></button>
         <button type="button" data-search-filter="annotation" aria-pressed="false">Annotations <span></span></button>

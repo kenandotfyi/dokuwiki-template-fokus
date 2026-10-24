@@ -26,3 +26,9 @@ assert.equal(f.blockAtSelection('QUOTE','Before. After.',8,8), '\n\nQUOTE\n\n');
 assert.equal(f.blockAtSelection('QUOTE','====== Heading ======',0,0), 'QUOTE\n\n');
 assert.equal(f.blockAtSelection('QUOTE','Before.\n\nAfter.',9,9), 'QUOTE\n\n');
 console.log('PASS: wiki, Wikipedia and Zotero reference formatting and annotation escaping.');
+
+context.location = new URL('https://wiki.example/doku.php?id=start');
+const jot = {kind:'jots',key:'memos/fixture1',title:'A jot',openUrl:'https://wiki.example/doku.php?id=start&p=jots.memo.fixture1'};
+assert.equal(f.reference(jot),'[[https://wiki.example/doku.php?id=start&p=jots.memo.fixture1|A jot]]');
+assert.throws(()=>f.reference({...jot,openUrl:'https://evil.example/?p=jots.memo.fixture1'}),/Invalid jot/);
+assert.throws(()=>f.reference({...jot,key:'memos/other'}),/Invalid jot/);

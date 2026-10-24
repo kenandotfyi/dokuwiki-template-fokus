@@ -14,7 +14,7 @@ Links open to the right of the current page. Since DokuWiki has a solid AJAX imp
 
 Sidebar is toggleable and files section is implemented using the amazing library of [Trees](https://trees.software/) from [Pierre Computer](https://pierre.computer/), so it's not the default sidebar that DokuWiki offers as a convention not using a plugin. It scans and displays the pages in the DokuWiki installation.
 
-There are quite some stuff going on there like the pinned and recently opened pages, traditional file manager with refresh and some right click operations such as rename, delete or add new. Tags section also shows the tags in the DokuWiki using the [Tag](https://www.dokuwiki.org/plugin:tag) plugin. 
+There are quite some stuff going on there like the pinned and recently opened pages, traditional file manager with refresh and some right click operations such as rename, delete or add new. Drag a page or namespace onto a namespace to move it, or onto the root drop area to move it to the root. The Move dialog reviews the destination before saving. This requires the Move plugin and the normal page permissions; wiki links, pins, and open panes follow the move. Tags section also shows the tags in the DokuWiki using the [Tag](https://www.dokuwiki.org/plugin:tag) plugin.
 
 Search bar is implemented again with AJAX and returns the results immediately in the pop overlay. It also shows the Zotero results if you installed and enabled my [Zotero Bridge](https://github.com/kenandotfyi/zoterobridge) plugin.
 
@@ -165,5 +165,12 @@ With Zotero Bridge configured, administrators can search document metadata, coll
 Search reads the local index and refreshes after a published index generation changes. It polls local status while open; automatic remote synchronization is still a separate, pending worker feature.
 
 The vanilla dialog needs no React runtime or CDN. Sources live in `search/`: `provider.php` supplies private ACL-filtered wiki JSON through `fokus_search=1`; `zotero.js` adapts the standalone plugin; `format.js` and `palette.js` handle insertion and UI. After JavaScript/CSS edits, run `php lib/tpl/fokus/bin/build-search.php` to regenerate content-hashed assets and the manifest. `search/tests/format.cjs` checks reference formatting; `search/tests/wiki.php` requires an isolated `zoterobridge-runtime` DokuWiki installation and checks ACLs and rendered quote safety.
+
+
+The status bar counts readable pages and media, grouping all image formats together and listing PDFs separately (plus audio, video, and other files when present). It also shows your total saved Jots, including archived notes, from the local Memos mirror. Counts retain each module’s permissions; status refreshes do not sync Memos remotely. The Memos status mark is bundled from the official project with its MIT license in `statusbar/icons/`.
+
+Memos and Zotero sync indicators share the right side of the status bar, with matching success, syncing, and failure icons. The Memos indicator shows the last completed local mirror sync and retains that timestamp during retries or failures; it updates as the existing Jots sync runs.
+
+Unified search includes a Jots group under All and a dedicated Jots filter. It searches the authorized local Memos mirror (text and tags, active and archived notes), supports words/phrases and pagination, and opens individual notes in panes with `jots.memo.<id>` URL state. Jot links can be copied or inserted into the editor. Search never triggers a remote Memos sync.
 
 </details>

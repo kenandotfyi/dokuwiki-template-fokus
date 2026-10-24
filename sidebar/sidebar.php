@@ -23,11 +23,25 @@ if ($butler && $butler->moduleEnabled('memos')) {
     require_once DOKU_PLUGIN . 'fokusbutler/modules/memos/Action.php';
     $jotsAvailable = FokusButler_Module_Memos_Action::allowed();
 }
+$sidebarUserId = (string)($_SERVER['REMOTE_USER'] ?? '');
+$sidebarUserName = '';
+if ($sidebarUserId !== '') {
+    $sidebarUserName = trim((string)($INFO['userinfo']['name'] ?? ''));
+    if ($sidebarUserName === '') $sidebarUserName = $sidebarUserId;
+}
+$sidebarUserInitials = $sidebarUserName !== ''
+    ? (function_exists('utf8_strtoupper') ? utf8_strtoupper(function_exists('utf8_substr') ? utf8_substr($sidebarUserName, 0, 2) : substr($sidebarUserName, 0, 2)) : strtoupper(substr($sidebarUserName, 0, 2)) )
+    : '';
 ?>
 <aside id="fokus-sidebar" aria-label="Wiki navigation">
     <div class="fokus-sidebar-top">
         <div class="fokus-sidebar-identity">
-            <span class="fokus-sidebar-name" title="<?php echo hsc(strip_tags($conf['title'])); ?>"><?php echo hsc(strip_tags($conf['title'])); ?></span>
+            <div class="fokus-sidebar-brand">
+                <?php if ($sidebarUserName !== '') : ?><span class="fokus-sidebar-avatar" role="img" aria-label="Signed in as <?php echo hsc($sidebarUserName); ?>" title="<?php echo hsc($sidebarUserName); ?>"><?php echo hsc($sidebarUserInitials); ?></span><?php endif; ?>
+                <div class="fokus-sidebar-brand-copy">
+                    <span class="fokus-sidebar-name" title="<?php echo hsc(strip_tags($conf['title']) . ($sidebarUserName !== '' ? ' / ' . $sidebarUserName : '')); ?>"><?php echo hsc(strip_tags($conf['title'])); ?><?php if ($sidebarUserName !== '') : ?><span class="fokus-sidebar-user"> / <?php echo hsc($sidebarUserName); ?></span><?php endif; ?></span>
+                </div>
+            </div>
             <div class="fokus-sidebar-identity-actions">
             <?php if ($darkModeEnabled) : ?>
                 <button type="button" class="fokus-theme-toggle" aria-label="Switch to dark theme" title="Switch to dark theme" aria-pressed="false"><?php echo str_replace('<svg ', '<svg class="fokus-theme-icon-light" ', fokus_sidebar_icon('theme-light')); ?><?php echo str_replace('<svg ', '<svg class="fokus-theme-icon-dark" ', fokus_sidebar_icon('theme-dark')); ?></button>

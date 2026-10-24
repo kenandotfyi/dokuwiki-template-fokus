@@ -1,4 +1,5 @@
 import { FileTree } from '@pierre/trees';
+import { sidebarDropPlan } from './moves.js';
 
 const config = window.FokusSidebarConfig;
 const sidebar = document.getElementById('fokus-sidebar');
@@ -9,6 +10,24 @@ function initializeSidebar() {
     const panels = Object.fromEntries(['files', 'tags'].map(view => [view, document.getElementById(`fokus-${view}-panel`)]));
     const tabs = [...sidebar.querySelectorAll('[data-view]')];
     const host = document.getElementById('fokus-file-tree');
+    const rootDrop = document.createElement('div');
+    rootDrop.className = 'fokus-sidebar-root-drop'; rootDrop.hidden = !config.moveAvailable; rootDrop.tabIndex = -1;
+    rootDrop.textContent = 'Drop here to move to root'; host.before(rootDrop);
+    let draggedSidebarPaths = [];
+    const rootDropPlan = () => sidebarDropPlan({draggedPaths: draggedSidebarPaths, target: {kind: 'root', directoryPath: null}}, pagesByPath, pagesById, directories);
+    const acceptRootDrop = event => {
+        if (!rootDropPlan() || actionRunning || actionDialog.open) return;
+        event.preventDefault(); event.dataTransfer.dropEffect = 'move'; rootDrop.classList.add('is-drop-target');
+    };
+    rootDrop.addEventListener('dragenter', acceptRootDrop);
+    rootDrop.addEventListener('dragover', acceptRootDrop);
+    rootDrop.addEventListener('dragleave', () => rootDrop.classList.remove('is-drop-target'));
+    rootDrop.addEventListener('drop', event => {
+        event.preventDefault();
+        const plan = rootDropPlan(); rootDrop.classList.remove('is-drop-target'); draggedSidebarPaths = [];
+        if (plan) showFileAction('rename', {id: plan.id, scope: plan.scope}, host, plan.destination);
+    });
+    window.addEventListener('dragend', () => { draggedSidebarPaths = []; rootDrop.classList.remove('is-drop-target'); });
     const tagList = document.getElementById('fokus-tag-list');
     const filter = document.getElementById('fokus-sidebar-filter');
     const filterArea = document.getElementById('fokus-sidebar-filter-area');
@@ -248,18 +267,21 @@ function initializeSidebar() {
             if (restoreFocus && source.isConnected) source.focus({ preventScroll: true });
         } });
     }
-    async function showFileAction(action, target, origin) {
+    async function showFileAction(action, target, origin, destination = null) {
+        if (actionRunning || actionDialog.open) return;
+        const moving = action === 'rename' && destination !== null;
         const version = ++actionVersion;
         actionTarget = null;
         actionResult = null;
         actionOrigin = origin;
         actionError.hidden = true;
-        actionTitle.textContent = `${action === 'rename' ? 'Rename' : 'Delete'} ${target.scope === 'namespace' ? 'namespace' : 'page'}`;
+        actionTitle.textContent = `${moving ? 'Move' : action === 'rename' ? 'Rename' : 'Delete'} ${target.scope === 'namespace' ? 'namespace' : 'page'}`;
         actionDescription.textContent = 'Checking pages and permissions…';
         actionNameField.hidden = action !== 'rename';
         actionName.required = action === 'rename';
-        actionName.value = target.id;
-        actionSubmit.textContent = action === 'rename' ? 'Rename' : 'Delete';
+        actionName.value = moving ? destination : target.id;
+        actionNameField.querySelector('label').textContent = moving ? 'Destination ID' : 'New name';
+        actionSubmit.textContent = moving ? 'Move' : action === 'rename' ? 'Rename' : 'Delete';
         actionSubmit.disabled = true;
         actionDialog.showModal();
         try {
@@ -267,7 +289,9 @@ function initializeSidebar() {
             if (!actionDialog.open || version !== actionVersion) return;
             actionTarget = { ...target, action, fingerprint: info.fingerprint };
             const countLabel = `${info.count} ${info.count === 1 ? 'page' : 'pages'}`;
-            actionDescription.textContent = action === 'delete'
+            actionDescription.textContent = moving
+                ? `Move “${target.id}” to “${destination}”${target.scope === 'namespace' ? ` with its ${countLabel}, including subnamespaces` : ''}? Wiki links are updated; media files keep their current namespace.`
+                : action === 'delete'
                 ? target.scope === 'namespace'
                     ? `Delete ${countLabel} in “${target.id}”, including subnamespaces? Page history remains available. Media files are kept.`
                     : `Delete “${target.id}”? Page history remains available.`
@@ -639,7 +663,23 @@ function initializeSidebar() {
                     itemHeight: 30,
                     search: false,
                     renaming: false,
-                    dragAndDrop: false,
+                    dragAndDrop: config.moveAvailable ? {
+                        canDrag: paths => {
+                            if (actionRunning || actionDialog.open || paths.length !== 1) return false;
+                            draggedSidebarPaths = [...paths];
+                            return true;
+                        },
+                        canDrop: context => !actionRunning && !actionDialog.open && !!sidebarDropPlan(context, pagesByPath, pagesById, directories),
+                        openOnDropDelay: 600,
+                        onDropComplete: context => {
+                            const plan = sidebarDropPlan(context, pagesByPath, pagesById, directories);
+                            // Trees moves its in-memory paths first. Restore them synchronously:
+                            // only the server's confirmed result may change the visible files.
+                            tree.resetPaths(allTreePaths, {initialExpandedPaths: state.expanded || []});
+                            if (plan) showFileAction('rename', {id: plan.id, scope: plan.scope}, host, plan.destination);
+                        },
+                        onDropError: () => status(panels.files, 'Could not move this item. Use Rename from its menu to choose a destination.'),
+                    } : false,
                     // The public decoration renderer supplies display labels while
                     // canonical paths remain the tree's identity for every action.
                     renderRowDecoration: ({ item }) => ({ text: labelsByPath.get(item.path) || item.name, title: item.path }),

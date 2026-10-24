@@ -8,6 +8,12 @@
         return '<nowiki>' + String(value).replace(/<\/nowiki>/gi, match => '</nowiki><nowiki><</nowiki><nowiki>' + match.slice(1) + '</nowiki><nowiki>') + '</nowiki>';
     }
     function reference(row, attachment) {
+        if (row.kind === 'jots') {
+            if (!/^memos\/[a-zA-Z0-9][a-zA-Z0-9-]{0,35}$/.test(row.key || '')) throw new Error('Invalid jot reference.');
+            const url = new URL(row.openUrl, location.href);
+            if (url.origin !== location.origin || !/^https?:$/.test(url.protocol) || url.username || url.password || url.hash || url.searchParams.get('p') !== 'jots.memo.' + row.key.slice(6)) throw new Error('Invalid jot reference.');
+            return '[[' + url.href + '|' + label(row.title) + ']]';
+        }
         if (row.kind === 'wikipedia') {
             const url = new URL(row.openUrl);
             if (url.origin !== 'https://en.wikipedia.org' || !url.pathname.startsWith('/wiki/') || url.search || url.hash) throw new Error('Invalid Wikipedia reference.');

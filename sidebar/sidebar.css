@@ -115,9 +115,13 @@ body.fokus-sidebar-collapsed #fokus-sidebar { transform: translateX(-100%); visi
     outline-offset: -2px;
 }
 #fokus-sidebar svg, .fokus-sidebar-toggle svg { flex: 0 0 auto; width: 17px; height: 17px; }
-.fokus-sidebar-top { padding: 0px 12px 10px; border-bottom: 1px solid var(--fokus-border); }
-.fokus-sidebar-identity { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 34px; }
-.fokus-sidebar-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 600; color: var(--fokus-text); }
+.fokus-sidebar-top { padding: 6px 12px 10px; border-bottom: 1px solid var(--fokus-border); }
+.fokus-sidebar-identity { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 30px; }
+.fokus-sidebar-brand { display: flex; flex: 1 1 auto; align-items: center; gap: 9px; min-width: 0; }
+.fokus-sidebar-avatar { display: inline-flex; flex: 0 0 24px; align-items: center; justify-content: center; width: 24px; height: 24px; border: 1px solid var(--fokus-border); border-radius: 50%; background: var(--fokus-accent-soft); color: var(--fokus-accent); font-size: 10px; font-weight: 700; letter-spacing: .02em; line-height: 1; }
+.fokus-sidebar-brand-copy { display: flex; flex: 1 1 auto; flex-direction: column; justify-content: center; min-width: 0; gap: 1px; }
+.fokus-sidebar-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; color: var(--fokus-text); }
+.fokus-sidebar-user { color: var(--fokus-muted); font-size: inherit; font-weight: 500; }
 .fokus-sidebar-identity-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; }
 #fokus-sidebar .fokus-theme-toggle { display: inline-flex; flex: 0 0 24px; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--fokus-control-radius); color: var(--fokus-muted); }
 #fokus-sidebar .fokus-theme-toggle svg { width: 17px; height: 17px; }
@@ -311,3 +315,7 @@ html[data-theme="dark"] #fokus-file-tree { color-scheme: dark; }
     body.fokus-has-sidebar #dokuwiki__site { margin-left: 0 !important; width: 100% !important; max-width: none !important; }
 }
 @media (prefers-reduced-motion: reduce) { #fokus-sidebar .fokus-sidebar-filter { transition: none; } }
+
+.fokus-sidebar-root-drop { margin: 0 8px 6px; padding: 7px 8px; border: 1px dashed var(--fokus-border); border-radius: var(--fokus-control-radius); color: var(--fokus-muted); font-size: 12px; text-align: center; }
+.fokus-sidebar-root-drop[hidden] { display: none; }
+.fokus-sidebar-root-drop.is-drop-target { background: var(--fokus-accent-soft); color: var(--fokus-text); border-color: var(--fokus-accent); }

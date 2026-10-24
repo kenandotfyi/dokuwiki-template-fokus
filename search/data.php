@@ -7,12 +7,15 @@ header('X-Content-Type-Options: nosniff');
 http_response_code(200);
 if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
 try {
-    echo json_encode(fokus_search_wiki($INPUT->get->str('q'), $INPUT->get->int('offset'), $INPUT->get->int('limit', 20), $INPUT->get->str('match', 'words')), JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_INVALID_UTF8_SUBSTITUTE);
+    $provider = $INPUT->get->str('provider', 'wiki');
+    if (!in_array($provider, ['wiki','jots'], true)) throw new InvalidArgumentException('Unknown search provider.');
+    $search = $provider === 'jots' ? 'fokus_search_jots' : 'fokus_search_wiki';
+    echo json_encode($search($INPUT->get->str('q'), $INPUT->get->int('offset'), $INPUT->get->int('limit', 20), $INPUT->get->str('match', 'words')), JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_INVALID_UTF8_SUBSTITUTE);
 } catch (InvalidArgumentException $error) {
     http_response_code(400);
     echo json_encode(['error' => $error->getMessage()]);
 } catch (Throwable $error) {
-    http_response_code(503);
-    echo json_encode(['error' => 'Wiki search is unavailable. Try the full search page.']);
+    http_response_code($error->getCode() === 403 ? 403 : 503);
+    echo json_encode(['error' => ($provider ?? '') === 'jots' ? 'Jots search is unavailable for this account.' : 'Wiki search is unavailable. Try the full search page.']);
 }
 exit;

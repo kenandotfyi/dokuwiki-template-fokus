@@ -56,3 +56,18 @@ function fokus_search_wiki_query($query, $matchMode)
     $phrase = trim(str_replace('"', ' ', (string)$query));
     return $phrase === '' ? '' : '"' . $phrase . '"';
 }
+
+/** The plugin enforces account access before reading its private local mirror. */
+function fokus_search_jots($query, $offset = 0, $limit = 20, $mode = 'words')
+{
+    global $conf;
+    $service = plugin_load('action', 'fokusbutler_memos');
+    if (!$service || !method_exists($service, 'searchLocal')) throw new RuntimeException('Jots search is unavailable for this account.', 403);
+    $data = $service->searchLocal($query, $offset, $limit, $mode);
+    foreach ($data['results'] as &$row) {
+        $row['paneId'] = 'jots.memo.' . substr($row['key'], 6);
+        $row['openUrl'] = wl($conf['start'], ['p'=>$row['paneId']], true, '&');
+    }
+    unset($row);
+    return $data;
+}
