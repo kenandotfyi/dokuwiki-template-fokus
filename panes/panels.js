@@ -106,6 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const paneOverflowObserver = new ResizeObserver(updatePaneOverflow);
         paneOverflowObserver.observe(viewport);
         paneOverflowObserver.observe(panes);
+        const layoutObserver = new ResizeObserver(updatePaneHeight);
+        const header = document.getElementById('dokuwiki__header');
+        const statusbar = document.getElementById('fokus-statusbar');
+        if (header) layoutObserver.observe(header);
+        if (statusbar) layoutObserver.observe(statusbar);
         viewport.addEventListener('scroll', updatePaneOverflow, { passive: true });
         wrapper.appendChild(viewport);
         content.insertBefore(wrapper, pageContent);
@@ -159,10 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePaneHeight() {
-        const header = document.getElementById('dokuwiki__header');
-        const headerBottom = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+        // The viewport follows the whole template header and the content's own
+        // top spacing. Measuring from the header alone lets panes extend under
+        // the shelf when those offsets differ or the header reflows on restore.
+        const viewportTop = viewport ? Math.max(0, viewport.getBoundingClientRect().top) : 0;
         const statusbarHeight = document.getElementById('fokus-statusbar')?.getBoundingClientRect().height || 0;
-        const availableHeight = Math.max(240, window.innerHeight - headerBottom - statusbarHeight);
+        const availableHeight = Math.max(240, window.innerHeight - viewportTop - statusbarHeight);
         document.documentElement.style.setProperty('--infinitepanels-viewport-height', `${availableHeight}px`);
     }
 
@@ -295,8 +302,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const desktop = window.matchMedia('(min-width: 1200px)').matches;
         const root = paneElements[0];
         const scrollOffset = !wasActive && desktop ? Math.max(0, -root.getBoundingClientRect().top) : 0;
-        updatePaneHeight();
         document.body.classList.add('infinitepanels-active');
+        updatePaneHeight();
+        // Header/shelf and active-mode styles can settle over the next frame.
+        // Re-measure against the final viewport position after that reflow.
+        window.requestAnimationFrame(updatePaneHeight);
         if (!wasActive && desktop) {
             root.scrollTop = scrollOffset;
             window.scrollTo(0, 0);
@@ -1557,6 +1567,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.infinitepanelsOpenInRightPanel = openInInfinitePanels;
     window.infinitepanelsOpenPage = openInInfinitePanels;
+    window.fokusSavePaneLayout = saveUrlState;
     window.fokusCreatePage = (pageId, trigger, onComplete) => openNativeEdit(null, pageId, trigger, onComplete);
     window.addEventListener('resize', updatePaneHeight, { passive: true });
     window.addEventListener('popstate', restorePanesFromUrl);

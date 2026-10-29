@@ -724,11 +724,32 @@ body > div.plugin-preview {
 /* tables for pagelist etc to have 100% widht */
 .dokuwiki div.table table {
 	width: 100%;
-    border: 1px solid var(--fokus-border);
-    border-radius:var(--fokus-control-radius);
+    border: 0;
+    border-radius: 0;
     border-spacing: 0;
     background: var(--fokus-surface);
-    overflow: hidden;
+    overflow: visible;
+}
+
+.dokuwiki div.table {
+    border: 1px solid var(--fokus-border);
+    border-radius: var(--fokus-control-radius);
+}
+
+.dokuwiki div.table table > :first-child > tr:first-child > :is(th, td) {
+    border-top: 0;
+}
+
+.dokuwiki div.table table > :last-child > tr:last-child > :is(th, td) {
+    border-bottom: 0;
+}
+
+.dokuwiki div.table tr > :is(th, td):first-child {
+    border-left: 0;
+}
+
+.dokuwiki div.table tr > :is(th, td):last-child {
+    border-right: 0;
 }
 
 .dokuwiki div.table th {

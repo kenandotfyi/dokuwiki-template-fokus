@@ -67,7 +67,21 @@
 }
 
 .infinitepanels-pane[data-provider="wikipedia"] .topBanner {
-    background: color-mix(in srgb, var(--fokus-surface-soft, #f6f7f8) 75%, #7895ad);
+    background: #3366cc;
+    border-color: #3366cc;
+    color: #fff;
+}
+html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner a.fokus-page-title,
+html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner button {
+    color: #fff !important;
+}
+html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner a.fokus-page-title:hover,
+html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner button:hover {
+    background-color: #2a4b8d !important;
+}
+html .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner :focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
 }
 .infinitepanels-pane .fokus-wikipedia-content {
     display: flow-root;
@@ -75,6 +89,7 @@
 }
 .infinitepanels-pane[data-provider="wikipedia"] .fokus-wikipedia-content img:not(.mwe-math-fallback-image-inline):not(.mwe-math-fallback-image-display) {
     max-width: 480px;
+    max-inline-size: 100%;
     height: auto;
     margin-inline: auto;
 }

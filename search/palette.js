@@ -58,6 +58,13 @@
                 return { results: data.results.map(row => ({ kind: 'wikipedia', key: row.url, title: row.title, text: row.excerpt || row.description, openUrl: row.url })), hasMore: false };
             }
         });
+        if (window.FokusAIConfig) providers.set('aichat', {
+            id:'aichat', label:'AI chats',
+            async search(query, options) {
+                if(!window.FokusAI) throw new Error('Chat archive is loading. Try again.');
+                return window.FokusAI.api('archive_list',{query, offset:options.offset,limit:options.limit,match:options.matchMode});
+            }
+        });
         const states = new Map();
         let selected = null;
         let previewRow;
@@ -265,7 +272,7 @@
                             highlighted(meta, metadata);
                             body.append(meta);
                         }
-                        if (['wiki', 'wikipedia', 'jots'].includes(row.kind) && row.text) { const excerpt = node('div', 'fokus-search-result-excerpt'); highlighted(excerpt, row.text); body.append(excerpt); }
+                        if (['wiki', 'wikipedia', 'jots', 'aichat'].includes(row.kind) && row.text) { const excerpt = node('div', 'fokus-search-result-excerpt'); highlighted(excerpt, row.text); body.append(excerpt); }
                         if (row.kind === 'annotation' && row.text && row.comment) { const comment = node('div', 'fokus-search-result-comment'); highlighted(comment, 'Comment: ' + row.comment); body.append(comment); }
                         element.append(body);
                         if (row.kind === 'annotation' && /^#[a-f0-9]{6}$/i.test(row.color || '')) { element.style.setProperty('--annotation-color', row.color); element.classList.add('has-annotation-color'); }
@@ -324,7 +331,7 @@
             preview.replaceChildren();
             actions.replaceChildren();
             if (!row) { preview.append(node('p', 'fokus-search-preview-empty', 'Select a result to see its details and actions.')); return; }
-            const eyebrow = node('div', 'fokus-search-preview-kind', row.kind === 'jots' ? 'JOT' : row.kind === 'wikipedia' ? 'WIKIPEDIA' : row.kind === 'wiki' ? 'WIKI PAGE' : row.kind === 'document' ? 'ZOTERO DOCUMENT' : 'ZOTERO ANNOTATION');
+            const eyebrow = node('div', 'fokus-search-preview-kind', row.kind === 'aichat' ? 'SAVED AI CONVERSATION' : row.kind === 'jots' ? 'JOT' : row.kind === 'wikipedia' ? 'WIKIPEDIA' : row.kind === 'wiki' ? 'WIKI PAGE' : row.kind === 'document' ? 'ZOTERO DOCUMENT' : 'ZOTERO ANNOTATION');
             preview.append(eyebrow, node('h3', 'fokus-search-preview-title', row.title));
             if (row.kind === 'jots') {
                 const created = Date.parse(row.date || '');
@@ -386,6 +393,12 @@
             return element;
         }
         function renderActions(row) {
+            if(row.kind === 'aichat') {
+                actions.replaceChildren();
+                actions.append(button('Open chat',()=>{closeSearch();window.FokusAI.openConversation(row.key,row.turn_id).catch(e=>hint(e.message));},true),button('Restore session',()=>{closeSearch();window.FokusAI.restoreSession(row.key).catch(e=>hint(e.message));}));
+                preview.append(actions);
+                return;
+            }
             actions.replaceChildren();
             const url = openURL(row);
             let canReference = true;
@@ -452,6 +465,7 @@
         }
         function activate(row, insert) {
             if (!row) return;
+            if(row.kind === 'aichat') {closeSearch();window.FokusAI.openConversation(row.key,row.turn_id).catch(e=>hint(e.message));return;}
             if (insert && editor) { insertResult(row, row.kind === 'annotation'); return; }
             const url = openURL(row);
             if (!url) { hint('Choose a PDF attachment first.'); preview.querySelector('select')?.focus(); return; }

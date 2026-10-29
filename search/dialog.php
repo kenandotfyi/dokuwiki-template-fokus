@@ -27,6 +27,9 @@
         <?php if ($wikipediaSearchAvailable) : ?>
         <button type="button" data-search-filter="wikipedia" aria-pressed="false">Wikipedia <span></span></button>
         <?php endif; ?>
+        <?php if (plugin_load('helper', 'fokusai') && !empty($_SERVER['REMOTE_USER'])) : ?>
+        <button type="button" data-search-filter="aichat" aria-pressed="false">AI chats <span></span></button>
+        <?php endif; ?>
         <button type="button" class="fokus-search-preview-toggle" aria-pressed="false">Details</button>
         <span class="fokus-search-status" role="status"></span>
     </div>

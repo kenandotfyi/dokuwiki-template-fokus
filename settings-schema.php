@@ -9,6 +9,7 @@ function fokus_settings_schema() {
         'sidebar_enabled' => ['group'=>'Workspace', 'label'=>'Files and Tags sidebar', 'type'=>'bool', 'default'=>1],
         'sidebar_hide_regex' => ['group'=>'Workspace', 'label'=>'Hide pages and namespaces (regex)', 'type'=>'regex', 'default'=>'', 'help'=>'Without delimiters. Example: ^(?:playground|wiki)(?::|$). Matching namespaces hide descendants; Pinned and Tags are unaffected.'],
         'adapter_annotations' => ['group'=>'Modules', 'label'=>'Annotations adapter', 'type'=>'bool', 'default'=>0],
+        'adapter_fokusai' => ['group'=>'Modules', 'label'=>'FokusAI conversations adapter', 'type'=>'bool', 'default'=>1],
         'adapter_katex' => ['group'=>'Modules', 'label'=>'KaTeX adapter', 'type'=>'bool', 'default'=>0],
     ];
     $colors = [
