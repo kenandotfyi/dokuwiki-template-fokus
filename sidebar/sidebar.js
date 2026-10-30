@@ -11,9 +11,17 @@ function initializeSidebar() {
     const tabs = [...sidebar.querySelectorAll('[data-view]')];
     const host = document.getElementById('fokus-file-tree');
     const rootDrop = document.createElement('div');
-    rootDrop.className = 'fokus-sidebar-root-drop'; rootDrop.hidden = !config.moveAvailable; rootDrop.tabIndex = -1;
+    rootDrop.className = 'fokus-sidebar-root-drop'; rootDrop.hidden = true; rootDrop.tabIndex = -1;
     rootDrop.textContent = 'Drop here to move to root'; host.before(rootDrop);
     let draggedSidebarPaths = [];
+    let rootDropRevealFrame = null;
+    const clearSidebarDrag = () => {
+        if (rootDropRevealFrame !== null) cancelAnimationFrame(rootDropRevealFrame);
+        rootDropRevealFrame = null;
+        draggedSidebarPaths = [];
+        rootDrop.hidden = true;
+        rootDrop.classList.remove('is-drop-target');
+    };
     const rootDropPlan = () => sidebarDropPlan({draggedPaths: draggedSidebarPaths, target: {kind: 'root', directoryPath: null}}, pagesByPath, pagesById, directories);
     const acceptRootDrop = event => {
         if (!rootDropPlan() || actionRunning || actionDialog.open) return;
@@ -24,10 +32,11 @@ function initializeSidebar() {
     rootDrop.addEventListener('dragleave', () => rootDrop.classList.remove('is-drop-target'));
     rootDrop.addEventListener('drop', event => {
         event.preventDefault();
-        const plan = rootDropPlan(); rootDrop.classList.remove('is-drop-target'); draggedSidebarPaths = [];
+        const plan = rootDropPlan(); clearSidebarDrag();
         if (plan) showFileAction('rename', {id: plan.id, scope: plan.scope}, host, plan.destination);
     });
-    window.addEventListener('dragend', () => { draggedSidebarPaths = []; rootDrop.classList.remove('is-drop-target'); });
+    window.addEventListener('dragend', clearSidebarDrag, true);
+    window.addEventListener('drop', clearSidebarDrag);
     const tagList = document.getElementById('fokus-tag-list');
     const filter = document.getElementById('fokus-sidebar-filter');
     const filterArea = document.getElementById('fokus-sidebar-filter-area');
@@ -667,18 +676,28 @@ function initializeSidebar() {
                         canDrag: paths => {
                             if (actionRunning || actionDialog.open || paths.length !== 1) return false;
                             draggedSidebarPaths = [...paths];
+                            // Wait until the native drag has started before changing
+                            // the layout around its source row (notably in Firefox).
+                            rootDropRevealFrame = requestAnimationFrame(() => {
+                                rootDropRevealFrame = null;
+                                rootDrop.hidden = draggedSidebarPaths.length === 0;
+                            });
                             return true;
                         },
                         canDrop: context => !actionRunning && !actionDialog.open && !!sidebarDropPlan(context, pagesByPath, pagesById, directories),
                         openOnDropDelay: 600,
                         onDropComplete: context => {
                             const plan = sidebarDropPlan(context, pagesByPath, pagesById, directories);
+                            clearSidebarDrag();
                             // Trees moves its in-memory paths first. Restore them synchronously:
                             // only the server's confirmed result may change the visible files.
                             tree.resetPaths(allTreePaths, {initialExpandedPaths: state.expanded || []});
                             if (plan) showFileAction('rename', {id: plan.id, scope: plan.scope}, host, plan.destination);
                         },
-                        onDropError: () => status(panels.files, 'Could not move this item. Use Rename from its menu to choose a destination.'),
+                        onDropError: () => {
+                            clearSidebarDrag();
+                            status(panels.files, 'Could not move this item. Use Rename from its menu to choose a destination.');
+                        },
                     } : false,
                     // The public decoration renderer supplies display labels while
                     // canonical paths remain the tree's identity for every action.
