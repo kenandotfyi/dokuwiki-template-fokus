@@ -1,0 +1,14 @@
+/* Keep the entire Fokus interface square, including plugin UI and overlays. */
+:root {
+    --fokus-radius: 0px !important;
+    --fokus-control-radius: 0px !important;
+}
+
+html,
+html *,
+html::before,
+html::after,
+html *::before,
+html *::after {
+    border-radius: 0 !important;
+}
