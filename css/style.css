@@ -191,6 +191,11 @@ html, body {
     white-space: nowrap;
 }
 
+.topBanner .fokus-page-title {
+    font-family: 'JetBrains Mono Variable', monospace;
+    font-size: 0.95rem;
+}
+
 .fokus-page-id {
     display: none;
     color: var(--fokus-muted);
