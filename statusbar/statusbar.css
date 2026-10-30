@@ -22,6 +22,9 @@ body.fokus-has-statusbar #fokus-sidebar { height: calc(100dvh - var(--fokus-stat
 #fokus-statusbar::-webkit-scrollbar { display: none; }
 #fokus-statusbar [hidden] { display: none !important; }
 #fokus-statusbar .fokus-status-item { display: inline-flex; align-items: center; flex: 0 0 auto; gap: 5px; height: 100%; }
+#fokus-statusbar .fokus-sidebar-toggle { flex: 0 0 22px; width: 22px; height: 22px; padding: 2px; margin: 0 0 0 -6px; border: 0; border-radius: var(--fokus-control-radius); background: transparent; color: var(--fokus-muted); cursor: pointer; }
+#fokus-statusbar .fokus-sidebar-toggle:hover { background: var(--fokus-accent-soft); color: var(--fokus-text); }
+#fokus-statusbar .fokus-sidebar-toggle:focus-visible { outline: 1px solid var(--fokus-accent); outline-offset: -1px; }
 #fokus-statusbar img { width: 14px; height: 14px; opacity: .7; }
 html[data-theme="dark"] #fokus-statusbar img { filter: invert(1); }
 .fokus-status-syncs { display: inline-flex; align-items: center; flex: 0 0 auto; gap: 12px; height: 100%; margin-inline-start: auto; }

@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePaneOverflow() {
         if (!viewport) return;
         const gutter = Number.parseFloat(
-            window.getComputedStyle(document.documentElement).getPropertyValue('--fokus-page-gutter')
+            window.getComputedStyle(document.body).getPropertyValue('--fokus-page-gutter')
         ) || 0;
         // Compare against the viewport width with the left gutter removed. This
         // keeps overflow detection stable as the padding changes the viewport width.
@@ -402,8 +402,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const minimized = workspaceZoomPane ? pane !== workspaceZoomPane : pane.classList.contains('infinitepanels-pane-minimized')
                 || (document.body.classList.contains('infinitepanels-focused') && !focusedPaneIndexes.has(index));
             spine.dataset.paneIndex = String(index + 1);
+            spine.dataset.provider = pane.dataset.provider || 'wiki';
             spine.dataset.state = minimized ? 'minimized' : 'open';
             spine.dataset.current = String(workspaceZoomPane ? pane === workspaceZoomPane : index === focusedPaneIndex);
+            // The active tab sits above every neighbor; keep the others in shelf order.
+            spine.style.zIndex = String(spine.dataset.current === 'true'
+                ? paneElements.length + 1 : paneElements.length - index);
             const paneTitle = spine.querySelector('.infinitepanels-spine-label')?.textContent || pane.dataset.pageId || '';
             spine.title = `${paneTitle} · ${minimized ? 'Minimized' : 'Open'}`;
             spine.setAttribute('aria-label', `${minimized ? 'Restore' : 'Show'} ${paneTitle} (${minimized ? 'minimized' : 'open'})`);

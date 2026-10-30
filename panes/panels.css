@@ -67,20 +67,23 @@
 }
 
 .infinitepanels-pane[data-provider="wikipedia"] .topBanner {
-    background: #3366cc;
-    border-color: #3366cc;
-    color: #fff;
+    background: #71D1B3;
+    border-color: #71D1B3;
+    color: #173a30;
 }
 html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner a.fokus-page-title,
 html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner button {
-    color: #fff !important;
+    color: #173a30 !important;
+}
+html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner a.fokus-page-title {
+    text-decoration: none !important;
 }
 html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner a.fokus-page-title:hover,
 html[data-theme] .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner button:hover {
-    background-color: #2a4b8d !important;
+    background-color: #5ABF9F !important;
 }
 html .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner :focus-visible {
-    outline: 2px solid #fff;
+    outline: 2px solid #173a30;
     outline-offset: 2px;
 }
 .infinitepanels-pane .fokus-wikipedia-content {
@@ -98,6 +101,7 @@ html .dokuwiki .infinitepanels-pane[data-provider="wikipedia"] .topBanner :focus
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-decoration: none;
 }
 
 body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hover) > .infinitepanels-pane:not(:hover) {
@@ -108,106 +112,8 @@ body.infinitepanels-active .infinitepanels-panes:has(> .infinitepanels-pane:hove
     display: none;
 }
 
-.infinitepanels-minimized-shelf {
-    position: static !important;
-    display: flex;
-    align-items: center;
-    flex: 1 1 auto;
-    gap: 6px;
-    box-sizing: border-box;
-    width: auto;
-    min-width: 0;
-    min-height: 32px;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow-x: auto;
-    overflow-y: hidden;
-    background: transparent !important;
-    scrollbar-width: none;
-}
-
-.infinitepanels-minimized-shelf::-webkit-scrollbar {
-    display: none;
-}
-
 .infinitepanels-active #dokuwiki__header {
     display: block !important;
-}
-
-.infinitepanels-minimized-shelf:empty {
-    display: none;
-}
-
-.infinitepanels-minimized-shelf > .infinitepanels-spine {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 0.55rem;
-    box-sizing: border-box;
-    max-width: MIN(22rem, 75vw);
-    min-height: 30px;
-    padding: 0.35rem 0.65rem;
-    overflow: hidden;
-    border: 1px solid var(--fokus-border);
-    border-radius:var(--fokus-control-radius);
-    background: var(--fokus-surface-soft);
-    color: var(--fokus-text);
-    cursor: pointer;
-    font-family: var(--fokus-body-font);
-    font-size: 0.85rem;
-    font-weight: 400;
-    text-align: left;
-    white-space: nowrap;
-}
-
-.infinitepanels-minimized-shelf > .infinitepanels-spine[data-state="open"] {
-    background: var(--fokus-surface);
-    border-color: var(--fokus-border-tone-d5);
-}
-
-.infinitepanels-minimized-shelf > .infinitepanels-spine[data-state="minimized"] {
-    background: var(--fokus-surface-soft);
-    color: var(--fokus-muted);
-    opacity: 0.82;
-}
-
-.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"] {
-    background: var(--fokus-accent);
-    border-color: var(--fokus-accent);
-    color: var(--fokus-on-accent);
-    opacity: 1;
-}
-
-.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"] .infinitepanels-spine-pageid {
-    color: var(--fokus-on-accent);
-}
-
-.infinitepanels-minimized-shelf .infinitepanels-spine-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.infinitepanels-minimized-shelf .infinitepanels-spine-pageid {
-    max-width: 10rem;
-    overflow: hidden;
-    color: var(--fokus-muted);
-    font-family: var(--fokus-code-font);
-    opacity: 0.8;
-    font-size: 0.7rem;
-    font-style: italic;
-    text-overflow: ellipsis;
-}
-
-.infinitepanels-minimized-shelf > .infinitepanels-spine:not([data-current="true"]):hover,
-.infinitepanels-minimized-shelf > .infinitepanels-spine:not([data-current="true"]):focus-visible {
-    background: var(--fokus-accent-soft);
-    border-color: var(--fokus-accent);
-}
-
-.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"]:hover,
-.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"]:focus-visible {
-    background: var(--fokus-accent);
 }
 
 .infinitepanels-focus-toggle {

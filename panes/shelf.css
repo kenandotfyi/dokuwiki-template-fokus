@@ -1,0 +1,168 @@
+/* Compact overlapping workspace tabs, using native CSS geometry. */
+body.infinitepanels-active #dokuwiki__header > .pad.group {
+    min-height: 24px;
+    align-items: stretch;
+    margin-block: 0;
+}
+body.infinitepanels-active .fokus-workspace-bar {
+    align-items: stretch;
+    margin-block: 0;
+    padding-block: 0;
+}
+.infinitepanels-minimized-shelf {
+    position: static !important;
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+    gap: 0;
+    box-sizing: border-box;
+    width: auto;
+    min-width: 0;
+    min-height: 28px;
+    margin: 0 !important;
+    padding: 4px 0 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: transparent !important;
+    scrollbar-width: none;
+}
+
+.infinitepanels-minimized-shelf::-webkit-scrollbar {
+    display: none;
+}
+
+.infinitepanels-minimized-shelf:empty {
+    display: none;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine {
+    --shelf-tab-fill: var(--fokus-surface-soft);
+    --shelf-tab-edge: var(--fokus-border);
+    position: relative;
+    display: flex;
+    align-self: stretch;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0;
+    box-sizing: border-box;
+    max-width: MIN(15rem, 65vw);
+    min-height: 24px;
+    margin: 0;
+    padding: 2px 18px 2px 12px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+    background: var(--shelf-tab-edge);
+    color: var(--fokus-text);
+    cursor: pointer;
+    font-family: var(--fokus-code-font);
+    font-size: 0.85rem;
+    font-weight: 400;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px 0;
+    clip-path: polygon(0 0, calc(100% - 9.4px) 0, 100% 9.4px, 100% 100%, 0 100%);
+    background: var(--shelf-tab-fill);
+    z-index: -1;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine:first-child::before {
+    inset-inline-start: 0;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine + .infinitepanels-spine {
+    margin-inline-start: -6px;
+    padding-inline-start: 16px;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine:focus-visible {
+    outline: none;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-state="open"] {
+    --shelf-tab-fill: var(--fokus-surface);
+    background: var(--shelf-tab-edge);
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-state="minimized"] {
+    background: var(--shelf-tab-edge);
+    color: var(--fokus-muted);
+    opacity: 1;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"] {
+    --shelf-tab-fill: var(--fokus-accent-soft);
+    --shelf-tab-edge: var(--fokus-banner-border);
+    background: var(--shelf-tab-edge);
+    color: var(--fokus-text);
+    opacity: 1;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"] .infinitepanels-spine-pageid {
+    color: var(--fokus-on-accent);
+}
+
+.infinitepanels-minimized-shelf .infinitepanels-spine-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine:focus-visible .infinitepanels-spine-label {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.infinitepanels-minimized-shelf .infinitepanels-spine-pageid {
+    display: none;
+    max-width: 10rem;
+    overflow: hidden;
+    color: var(--fokus-muted);
+    font-family: var(--fokus-code-font);
+    opacity: 0.8;
+    font-size: 0.7rem;
+    font-style: italic;
+    text-overflow: ellipsis;
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine:not([data-current="true"]):hover,
+.infinitepanels-minimized-shelf > .infinitepanels-spine:not([data-current="true"]):focus-visible {
+    --shelf-tab-fill: var(--fokus-accent-soft);
+    background: var(--shelf-tab-edge);
+}
+
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"]:hover,
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-current="true"]:focus-visible {
+    --shelf-tab-fill: var(--fokus-accent-soft);
+    background: var(--shelf-tab-edge);
+}
+
+/* Match Wikipedia panes while retaining a darker active tab. */
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-provider="wikipedia"] {
+    --shelf-tab-fill: #71D1B3;
+    --shelf-tab-edge: #71D1B3;
+    color: #173a30;
+}
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-provider="wikipedia"][data-state="minimized"] {
+    --shelf-tab-fill: #a3e4d1;
+    --shelf-tab-edge: #a3e4d1;
+}
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-provider="wikipedia"]:hover,
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-provider="wikipedia"]:focus-visible {
+    --shelf-tab-fill: #5ABF9F;
+}
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-provider="wikipedia"][data-current="true"] {
+    --shelf-tab-fill: #5ABF9F;
+    --shelf-tab-edge: var(--fokus-banner-border);
+}
+.infinitepanels-minimized-shelf > .infinitepanels-spine[data-provider="wikipedia"][data-current="true"]:hover {
+    --shelf-tab-fill: #45AE8E;
+    --shelf-tab-edge: var(--fokus-banner-border);
+}
+

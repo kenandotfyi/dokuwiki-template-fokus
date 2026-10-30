@@ -1,5 +1,5 @@
 <?php
-/** Build plain, content-addressed assets; no runtime Node dependency or URL query flags. */
+/** Build search assets with a stable CSS filename for prototyping. */
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 $root = dirname(__DIR__) . '/search';
 $directory = $root . '/dist';
@@ -10,7 +10,7 @@ foreach (['format.js', 'palette.js', 'zotero.js'] as $file) $script .= file_get_
 $style = file_get_contents($root . '/palette.css');
 $manifest = [];
 foreach (['script' => [$script, 'js'], 'style' => [$style, 'css']] as $kind => [$source, $extension]) {
-    $name = 'search-' . substr(hash('sha256', $source), 0, 12) . '.' . $extension;
+    $name = $extension === 'css' ? 'search.css' : 'search-' . substr(hash('sha256', $source), 0, 12) . '.' . $extension;
     if (file_put_contents($directory . '/' . $name, $source) === false) throw new RuntimeException('Could not write search asset.');
     $manifest[$kind] = $name;
 }

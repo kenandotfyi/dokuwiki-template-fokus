@@ -45,12 +45,12 @@ $paneAdapters = ['annotations', 'katex'];
     <?php endif; ?>
     <?php require __DIR__ . '/search/assets.php'; ?>
     <script src="<?php echo tpl_basedir(); ?>references.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/references.js'), 0, 12); ?>" defer></script>
-    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/references.css?v=<?php echo substr(hash_file('sha256', __DIR__ . '/css/references.css'), 0, 12); ?>">
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/references.css">
     <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>css/selection-search.css">
     <script src="<?php echo tpl_basedir(); ?>selection-search.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/selection-search.js'), 0, 12); ?>" defer></script>
     <?php tpl_metaheaders() ?>
     <?php if ($statusbarEnabled) : ?>
-    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>statusbar/statusbar.css?v=<?php echo substr(hash_file('sha256', __DIR__ . '/statusbar/statusbar.css'), 0, 12); ?>">
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>statusbar/statusbar.css">
     <script src="<?php echo tpl_basedir(); ?>statusbar/statusbar.js?v=<?php echo substr(hash_file('sha256', __DIR__ . '/statusbar/statusbar.js'), 0, 12); ?>" defer></script>
     <?php endif; ?>
     <style>
@@ -58,7 +58,8 @@ $paneAdapters = ['annotations', 'katex'];
     </style>
     <?php require_once __DIR__ . '/appearance.php'; fokus_appearance_styles(); ?>
     <?php if ($panesEnabled) : ?>
-    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>panes/layout.css?v=<?php echo substr(hash_file('sha256', __DIR__ . '/panes/layout.css'), 0, 12); ?>">
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>panes/layout.css">
+    <link rel="stylesheet" href="<?php echo tpl_basedir(); ?>panes/shelf.css">
     <script>window.InfinitePanelsConfig = <?php echo json_encode([
         'pageId' => $ID,
         'startPageId' => $conf['start'],
