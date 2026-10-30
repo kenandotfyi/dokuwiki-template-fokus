@@ -869,6 +869,37 @@ document.addEventListener('DOMContentLoaded', () => {
             actions.appendChild(link);
         });
 
+        if (pane.dataset.provider === 'wikipedia' && pageId.startsWith('wp.')
+            && !actions.querySelector('.infinitepanels-copy-interwiki')) {
+            const copyButton = document.createElement('button');
+            copyButton.type = 'button';
+            copyButton.className = 'infinitepanels-copy-interwiki';
+            copyButton.title = 'Copy interwiki link';
+            copyButton.setAttribute('aria-label', copyButton.title);
+            copyButton.appendChild(createPhosphorIcon('copy'));
+            let resetTimer;
+            copyButton.addEventListener('click', async () => {
+                copyButton.disabled = true;
+                let message;
+                try {
+                    await copyPaneInterwikiLink(pane);
+                    message = 'Interwiki link copied';
+                } catch (_) {
+                    message = 'Could not copy link. Try again.';
+                } finally {
+                    copyButton.disabled = false;
+                }
+                copyButton.title = message;
+                copyButton.setAttribute('aria-label', message);
+                clearTimeout(resetTimer);
+                resetTimer = setTimeout(() => {
+                    copyButton.title = 'Copy interwiki link';
+                    copyButton.setAttribute('aria-label', copyButton.title);
+                }, 2000);
+            });
+            actions.appendChild(copyButton);
+        }
+
         if (includePaneActions && !actions.querySelector('.infinitepanels-open')) {
             const openButton = document.createElement('button');
             openButton.type = 'button';
@@ -952,9 +983,40 @@ document.addEventListener('DOMContentLoaded', () => {
         return icon;
     }
 
+    async function copyPaneInterwikiLink(pane) {
+        const match = /^wp\.([a-z][a-z0-9-]{0,30})\.(.+)$/.exec(pane.dataset.pageId || '');
+        if (!match) throw new Error('Not a Wikipedia article');
+        const [, language, article] = match;
+        const prefix = { en: 'wp', fr: 'wpfr', de: 'wpde', es: 'wpes', pl: 'wppl', ja: 'wpjp', ru: 'wpru', meta: 'wpmeta' }[language] || 'wp';
+        const target = (prefix === 'wp' && language !== 'en' ? `${language}:` : '')
+            + article.replace(/[\s\[\]{}|<>]/g, character => encodeURIComponent(character));
+        const label = (pane.querySelector('.fokus-page-title')?.textContent || article.split('#')[0].replaceAll('_', ' '))
+            .replace(/[\r\n\[\]{}<>|]/g, ' ').replace(/\s+/g, ' ').trim();
+        const text = `[[${prefix}>${target}|${label}]]`;
+        try {
+            if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+            await navigator.clipboard.writeText(text);
+        } catch (_) {
+            const previousFocus = document.activeElement;
+            const field = document.createElement('textarea');
+            field.value = text;
+            field.style.position = 'fixed';
+            field.style.opacity = '0';
+            document.body.appendChild(field);
+            try {
+                field.select();
+                if (!document.execCommand('copy')) throw new Error('Copy failed');
+            } finally {
+                field.remove();
+                previousFocus?.focus({ preventScroll: true });
+            }
+        }
+    }
+
     // Phosphor Icons Duotone SVG paths, from @phosphor-icons/core (MIT).
     function createPhosphorIcon(name) {
         const icons = {
+            'copy': `<path d="M216,40V168H168V88H88V40Z" opacity="0.2"/><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/>`,
             'notebook': `<path d="M48,32H176A24,24 0 0 1 200,56V216A8,8 0 0 1 192,224H64A32,32 0 0 1 32,192V48A16,16 0 0 1 48,32Z" opacity="0.2"/><path d="M176,24H48A24,24 0 0 0 24,48V192A40,40 0 0 0 64,232H192A16,16 0 0 0 208,216V56A32,32 0 0 0 176,24ZM40,48A8,8 0 0 1 48,40H176A16,16 0 0 1 192,56V208H64A24,24 0 0 1 40,184ZM192,216H64A24,24 0 0 1 40,192.2 39.7,39.7 0 0 0 64,200H192ZM72,72H160A8,8 0 0 1 160,88H72A8,8 0 0 1 72,72ZM72,112H160A8,8 0 0 1 160,128H72A8,8 0 0 1 72,112ZM72,152H136A8,8 0 0 1 136,168H72A8,8 0 0 1 72,152Z"/>`,
             'text-t': `<path d="M32,40H224V80H144V216H112V80H32Z"/><path d="M40,48H216V72H40Z" opacity="0.2"/>`,
             'magnifying-glass': `<g opacity="0.2"><circle cx="115.99512" cy="116" r="84"/></g><path d="M229.64648,218.34424l-43.2229-43.2229a92.111,92.111,0,1,0-11.31445,11.31347l43.2229,43.2229a8.00018,8.00018,0,1,0,11.31445-11.31347ZM39.99512,116a76,76,0,1,1,76,76A76.08614,76.08614,0,0,1,39.99512,116Z"/>`,
