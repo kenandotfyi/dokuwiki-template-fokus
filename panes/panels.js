@@ -715,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    function addPaneControls(pane, pageId, parsedDocument, includePaneActions = true, includeZoomAction = includePaneActions) {
+    function addPaneControls(pane, pageId, parsedDocument, includePaneActions = true) {
         const topBanner = pane.querySelector('.topBanner');
         let actions = pane.querySelector('.infinitepanels-actions');
         if (!actions) {
@@ -923,17 +923,6 @@ document.addEventListener('DOMContentLoaded', () => {
             focusButton.setAttribute('aria-pressed', 'false');
             focusButton.appendChild(createPhosphorIcon('cube-focus'));
             actions.appendChild(focusButton);
-        }
-
-        if (includeZoomAction && !actions.querySelector('.infinitepanels-zoom')) {
-            const zoomButton = document.createElement('button');
-            zoomButton.type = 'button';
-            zoomButton.className = 'infinitepanels-zoom';
-            zoomButton.title = 'Zoom pane';
-            zoomButton.setAttribute('aria-label', 'Zoom pane');
-            zoomButton.setAttribute('aria-pressed', 'false');
-            zoomButton.appendChild(createPhosphorIcon('magnifying-glass-plus'));
-            actions.appendChild(zoomButton);
         }
 
         if (includePaneActions && !actions.querySelector('.infinitepanels-close')) {
