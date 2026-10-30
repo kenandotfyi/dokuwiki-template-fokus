@@ -19,6 +19,9 @@ assert.throws(()=>f.reference({kind:'wikipedia',openUrl:'https://en.wikipedia.or
 assert.equal(f.reference({kind:'document',title:'App note',attachments:[{key:'PDF00001'}]}), '[[zotero>PDF00001|App note]]');
 assert.throws(()=>f.reference({kind:'document',title:'Multiple PDFs',attachments:[{key:'PDF00001'},{key:'PDF00002'}]}), /Choose a PDF/);
 assert.throws(()=>f.reference({kind:'wiki',title:'Injection',key:'page]] ~~TODOS~~'}), /Invalid wiki/);
+assert.equal(f.reference({kind:'wikipedia',openUrl:'https://de.wikipedia.org/wiki/Elektrischer_Kondensator',title:'Elektrischer Kondensator'}), '[[wpde>Elektrischer_Kondensator|Elektrischer Kondensator]]');
+assert.throws(()=>f.reference({kind:'wikipedia',openUrl:'https://de.wikipedia.org.evil.test/wiki/Test',title:'Bad'}), /Invalid Wikipedia/);
+assert.throws(()=>f.reference({kind:'wikipedia',openUrl:'https://user@de.wikipedia.org/wiki/Test',title:'Bad'}), /Invalid Wikipedia/);
 const attack = {...annotation, text:'~~TODOS~~\n</nowiki>**literal**\n<script>alert(1)</script>\n%%plaintext%%', comment:'{{todoistcompanion>Attack|id=bad}}'};
 const fixtures = {normal:f.annotation(annotation,true), attack:f.annotation(attack,true), safeLabel:f.reference({...annotation,title:'Title ]] | {{tag>oops}} <script>'})};
 if (process.argv[2]) fs.writeFileSync(process.argv[2], JSON.stringify(fixtures));

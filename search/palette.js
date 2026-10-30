@@ -49,13 +49,24 @@
         if (config.wikipedia) providers.set('wikipedia', {
             id: 'wikipedia', label: 'Wikipedia', includeInAll: false,
             async search(query, options) {
-                const response = await fetch(DOKU_BASE + 'lib/exe/ajax.php?call=fokusbutler_content', {
-                    method: 'POST', credentials: 'same-origin', signal: options.signal,
-                    body: new URLSearchParams({ provider: 'wikipedia-search', language: 'en', query })
-                });
-                const data = await response.json();
-                if (!response.ok || !data.ok) throw new Error(data.error || 'Wikipedia search is unavailable.');
-                return { results: data.results.map(row => ({ kind: 'wikipedia', key: row.url, title: row.title, text: row.excerpt || row.description, openUrl: row.url })), hasMore: false };
+                const languages = ['en', 'de'];
+                const searches = await Promise.allSettled(languages.map(async language => {
+                    const response = await fetch(DOKU_BASE + 'lib/exe/ajax.php?call=fokusbutler_content', {
+                        method: 'POST', credentials: 'same-origin', signal: options.signal,
+                        body: new URLSearchParams({ provider: 'wikipedia-search', language, query })
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.ok) throw new Error(data.error || 'Wikipedia search is unavailable.');
+                    return data.results.map(row => ({ kind: 'wikipedia', key: row.url, title: row.title, text: row.excerpt || row.description, openUrl: row.url, language }));
+                }));
+                if (searches.every(search => search.status === 'rejected')) throw searches[0].reason;
+                const editions = searches.map(search => search.status === 'fulfilled' ? search.value : []);
+                const results = [];
+                for (let rank = 0; rank < Math.max(...editions.map(rows => rows.length)); rank++) {
+                    editions.forEach(rows => { if (rows[rank]) results.push(rows[rank]); });
+                }
+                const unavailable = searches.flatMap((search, index) => search.status === 'rejected' ? [languages[index].toUpperCase()] : []);
+                return { results, hasMore: false, warning: unavailable.length ? 'Wikipedia ' + unavailable.join(', ') + ' search is unavailable. Showing the other edition.' : null };
             }
         });
         if (window.FokusAIConfig) providers.set('aichat', {
@@ -207,6 +218,7 @@
                 state.rows = append ? state.rows.concat(incoming.filter(row => !state.rows.some(old => uid(old) === uid(row)))) : incoming;
                 state.total = Number.isFinite(data.total) ? data.total : state.rows.length;
                 state.hasMore = Boolean(data.hasMore) && incoming.length > 0 && state.rows.length < 1000;
+                state.error = data.warning || null;
             } catch (error) {
                 if (id !== revision || error.name === 'AbortError') return;
                 state.error = error.message || 'Search could not be loaded.';
@@ -265,7 +277,7 @@
                         } else {
                             body.append(title);
                             const documentType = (row.itemType || '').replace(/([a-z])([A-Z])/g, '$1 $2');
-                            const metadata = row.kind === 'jots' ? [row.state === 'ARCHIVED' ? 'Archived' : 'Active', ...(row.tags || []).map(tag => '#' + tag)].join(' · ') : row.kind === 'annotation'
+                            const metadata = row.kind === 'wikipedia' ? (row.language === 'de' ? 'German Wikipedia' : 'English Wikipedia') : row.kind === 'jots' ? [row.state === 'ARCHIVED' ? 'Archived' : 'Active', ...(row.tags || []).map(tag => '#' + tag)].join(' · ') : row.kind === 'annotation'
                                 ? row.title + (row.pageLabel ? ' · p. ' + row.pageLabel : '')
                                 : [row.collections && row.collections.join(', '), documentType].filter(Boolean).join(' · ');
                             const meta = node('div', 'fokus-search-result-meta');
@@ -331,7 +343,7 @@
             preview.replaceChildren();
             actions.replaceChildren();
             if (!row) { preview.append(node('p', 'fokus-search-preview-empty', 'Select a result to see its details and actions.')); return; }
-            const eyebrow = node('div', 'fokus-search-preview-kind', row.kind === 'aichat' ? 'SAVED AI CONVERSATION' : row.kind === 'jots' ? 'JOT' : row.kind === 'wikipedia' ? 'WIKIPEDIA' : row.kind === 'wiki' ? 'WIKI PAGE' : row.kind === 'document' ? 'ZOTERO DOCUMENT' : 'ZOTERO ANNOTATION');
+            const eyebrow = node('div', 'fokus-search-preview-kind', row.kind === 'aichat' ? 'SAVED AI CONVERSATION' : row.kind === 'jots' ? 'JOT' : row.kind === 'wikipedia' ? (row.language === 'de' ? 'GERMAN WIKIPEDIA' : 'ENGLISH WIKIPEDIA') : row.kind === 'wiki' ? 'WIKI PAGE' : row.kind === 'document' ? 'ZOTERO DOCUMENT' : 'ZOTERO ANNOTATION');
             preview.append(eyebrow, node('h3', 'fokus-search-preview-title', row.title));
             if (row.kind === 'jots') {
                 const created = Date.parse(row.date || '');
